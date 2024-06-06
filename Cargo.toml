@@ -1,7 +1,25 @@
 [package]
 name = "tasha"
 version = "0.1.0"
+authors = ["Xu Shaohua <shaohua@biofan.org>"]
+description = "Distributed in-memory cache service"
 edition = "2021"
+categories = [
+  "concurrency",
+  "network-programming",
+]
+keywords = [
+  "cache",
+  "distributed",
+  "memory",
+  "redis",
+]
+repository = "https://github.com/xushaohua/tasha"
+homepage = "https://github.com/xushaohua/tasha"
+license = "AGPL-3.0-or-later"
+readme = "./README.md"
+rust-version = "1.78.0"
+publish = false
 
 [dependencies]
 bytes = "1.6.0"

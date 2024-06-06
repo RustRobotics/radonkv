@@ -9,13 +9,18 @@
     clippy::nursery,
     clippy::pedantic
 )]
+#![allow(
+    clippy::missing_errors_doc,
+    clippy::module_name_repetitions,
+    clippy::multiple_crate_versions
+)]
 
 pub mod cluster;
 pub mod cmd;
 pub mod config;
-pub mod error;
-pub mod server;
-pub mod listener;
 pub mod dispatcher;
+pub mod error;
+pub mod listener;
 pub mod mem;
+pub mod server;
 pub mod storage;

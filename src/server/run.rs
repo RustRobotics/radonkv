@@ -9,6 +9,6 @@ pub fn handle_cmdline() -> Result<(), Error> {
     todo!()
 }
 
-pub fn run_server_with_config(_config: Config) -> Result<(), Error> {
+pub fn run_server_with_config(_config: &Config) -> Result<(), Error> {
     todo!()
 }
