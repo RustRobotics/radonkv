@@ -3,7 +3,7 @@
 // that can be found in the LICENSE file.
 
 use std::fmt;
-use std::fmt::Formatter;
+use std::io;
 
 #[derive(Debug, Clone)]
 pub struct Error {
@@ -14,10 +14,11 @@ pub struct Error {
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub enum ErrorKind {
     ConfigError,
+    IoError,
 }
 
 impl fmt::Display for Error {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "Error kind: {:?}, msg: {}", self.kind, self.message)
     }
 }
@@ -31,6 +32,15 @@ impl Error {
         Self {
             kind,
             message,
+        }
+    }
+}
+
+impl From<io::Error> for Error {
+    fn from(err: io::Error) -> Self {
+        Self {
+            kind: ErrorKind::IoError,
+            message: format!("{err:?}"),
         }
     }
 }
