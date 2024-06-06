@@ -24,7 +24,7 @@ impl Config {
     }
 
     pub fn validate(&self) -> Result<(), Error> {
-        for listener in self.listeners.iter() {
+        for listener in &self.listeners {
             listener.validate()?;
         }
         Ok(())

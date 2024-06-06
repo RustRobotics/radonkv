@@ -1,0 +1,4 @@
+[[listeners]]
+address = "0.0.0.0:6379"
+max_keepalive = 120
+max_connections = 0

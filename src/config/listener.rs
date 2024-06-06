@@ -10,26 +10,46 @@ use crate::error::{Error, ErrorKind};
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Listener {
-    #[serde(default = "Listener::default_bind_device")]
-    bind_device: String,
-
     /// Binding address, including domain name and port.
     ///
     /// Default is `0.0.0.0:6379`.
     #[serde(default = "Listener::default_address")]
     address: String,
+
+    #[serde(default = "Listener::default_bind_device")]
+    bind_device: String,
+
+    /// Connection keepalive timeout in seconds.
+    ///
+    /// Default is 60s.
+    #[serde(default = "Listener::default_keepalive")]
+    keepalive: u16,
+
+    /// The maximum number of client connections to this listener allowed.
+    ///
+    /// Default is 0, which means unlimited.
+    #[serde(default = "Listener::default_max_connections")]
+    max_connections: usize,
 }
 
 impl Default for Listener {
     fn default() -> Self {
         Self {
-            bind_device: Self::default_bind_device(),
             address: Self::default_address(),
+            bind_device: Self::default_bind_device(),
+            keepalive: Self::default_keepalive(),
+            max_connections: Self::default_max_connections(),
         }
     }
 }
 
 impl Listener {
+    #[must_use]
+    #[inline]
+    pub fn address(&self) -> &str {
+        &self.address
+    }
+
     #[must_use]
     #[inline]
     pub fn bind_device(&self) -> &str {
@@ -38,8 +58,44 @@ impl Listener {
 
     #[must_use]
     #[inline]
-    pub fn address(&self) -> &str {
-        &self.address
+    pub const fn keepalive(&self) -> u16 {
+        self.keepalive
+    }
+
+    #[must_use]
+    #[inline]
+    pub const fn max_connections(&self) -> usize {
+        self.max_connections
+    }
+
+    #[must_use]
+    #[inline]
+    pub fn default_listeners() -> Vec<Self> {
+        vec![Self::default()]
+    }
+
+    #[must_use]
+    #[inline]
+    pub fn default_address() -> String {
+        "0.0.0.0:6379".to_owned()
+    }
+
+    #[must_use]
+    #[inline]
+    pub const fn default_bind_device() -> String {
+        String::new()
+    }
+
+    #[must_use]
+    #[inline]
+    pub const fn default_keepalive() -> u16 {
+        60
+    }
+
+    #[must_use]
+    #[inline]
+    pub const fn default_max_connections() -> usize {
+        0
     }
 
     pub fn validate(&self) -> Result<(), Error> {
@@ -51,23 +107,5 @@ impl Listener {
         } else {
             Ok(())
         }
-    }
-
-    #[must_use]
-    #[inline]
-    pub fn default_listeners() -> Vec<Self> {
-        vec![Self::default()]
-    }
-
-    #[must_use]
-    #[inline]
-    pub const fn default_bind_device() -> String {
-        String::new()
-    }
-
-    #[must_use]
-    #[inline]
-    pub fn default_address() -> String {
-        "0.0.0.0:6379".to_owned()
     }
 }
