@@ -2,13 +2,12 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
-pub use internal::*;
-
-#[cfg(unix)]
-#[path = "socket_unix.rs"]
-mod internal;
-
-#[cfg(not(unix))]
-#[path = "socket_windows.rs"]
-mod internal;
-
+#[derive(Debug, Default, Clone, Copy, Eq, PartialEq)]
+pub enum Status {
+    #[default]
+    Invalid,
+    Connecting,
+    Connected,
+    Disconnecting,
+    Disconnected,
+}

@@ -4,10 +4,9 @@
 
 use tokio::sync::mpsc::Receiver;
 
-use crate::dispatcher::commands::ListenerToDispatcherCmd;
+use crate::commands::ListenerToDispatcherCmd;
 
 mod listener;
-mod commands;
 
 #[derive(Debug)]
 pub struct Dispatcher {

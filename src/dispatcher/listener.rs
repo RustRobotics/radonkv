@@ -4,7 +4,7 @@
 
 use stdext::function_name;
 
-use crate::dispatcher::commands::ListenerToDispatcherCmd;
+use crate::commands::ListenerToDispatcherCmd;
 use crate::dispatcher::Dispatcher;
 
 impl Dispatcher {

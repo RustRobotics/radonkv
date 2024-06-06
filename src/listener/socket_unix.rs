@@ -59,8 +59,6 @@ fn enable_fast_open(socket_fd: RawFd) -> Result<(), Error> {
     // TODO(Shaohua): Add a config option
     let queue_len: i32 = 5;
     // For the others, just a boolean value for enable and disable.
-    #[cfg(not(unix))]
-        let queue_len: i32 = 1;
     let queue_len_ptr = std::ptr::addr_of!(queue_len) as usize;
 
     unsafe {

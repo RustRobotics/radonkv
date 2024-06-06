@@ -8,7 +8,7 @@ impl Listener {
     pub async fn run_loop(&mut self) -> ! {
         loop {
             tokio::select! {
-                Ok(stream) = self.connect() => {
+                Ok(stream) = self.accept() => {
                     self.new_connection(stream).await;
                 }
             }
