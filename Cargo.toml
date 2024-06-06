@@ -30,3 +30,6 @@ stdext = "0.3.3"
 thiserror = "1.0.61"
 tokio = { version = "1.38.0", features = ["full"] }
 toml = "0.8.14"
+
+[target.'cfg(unix)'.dependencies]
+nc = "0.8.21"

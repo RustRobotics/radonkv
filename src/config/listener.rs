@@ -8,6 +8,34 @@ use serde::Deserialize;
 
 use crate::error::{Error, ErrorKind};
 
+#[derive(Debug, Default, Clone, Copy, Eq, PartialEq, Deserialize)]
+pub enum Protocol {
+    /// Raw redis wire protocol in TCP.
+    #[serde(alias = "tcp")]
+    #[default]
+    Tcp,
+
+    /// TCP with TLS encryption.
+    #[serde(alias = "tls")]
+    Tls,
+
+    /// Websocket.
+    #[serde(alias = "ws")]
+    Ws,
+
+    /// Secure Websocket.
+    #[serde(alias = "wss")]
+    Wss,
+
+    /// QUIC protocol.
+    #[serde(alias = "quic")]
+    Quic,
+
+    /// Redis wire protocol through unix domain socket.
+    #[serde(alias = "uds")]
+    Uds,
+}
+
 #[derive(Debug, Clone, Deserialize)]
 pub struct Listener {
     /// Binding address, including domain name and port.
@@ -30,6 +58,12 @@ pub struct Listener {
     /// Default is 0, which means unlimited.
     #[serde(default = "Listener::default_max_connections")]
     max_connections: usize,
+
+    /// Binding protocol.
+    ///
+    /// Default is TCP.
+    #[serde(default = "Listener::default_protocol")]
+    protocol: Protocol,
 }
 
 impl Default for Listener {
@@ -39,6 +73,7 @@ impl Default for Listener {
             bind_device: Self::default_bind_device(),
             keepalive: Self::default_keepalive(),
             max_connections: Self::default_max_connections(),
+            protocol: Self::default_protocol(),
         }
     }
 }
@@ -70,6 +105,12 @@ impl Listener {
 
     #[must_use]
     #[inline]
+    pub const fn protocol(&self) -> Protocol {
+        self.protocol
+    }
+
+    #[must_use]
+    #[inline]
     pub fn default_listeners() -> Vec<Self> {
         vec![Self::default()]
     }
@@ -96,6 +137,12 @@ impl Listener {
     #[inline]
     pub const fn default_max_connections() -> usize {
         0
+    }
+
+    #[must_use]
+    #[inline]
+    pub const fn default_protocol() -> Protocol {
+        Protocol::Tcp
     }
 
     pub fn validate(&self) -> Result<(), Error> {

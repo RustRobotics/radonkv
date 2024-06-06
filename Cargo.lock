@@ -252,6 +252,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "nc"
+version = "0.8.21"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "388827c54cacb7f6604751c05dc9adf9ec9c1b35a6f50948e3d11049502481f3"
+dependencies = [
+ "cc",
+]
+
+[[package]]
 name = "num_cpus"
 version = "1.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -422,6 +431,7 @@ dependencies = [
  "bytes",
  "clap",
  "log",
+ "nc",
  "serde",
  "stdext",
  "thiserror",

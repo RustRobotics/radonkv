@@ -15,6 +15,8 @@ pub struct Error {
 pub enum ErrorKind {
     ConfigError,
     IoError,
+
+    KernelError,
 }
 
 impl fmt::Display for Error {

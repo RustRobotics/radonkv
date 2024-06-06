@@ -4,7 +4,7 @@
 
 use serde::Deserialize;
 
-pub use listener::Listener;
+pub use listener::{Listener, Protocol};
 
 use crate::error::Error;
 
