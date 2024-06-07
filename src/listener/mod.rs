@@ -50,6 +50,7 @@ impl Listener {
     }
 
     async fn new_connection(&mut self, stream: Stream) {
+        log::info!("Got new connection in listener: {}", self.id);
         let (sender, receiver) = mpsc::channel(CHANNEL_CAPACITY);
         let session_id = self.next_session_id();
         self.session_senders.insert(session_id, sender);
@@ -66,9 +67,10 @@ impl Listener {
 
     /// Bind to specific socket address.
     pub(super) async fn bind(id: ListenerId, listener_config: config::Listener) -> Result<Self, Error> {
-        let device = listener_config.bind_device();
-        let address = listener_config.address();
+        let device = listener_config.bind_device().to_owned();
+        let address = listener_config.address().to_owned();
         let (session_sender, session_receiver) = mpsc::channel(CHANNEL_CAPACITY);
+        let protocol = listener_config.protocol();
 
         let new_listener = |socket_listener: SocketListener| {
             Ok(Self {
@@ -83,10 +85,10 @@ impl Listener {
             })
         };
 
-        match listener_config.protocol() {
+        match protocol {
             Protocol::Tcp => {
                 log::info!("bind to tcp://{}", address);
-                let listener = new_tcp_listener(address, device).await?;
+                let listener = new_tcp_listener(&address, &device).await?;
                 new_listener(SocketListener::Tcp(listener))
             }
             Protocol::Tls => {

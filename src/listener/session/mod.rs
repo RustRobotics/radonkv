@@ -14,6 +14,8 @@ use crate::listener::types::SessionId;
 pub mod config;
 mod run;
 mod status;
+mod frame;
+mod listener;
 
 const BUF_SIZE: usize = 4096;
 
@@ -32,9 +34,9 @@ pub struct Session {
 impl Session {
     #[must_use]
     #[inline]
-    pub const fn new(id: SessionId, config: SessionConfig, stream: Stream,
-                     sender: Sender<SessionToListenerCmd>,
-                     receiver: Receiver<ListenerToSessionCmd>,
+    pub fn new(id: SessionId, config: SessionConfig, stream: Stream,
+               sender: Sender<SessionToListenerCmd>,
+               receiver: Receiver<ListenerToSessionCmd>,
     ) -> Self {
         Self {
             id,

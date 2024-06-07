@@ -5,6 +5,8 @@
 use std::fmt;
 use std::io;
 
+use crate::cmd::frame::ParsingFrameError;
+
 #[derive(Debug, Clone)]
 pub struct Error {
     kind: ErrorKind,
@@ -17,6 +19,8 @@ pub enum ErrorKind {
     IoError,
 
     KernelError,
+
+    FrameError,
 }
 
 impl fmt::Display for Error {
@@ -42,6 +46,15 @@ impl From<io::Error> for Error {
     fn from(err: io::Error) -> Self {
         Self {
             kind: ErrorKind::IoError,
+            message: format!("{err:?}"),
+        }
+    }
+}
+
+impl From<ParsingFrameError> for Error {
+    fn from(err: ParsingFrameError) -> Self {
+        Self {
+            kind: ErrorKind::FrameError,
             message: format!("{err:?}"),
         }
     }

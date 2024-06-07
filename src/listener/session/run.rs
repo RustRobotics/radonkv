@@ -4,15 +4,13 @@
 
 use std::time::Instant;
 
-use tokio::io::AsyncReadExt;
-
 use crate::listener::commands::SessionToListenerCmd;
 use crate::listener::session::Session;
 use crate::listener::session::status::Status;
 
 impl Session {
     pub async fn run_loop(mut self) {
-        let connect_timeout = Instant::now();
+        let _connect_timeout = Instant::now();
 
         loop {
             if self.status == Status::Disconnected {
@@ -22,10 +20,9 @@ impl Session {
 
             tokio::select! {
                 Ok(n_recv) = self.stream.read_buf(&mut self.buffer) => {
-                    log::info!("n_recv: {}", n_recv);
                     if n_recv > 0 {
-                        if let Err(err) = self.handle_client_packet().await {
-                            log::error!("handle_client_packet() failed: {:?}", err);
+                        if let Err(err) = self.handle_client_frame().await {
+                            log::error!("handle_client_frame() failed: {:?}", err);
                             break;
                         }
                         //buf.clear();

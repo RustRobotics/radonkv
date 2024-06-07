@@ -14,7 +14,7 @@ pub enum SocketListener {
 impl fmt::Debug for SocketListener {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let msg = match self {
-            Self::Tcp(..) => "Mqtt",
+            Self::Tcp(..) => "Tcp",
         };
         write!(f, "{msg}")
     }
