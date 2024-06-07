@@ -22,3 +22,11 @@ pub enum ListenerToDispatcherCmd {
 pub enum DispatcherToListenerCmd {
     Reply(ListenerId, Frame),
 }
+
+#[derive(Debug, Clone)]
+pub enum DispatcherToStorageCmd {
+    Flush,
+}
+
+#[derive(Debug, Clone)]
+pub enum StorageToDispatcherCmd {}

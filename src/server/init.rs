@@ -3,6 +3,7 @@
 // that can be found in the LICENSE file.
 
 use stdext::function_name;
+use tokio::runtime::Runtime;
 use tokio::sync::mpsc;
 
 use crate::dispatcher::Dispatcher;
@@ -10,9 +11,10 @@ use crate::error::Error;
 use crate::listener::Listener;
 use crate::listener::types::ListenerId;
 use crate::server::context::ServerContext;
+use crate::storage::Storage;
 
 impl ServerContext {
-    pub(crate) async fn init_modules(&mut self) -> Result<(), Error> {
+    pub(crate) async fn init_modules(&mut self, runtime: &Runtime) -> Result<(), Error> {
         log::info!("{}", function_name!());
 
         const CHANNEL_CAPACITY: usize = 16;
@@ -45,23 +47,38 @@ impl ServerContext {
         }
 
         for mut listener in listener_objs {
-            let handle = tokio::spawn(async move {
+            let handle = runtime.spawn(async move {
                 listener.run_loop().await;
             });
             handles.push(handle);
         }
+
+        // Storage module
+        let (storage_to_dispatcher_sender, storage_to_dispatcher_receiver) =
+            mpsc::channel(CHANNEL_CAPACITY);
+        let (dispatcher_to_storage_sender, dispatcher_to_storage_receiver) = mpsc::channel(CHANNEL_CAPACITY);
+        let mut storage = Storage::new(
+            storage_to_dispatcher_sender,
+            dispatcher_to_storage_receiver,
+        );
+        let storage_handle = runtime.spawn(async move {
+            storage.run_loop().await;
+        });
+        handles.push(storage_handle);
 
         // Dispatcher module
         let mut dispatcher = Dispatcher::new(
             // listeners module
             dispatcher_to_listener_senders,
             listeners_to_dispatcher_receiver,
+            // storage module
+            dispatcher_to_storage_sender,
+            storage_to_dispatcher_receiver,
         );
-        let dispatcher_handle = tokio::spawn(async move {
+        let dispatcher_handle = runtime.spawn(async move {
             dispatcher.run_loop().await;
         });
         handles.push(dispatcher_handle);
-
 
         Ok(())
     }

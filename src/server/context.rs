@@ -28,7 +28,7 @@ impl ServerContext {
         }
 
         runtime.block_on(async {
-            self.init_modules().await?;
+            self.init_modules(runtime).await?;
             self.run_inner_loop().await
         })
     }

@@ -2,4 +2,27 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
-mod manager;
+use tokio::sync::mpsc::{Receiver, Sender};
+
+use crate::commands::{DispatcherToStorageCmd, StorageToDispatcherCmd};
+
+mod run;
+mod dispatcher;
+
+#[derive(Debug)]
+pub struct Storage {
+    dispatcher_sender: Sender<StorageToDispatcherCmd>,
+    dispatcher_receiver: Receiver<DispatcherToStorageCmd>,
+}
+
+impl Storage {
+    pub const fn new(
+        dispatcher_sender: Sender<StorageToDispatcherCmd>,
+        dispatcher_receiver: Receiver<DispatcherToStorageCmd>,
+    ) -> Self {
+        Self {
+            dispatcher_sender,
+            dispatcher_receiver,
+        }
+    }
+}

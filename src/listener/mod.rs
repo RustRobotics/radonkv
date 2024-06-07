@@ -36,7 +36,7 @@ pub struct Listener {
     session_receiver: Option<Receiver<SessionToListenerCmd>>,
 
     dispatcher_sender: Sender<ListenerToDispatcherCmd>,
-    dispatcher_receiver: Receiver<DispatcherToListenerCmd>,
+    dispatcher_receiver: Option<Receiver<DispatcherToListenerCmd>>,
 }
 
 const CHANNEL_CAPACITY: usize = 16;
@@ -87,7 +87,7 @@ impl Listener {
                 session_receiver: Some(session_receiver),
 
                 dispatcher_sender,
-                dispatcher_receiver,
+                dispatcher_receiver: Some(dispatcher_receiver),
             })
         };
 
