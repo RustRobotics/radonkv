@@ -9,7 +9,9 @@ impl Dispatcher {
         loop {
             tokio::select! {
                 Some(cmd) = self.listener_receiver.recv() => {
-                    self.handle_listener_cmd(cmd).await;
+                    if let Err(err) = self.handle_listener_cmd(cmd).await {
+                        log::warn!("[dispatcher] Failed to handle listener cmd, got err: {err:?}");
+                    }
                 }
                 Some(cmd) = self.storage_receiver.recv() => {
                     self.handle_storage_cmd(cmd).await;
