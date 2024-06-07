@@ -11,6 +11,7 @@ use crate::cmd::frame::{Frame, ParsingFrameError};
 use crate::commands::SessionToListenerCmd;
 use crate::error::Error;
 use crate::session::Session;
+use crate::session::status::Status;
 
 impl Session {
     pub(crate) async fn handle_client_frame(&mut self) -> Result<(), Error> {
@@ -50,7 +51,8 @@ impl Session {
     }
 
     pub(crate) async fn send_disconnect(&mut self) -> Result<(), Error> {
-        todo!()
+        self.status = Status::Disconnecting;
+        Ok(())
     }
 
     fn parse_frame(&mut self) -> Result<Option<Frame>, Error> {

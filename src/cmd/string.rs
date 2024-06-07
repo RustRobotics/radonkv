@@ -11,7 +11,7 @@ use crate::cmd::parse::{Parser, ParsingCommandError};
 pub enum StringCommand {
     Get(String),
     Set(String, Bytes),
-    Len(String),
+    StrLen(String),
 }
 
 impl StringCommand {
@@ -26,7 +26,10 @@ impl StringCommand {
                 let value = parser.next_bytes()?;
                 Self::Set(key, value)
             }
-            "len" => todo!(),
+            "strlen" => {
+                let key = parser.next_string()?;
+                Self::StrLen(key)
+            }
             _ => return Ok(None),
         };
 

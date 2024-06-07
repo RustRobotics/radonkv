@@ -16,8 +16,9 @@ impl Listener {
                 self.dispatcher_sender.send(cmd).await?;
                 Ok(())
             }
-            SessionToListenerCmd::Disconnect(_) => {
-                todo!()
+            SessionToListenerCmd::Disconnect(session_id) => {
+                self.session_senders.remove_entry(&session_id);
+                Ok(())
             }
         }
     }

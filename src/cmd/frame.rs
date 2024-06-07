@@ -2,7 +2,7 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
-use std::io::Cursor;
+use std::io::{Cursor, Write};
 use std::string::FromUtf8Error;
 
 use atoi::atoi;
@@ -35,6 +35,12 @@ impl Frame {
 
     #[must_use]
     #[inline]
+    pub const fn null() -> Self {
+        Self::Null
+    }
+
+    #[must_use]
+    #[inline]
     pub fn new_array() -> Self {
         Self::Array(vec![])
     }
@@ -45,7 +51,7 @@ impl Frame {
                 let mut bytes = BytesMut::new();
                 bytes.put_u8(b'*');
                 let len = arr.len();
-                bytes.put_i64(len as i64);
+                Self::write_i64(&mut bytes, len as i64);
 
                 for frame in arr {
                     bytes.put(frame.into_bytes());
@@ -57,7 +63,7 @@ impl Frame {
                 let len = val.len();
                 let mut bytes = BytesMut::new();
                 bytes.put_u8(b'$');
-                bytes.put_i64(len as i64);
+                Self::write_i64(&mut bytes, len as i64);
                 bytes.put(val);
                 bytes.put_slice(b"\r\n");
                 bytes.freeze()
@@ -72,9 +78,7 @@ impl Frame {
             Frame::Integer(num) => {
                 let mut bytes = BytesMut::new();
                 bytes.put_u8(b':');
-                // TODO(Shaohua): Convert i64 to string first.
-                bytes.put_i64(num);
-                bytes.put_slice(b"\r\n");
+                Self::write_i64(&mut bytes, num);
                 bytes.freeze()
             }
             Frame::Null => Bytes::from("$-1\r\n"),
@@ -86,6 +90,16 @@ impl Frame {
                 bytes.freeze()
             }
         }
+    }
+
+    fn write_i64(bytes: &mut BytesMut, val: i64) {
+        // NOTE(Shaohua): Replace String format with stack array.
+        let mut buf = [0u8; 32];
+        let mut cursor = Cursor::new(&mut buf[..]);
+        write!(&mut cursor, "{}", val).unwrap();
+        let pos = cursor.position() as usize;
+        bytes.put(&cursor.get_ref()[0..pos]);
+        bytes.put_slice(b"\r\n");
     }
 
     pub fn push_bulk(&mut self, bytes: Bytes) -> Result<(), ParsingFrameError> {
@@ -108,7 +122,9 @@ impl Frame {
 
     pub fn check_msg(cursor: &mut Cursor<&[u8]>) -> Result<(), ParsingFrameError> {
         // Read first byte and check its type.
-        match Self::get_u8(cursor)? {
+        let frame_type = Self::get_u8(cursor)?;
+
+        match frame_type {
             b'+' | b'-' => {
                 let _ = Self::get_line(cursor)?;
                 Ok(())
@@ -118,12 +134,14 @@ impl Frame {
                 Ok(())
             }
             b'$' => {
-                // TODO(Shaohua):
-                Ok(())
+                let len = Self::get_i64(cursor)? as usize;
+                Self::skip(cursor, len + 2)
             }
             b'*' => {
-                let _len = Self::get_i64(cursor)?;
-                // TODO(Shaohua): Check array
+                let len = Self::get_i64(cursor)?;
+                for _ in 0..len {
+                    Self::check_msg(cursor)?;
+                }
                 Ok(())
             }
             frame_type => Err(ParsingFrameError::InvalidFrameType(frame_type))
@@ -175,6 +193,7 @@ impl Frame {
                 for _ in 0..len {
                     arr.push(Self::parse(cursor)?);
                 }
+                log::info!("frame arr: {arr:?}");
 
                 Ok(Frame::Array(arr))
             }
@@ -232,5 +251,25 @@ impl Frame {
 impl From<FromUtf8Error> for ParsingFrameError {
     fn from(_err: FromUtf8Error) -> Self {
         ParsingFrameError::InvalidFrameFormat
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::io::Cursor;
+
+    use super::Frame;
+
+    #[test]
+    fn test_parse_frame() {
+        let s = "2a320d0a24330d0a6765740d0a24340d0a6e616d650d0a";
+        let bytes: Vec<u8> = (0..s.len()).step_by(2).map(|i| u8::from_str_radix(&s[i..i + 2], 16).unwrap()).collect();
+        let mut cursor = Cursor::new(&bytes[..]);
+        let ret = Frame::check_msg(&mut cursor);
+        assert!(ret.is_ok());
+        let _len = cursor.position() as usize;
+        cursor.set_position(0);
+        let ret = Frame::parse(&mut cursor);
+        assert!(ret.is_ok());
     }
 }

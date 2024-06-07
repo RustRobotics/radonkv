@@ -2,8 +2,6 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
-use stdext::function_name;
-
 use crate::cmd::CommandCategory;
 use crate::commands::{DispatcherToMemCmd, ListenerToDispatcherCmd};
 use crate::dispatcher::Dispatcher;
@@ -11,7 +9,6 @@ use crate::error::Error;
 
 impl Dispatcher {
     pub(super) async fn handle_listener_cmd(&mut self, cmd: ListenerToDispatcherCmd) -> Result<(), Error> {
-        println!("{}, cmd: {cmd:?}", function_name!());
         match cmd {
             ListenerToDispatcherCmd::Cmd(session_gid, command) => match command.category() {
                 CommandCategory::Mem => {

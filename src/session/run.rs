@@ -23,7 +23,6 @@ impl Session {
                     if n_recv > 0 {
                         if let Err(err) = self.handle_client_frame().await {
                             log::error!("handle_client_frame() failed: {:?}", err);
-                            break;
                         }
                     } else {
                         log::info!("session: Empty packet received, disconnect client, {}", self.id);
@@ -47,14 +46,13 @@ impl Session {
             .await
         {
             log::error!(
-                "Failed to send disconnect cmd to server, id: {}, err: {:?}",
+                "Failed to send disconnect cmd to listener, id: {}, err: {:?}",
                 self.id,
                 err
             );
         }
 
         log::info!("Session {} exit main loop", self.id);
-
         // Now session object goes out of scope and stream is dropped.
     }
 }

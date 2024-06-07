@@ -19,14 +19,14 @@ impl Mem {
                     Some(_other) => {
                         Ok(Frame::Error("Object type mismatch, expected string".to_owned()))
                     }
-                    None => Ok(Frame::Error("Not found".to_owned())),
+                    None => Ok(Frame::null()),
                 }
             }
             StringCommand::Set(key, value) => {
                 self.db.insert(key, MemObject::Str(value));
                 Ok(Frame::ok())
             }
-            StringCommand::Len(key) => {
+            StringCommand::StrLen(key) => {
                 match self.db.get(&key) {
                     Some(MemObject::Str(value)) => {
                         Ok(Frame::Integer(value.len() as i64))
@@ -34,7 +34,7 @@ impl Mem {
                     Some(_other) => {
                         Ok(Frame::Error("Object type mismatch, expected string".to_owned()))
                     }
-                    None => Ok(Frame::Error("Not found".to_owned())),
+                    None => Ok(Frame::Integer(0)),
                 }
             }
         }

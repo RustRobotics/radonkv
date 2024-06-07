@@ -2,15 +2,12 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
-use stdext::function_name;
-
 use crate::commands::{DispatcherToMemCmd, MemToDispatcherCmd};
 use crate::error::Error;
 use crate::mem::Mem;
 
 impl Mem {
     pub(super) async fn handle_dispatcher_cmd(&mut self, cmd: DispatcherToMemCmd) -> Result<(), Error> {
-        log::info!("{}, cmd: {cmd:?}", function_name!());
         let DispatcherToMemCmd { session_gid, command } = cmd;
         let reply_frame = self.handle_db_command(command)?;
         let reply_cmd = MemToDispatcherCmd {
