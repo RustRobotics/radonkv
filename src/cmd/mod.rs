@@ -15,3 +15,27 @@ pub enum Command {
     Str(StringCommand),
     List(ListCommand),
 }
+
+#[derive(Debug, Default, Clone, Copy, Eq, PartialEq)]
+pub enum CommandCategory {
+    #[default]
+    Mem,
+    System,
+    Cluster,
+    Storage,
+}
+
+impl Command {
+    #[must_use]
+    pub const fn category(&self) -> CommandCategory {
+        match self {
+            Self::Str(_) | Self::List(_) => CommandCategory::Mem,
+        }
+    }
+
+    #[must_use]
+    #[inline]
+    pub fn is_mem(&self) -> bool {
+        self.category() == CommandCategory::Mem
+    }
+}

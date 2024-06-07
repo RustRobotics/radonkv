@@ -6,7 +6,7 @@ use std::io::Cursor;
 use std::string::FromUtf8Error;
 
 use atoi::atoi;
-use bytes::{Buf, Bytes};
+use bytes::{Buf, BufMut, Bytes, BytesMut};
 
 #[derive(Debug, Clone)]
 pub enum Frame {
@@ -31,6 +31,55 @@ impl Frame {
     #[inline]
     pub fn new_array() -> Self {
         Self::Array(vec![])
+    }
+
+    pub fn into_bytes(self) -> Bytes {
+        match self {
+            Frame::Array(arr) => {
+                let mut bytes = BytesMut::new();
+                bytes.put_u8(b'*');
+                let len = arr.len();
+                bytes.put_i64(len as i64);
+
+                for frame in arr {
+                    bytes.put(frame.into_bytes());
+                }
+
+                bytes.freeze()
+            }
+            Frame::Bulk(val) => {
+                let len = val.len();
+                let mut bytes = BytesMut::new();
+                bytes.put_u8(b'$');
+                bytes.put_i64(len as i64);
+                bytes.put(val);
+                bytes.put_slice(b"\r\n");
+                bytes.freeze()
+            }
+            Frame::Error(err) => {
+                let mut bytes = BytesMut::new();
+                bytes.put_u8(b'-');
+                bytes.put(Bytes::from(err));
+                bytes.put_slice(b"\r\n");
+                bytes.freeze()
+            }
+            Frame::Integer(num) => {
+                let mut bytes = BytesMut::new();
+                bytes.put_u8(b':');
+                // TODO(Shaohua): Convert i64 to string first.
+                bytes.put_i64(num);
+                bytes.put_slice(b"\r\n");
+                bytes.freeze()
+            }
+            Frame::Null => Bytes::from("$-1\r\n"),
+            Frame::Simple(s) => {
+                let mut bytes = BytesMut::new();
+                bytes.put_u8(b'+');
+                bytes.put(Bytes::from(s));
+                bytes.put_slice(b"\r\n");
+                bytes.freeze()
+            }
+        }
     }
 
     pub fn push_bulk(&mut self, bytes: Bytes) -> Result<(), ParsingFrameError> {
