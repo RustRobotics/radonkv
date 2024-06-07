@@ -15,6 +15,9 @@
     clippy::multiple_crate_versions
 )]
 
+// TODO(Shaohua): Remove
+#![allow(dead_code)]
+
 pub mod cluster;
 pub mod cmd;
 pub mod config;

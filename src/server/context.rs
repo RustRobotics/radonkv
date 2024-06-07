@@ -10,7 +10,7 @@ use crate::config::Config;
 use crate::error::Error;
 
 pub struct ServerContext {
-    config: Config,
+    pub config: Config,
 }
 
 impl ServerContext {

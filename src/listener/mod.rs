@@ -7,7 +7,7 @@ use std::collections::HashMap;
 use tokio::sync::mpsc;
 use tokio::sync::mpsc::{Receiver, Sender};
 
-use crate::commands::{ListenerToSessionCmd, SessionToListenerCmd};
+use crate::commands::{DispatcherToListenerCmd, ListenerToDispatcherCmd, ListenerToSessionCmd, SessionToListenerCmd};
 use crate::config;
 use crate::config::Protocol;
 use crate::error::Error;
@@ -32,9 +32,11 @@ pub struct Listener {
     socket_listener: SocketListener,
 
     session_senders: HashMap<SessionId, Sender<ListenerToSessionCmd>>,
-
     session_sender: Sender<SessionToListenerCmd>,
     session_receiver: Option<Receiver<SessionToListenerCmd>>,
+
+    dispatcher_sender: Sender<ListenerToDispatcherCmd>,
+    dispatcher_receiver: Receiver<DispatcherToListenerCmd>,
 }
 
 const CHANNEL_CAPACITY: usize = 16;
@@ -64,7 +66,10 @@ impl Listener {
     }
 
     /// Bind to specific socket address.
-    pub(super) async fn bind(id: ListenerId, listener_config: config::Listener) -> Result<Self, Error> {
+    pub(super) async fn bind(id: ListenerId, listener_config: config::Listener,
+                             dispatcher_sender: Sender<ListenerToDispatcherCmd>,
+                             dispatcher_receiver: Receiver<DispatcherToListenerCmd>,
+    ) -> Result<Self, Error> {
         let device = listener_config.bind_device().to_owned();
         let address = listener_config.address().to_owned();
         let (session_sender, session_receiver) = mpsc::channel(CHANNEL_CAPACITY);
@@ -80,6 +85,9 @@ impl Listener {
                 session_senders: HashMap::new(),
                 session_sender,
                 session_receiver: Some(session_receiver),
+
+                dispatcher_sender,
+                dispatcher_receiver,
             })
         };
 
