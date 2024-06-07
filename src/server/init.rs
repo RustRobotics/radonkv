@@ -10,10 +10,10 @@ use crate::dispatcher::Dispatcher;
 use crate::error::Error;
 use crate::listener::Listener;
 use crate::listener::types::ListenerId;
-use crate::server::context::ServerContext;
+use crate::server::Server;
 use crate::storage::Storage;
 
-impl ServerContext {
+impl Server {
     pub(crate) async fn init_modules(&mut self, runtime: &Runtime) -> Result<(), Error> {
         log::info!("{}", function_name!());
 
