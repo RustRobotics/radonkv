@@ -4,6 +4,7 @@
 
 use std::collections::HashMap;
 
+use stdext::function_name;
 use tokio::sync::mpsc;
 use tokio::sync::mpsc::{Receiver, Sender};
 
@@ -72,6 +73,8 @@ impl Listener {
     ) -> Result<Self, Error> {
         let device = listener_config.bind_device().to_owned();
         let address = listener_config.address().to_owned();
+        log::info!("{} device: {device}, address: {address}", function_name!());
+
         let (session_sender, session_receiver) = mpsc::channel(CHANNEL_CAPACITY);
         let protocol = listener_config.protocol();
 

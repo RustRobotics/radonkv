@@ -11,6 +11,9 @@ impl Dispatcher {
                 Some(cmd) = self.listener_receiver.recv() => {
                     self.handle_listener_cmd(cmd).await;
                 }
+                Some(cmd) = self.storage_receiver.recv() => {
+                    self.handle_storage_cmd(cmd).await;
+                }
             }
         }
     }

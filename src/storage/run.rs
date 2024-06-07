@@ -7,11 +7,9 @@ use crate::storage::Storage;
 impl Storage {
     pub async fn run_loop(&mut self) -> ! {
         loop {
-            tokio::select! {
-                Some(cmd) = self.dispatcher_receiver.recv() => {
-                    if let Err(err) = self.handle_dispatcher_cmd(cmd).await {
-                        log::warn!("[storage] Failed to handle dispatcher cmd, err: {err:?}");
-                    }
+            if let Some(cmd) = self.dispatcher_receiver.recv().await {
+                if let Err(err) = self.handle_dispatcher_cmd(cmd).await {
+                    log::warn!("[storage] Failed to handle dispatcher cmd, err: {err:?}");
                 }
             }
         }

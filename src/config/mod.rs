@@ -5,15 +5,19 @@
 use serde::Deserialize;
 
 pub use listener::{Listener, Protocol};
+pub use log::{Log, LogLevel};
 
 use crate::error::Error;
 
 mod listener;
+mod log;
 
 #[derive(Debug, Default, Clone, Deserialize)]
 pub struct Config {
     #[serde(default = "Listener::default_listeners")]
     listeners: Vec<Listener>,
+
+    log: Log,
 }
 
 impl Config {
@@ -21,6 +25,12 @@ impl Config {
     #[inline]
     pub fn listeners(&self) -> &[Listener] {
         &self.listeners
+    }
+
+    #[must_use]
+    #[inline]
+    pub fn log(&self) -> &Log {
+        &self.log
     }
 
     pub fn validate(&self) -> Result<(), Error> {

@@ -15,11 +15,15 @@ pub struct Error {
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub enum ErrorKind {
+    // Startup errors.
     ConfigError,
-    IoError,
+    LoggerError,
 
+    // System errors.
+    IoError,
     KernelError,
 
+    // Client errors
     FrameError,
 }
 

@@ -29,3 +29,4 @@ pub mod server;
 pub mod storage;
 mod commands;
 mod session;
+mod log;
