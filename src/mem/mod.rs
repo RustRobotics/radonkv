@@ -2,9 +2,12 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
+use std::collections::HashMap;
+
 use tokio::sync::mpsc::{Receiver, Sender};
 
 use crate::commands::{DispatcherToMemCmd, MemToDispatcherCmd};
+use crate::mem::db::Db;
 
 mod set;
 mod zset;
@@ -25,9 +28,12 @@ mod string;
 mod auto_suggest;
 mod run;
 mod dispatcher;
+mod db;
 
 #[derive(Debug)]
 pub struct Mem {
+    db: Db,
+
     dispatcher_sender: Sender<MemToDispatcherCmd>,
     dispatcher_receiver: Receiver<DispatcherToMemCmd>,
 }
@@ -35,11 +41,13 @@ pub struct Mem {
 impl Mem {
     #[must_use]
     #[inline]
-    pub const fn new(
+    pub fn new(
         dispatcher_sender: Sender<MemToDispatcherCmd>,
         dispatcher_receiver: Receiver<DispatcherToMemCmd>,
     ) -> Self {
         Self {
+            db: HashMap::new(),
+
             dispatcher_sender,
             dispatcher_receiver,
         }

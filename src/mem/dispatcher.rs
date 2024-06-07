@@ -4,14 +4,19 @@
 
 use stdext::function_name;
 
-use crate::commands::DispatcherToMemCmd;
+use crate::commands::{DispatcherToMemCmd, MemToDispatcherCmd};
 use crate::error::Error;
 use crate::mem::Mem;
 
 impl Mem {
     pub(super) async fn handle_dispatcher_cmd(&mut self, cmd: DispatcherToMemCmd) -> Result<(), Error> {
         log::info!("{}, cmd: {cmd:?}", function_name!());
-
-        Ok(())
+        let DispatcherToMemCmd { session_gid, command } = cmd;
+        let reply_frame = self.handle_db_command(command)?;
+        let reply_cmd = MemToDispatcherCmd {
+            session_gid,
+            frame: reply_frame,
+        };
+        Ok(self.dispatcher_sender.send(reply_cmd).await?)
     }
 }

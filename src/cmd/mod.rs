@@ -7,8 +7,8 @@ use crate::cmd::string::StringCommand;
 
 pub mod frame;
 mod parse;
-mod string;
-mod list;
+pub mod string;
+pub mod list;
 
 #[derive(Debug, Clone)]
 pub enum Command {

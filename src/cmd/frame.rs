@@ -29,6 +29,12 @@ pub enum ParsingFrameError {
 impl Frame {
     #[must_use]
     #[inline]
+    pub fn ok() -> Self {
+        Self::Simple("Ok".to_owned())
+    }
+
+    #[must_use]
+    #[inline]
     pub fn new_array() -> Self {
         Self::Array(vec![])
     }
