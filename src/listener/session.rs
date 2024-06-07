@@ -4,8 +4,8 @@
 
 use crate::commands::{ListenerToDispatcherCmd, SessionToListenerCmd};
 use crate::error::Error;
-use crate::listener::types::SessionGid;
 use crate::listener::Listener;
+use crate::listener::types::SessionGroup;
 
 impl Listener {
     pub(super) async fn handle_session_cmd(
@@ -16,7 +16,7 @@ impl Listener {
             SessionToListenerCmd::Cmd(session_id, command) => {
                 // Pass cmd to dispatcher
                 let cmd =
-                    ListenerToDispatcherCmd::Cmd(SessionGid::new(self.id, session_id), command);
+                    ListenerToDispatcherCmd::Cmd(SessionGroup::new(self.id, session_id), command);
                 self.dispatcher_sender.send(cmd).await?;
                 Ok(())
             }

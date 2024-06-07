@@ -12,12 +12,12 @@ impl Mem {
         cmd: DispatcherToMemCmd,
     ) -> Result<(), Error> {
         let DispatcherToMemCmd {
-            session_gid,
+            session_group,
             command,
         } = cmd;
         let reply_frame = self.handle_db_command(command)?;
         let reply_cmd = MemToDispatcherCmd {
-            session_gid,
+            session_group,
             frame: reply_frame,
         };
         Ok(self.dispatcher_sender.send(reply_cmd).await?)

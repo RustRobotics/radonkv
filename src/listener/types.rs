@@ -9,12 +9,12 @@ pub type ListenerId = u32;
 ///
 /// It is a tuple of `(listener_id, session_id)`.
 #[derive(Debug, Default, Clone, Copy, Eq, PartialEq, Ord, PartialOrd, Hash)]
-pub struct SessionGid {
+pub struct SessionGroup {
     listener_id: ListenerId,
     session_id: SessionId,
 }
 
-impl SessionGid {
+impl SessionGroup {
     #[must_use]
     pub const fn new(listener_id: ListenerId, session_id: SessionId) -> Self {
         Self {

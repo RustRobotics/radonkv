@@ -38,7 +38,7 @@ impl Config {
 
     #[must_use]
     #[inline]
-    pub fn log(&self) -> &Log {
+    pub const fn log(&self) -> &Log {
         &self.log
     }
 

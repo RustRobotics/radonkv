@@ -9,9 +9,9 @@ use crate::error::{Error, ErrorKind};
 impl Dispatcher {
     pub(super) async fn handle_mem_cmd(&mut self, cmd: MemToDispatcherCmd) -> Result<(), Error> {
         // Send command to listener.
-        let listener_id = cmd.session_gid.listener_id();
+        let listener_id = cmd.session_group.listener_id();
         if let Some(listener_sender) = self.listener_senders.get(&listener_id) {
-            let cmd = DispatcherToListenerCmd::Reply(cmd.session_gid, cmd.frame);
+            let cmd = DispatcherToListenerCmd::Reply(cmd.session_group, cmd.frame);
             Ok(listener_sender.send(cmd).await?)
         } else {
             Err(Error::from_string(

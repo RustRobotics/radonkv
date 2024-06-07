@@ -13,11 +13,11 @@ impl Dispatcher {
         cmd: ListenerToDispatcherCmd,
     ) -> Result<(), Error> {
         match cmd {
-            ListenerToDispatcherCmd::Cmd(session_gid, command) => match command.category() {
+            ListenerToDispatcherCmd::Cmd(session_group, command) => match command.category() {
                 CommandCategory::Mem => {
                     // Dispatch to mem module
                     let cmd = DispatcherToMemCmd {
-                        session_gid,
+                        session_group,
                         command,
                     };
                     Ok(self.mem_sender.send(cmd).await?)

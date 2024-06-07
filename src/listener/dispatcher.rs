@@ -12,10 +12,9 @@ impl Listener {
         cmd: DispatcherToListenerCmd,
     ) -> Result<(), Error> {
         match cmd {
-            DispatcherToListenerCmd::Reply(session_gid, frame) => {
-                let listener_id = session_gid.listener_id();
-                assert_eq!(listener_id, self.id);
-                let session_id = session_gid.session_id();
+            DispatcherToListenerCmd::Reply(session_group, frame) => {
+                assert_eq!(session_group.listener_id(), self.id);
+                let session_id = session_group.session_id();
                 match self.session_senders.get(&session_id) {
                     Some(session_sender) => {
                         let cmd = ListenerToSessionCmd::Reply(session_id, frame);

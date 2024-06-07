@@ -79,7 +79,7 @@ impl Log {
 
     #[must_use]
     #[inline]
-    pub fn log_file(&self) -> Option<&String> {
+    pub const fn log_file(&self) -> Option<&String> {
         self.log_file.as_ref()
     }
 
