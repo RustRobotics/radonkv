@@ -25,6 +25,7 @@ mod socket;
 mod socket_listener;
 mod run;
 mod session;
+mod dispatcher;
 
 #[derive(Debug)]
 pub struct Listener {

@@ -19,8 +19,10 @@ impl Listener {
                         log::warn!("Failed to handle session cmd, err: {err:?}");
                     }
                 }
-                Some(_cmd) = dispatcher_receiver.recv() => {
-                    todo!()
+                Some(cmd) = dispatcher_receiver.recv() => {
+                       if let Err(err) = self.handle_dispatcher_cmd(cmd).await {
+                        log::warn!("Failed to handle dispatcher cmd, err: {err:?}");
+                    }
                 }
             }
         }
