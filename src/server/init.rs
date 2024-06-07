@@ -10,6 +10,7 @@ use crate::dispatcher::Dispatcher;
 use crate::error::Error;
 use crate::listener::Listener;
 use crate::listener::types::ListenerId;
+use crate::mem::Mem;
 use crate::server::Server;
 use crate::storage::Storage;
 
@@ -53,6 +54,18 @@ impl Server {
             handles.push(handle);
         }
 
+        // Mem module
+        let (mem_to_dispatcher_sender, mem_to_dispatcher_receiver) = mpsc::channel(CHANNEL_CAPACITY);
+        let (dispatcher_to_mem_sender, dispatcher_to_mem_receiver) = mpsc::channel(CHANNEL_CAPACITY);
+        let mut mem = Mem::new(
+            mem_to_dispatcher_sender,
+            dispatcher_to_mem_receiver,
+        );
+        let mem_handle = runtime.spawn(async move {
+            mem.run_loop().await;
+        });
+        handles.push(mem_handle);
+
         // Storage module
         let (storage_to_dispatcher_sender, storage_to_dispatcher_receiver) =
             mpsc::channel(CHANNEL_CAPACITY);
@@ -71,6 +84,9 @@ impl Server {
             // listeners module
             dispatcher_to_listener_senders,
             listeners_to_dispatcher_receiver,
+            // mem module,
+            dispatcher_to_mem_sender,
+            mem_to_dispatcher_receiver,
             // storage module
             dispatcher_to_storage_sender,
             storage_to_dispatcher_receiver,
