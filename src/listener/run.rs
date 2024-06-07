@@ -14,8 +14,10 @@ impl Listener {
                 Ok(stream) = self.accept() => {
                     self.new_connection(stream).await;
                 }
-                Some(_cmd) = session_receiver.recv() => {
-                    todo!()
+                Some(cmd) = session_receiver.recv() => {
+                    if let Err(err) = self.handle_session_cmd(cmd).await {
+                        log::warn!("Failed to handle session cmd, err: {err:?}");
+                    }
                 }
                 Some(_cmd) = dispatcher_receiver.recv() => {
                     todo!()

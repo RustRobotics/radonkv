@@ -2,21 +2,22 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
+use crate::cmd::Command;
 use crate::cmd::frame::Frame;
-use crate::listener::types::{ListenerId, SessionId};
+use crate::listener::types::{ListenerId, SessionGid, SessionId};
 
 #[derive(Debug, Clone)]
 pub enum ListenerToSessionCmd {}
 
 #[derive(Debug, Clone)]
 pub enum SessionToListenerCmd {
-    Frame(SessionId, Frame),
+    Cmd(SessionId, Command),
     Disconnect(SessionId),
 }
 
 #[derive(Debug, Clone)]
 pub enum ListenerToDispatcherCmd {
-    Get(ListenerId, String),
+    Cmd(SessionGid, Command),
 }
 
 #[derive(Debug, Clone)]
@@ -31,3 +32,15 @@ pub enum DispatcherToStorageCmd {
 
 #[derive(Debug, Clone)]
 pub enum StorageToDispatcherCmd {}
+
+#[derive(Debug, Clone)]
+pub struct DispatcherToMemCmd {
+    pub session_gid: SessionGid,
+    pub command: Command,
+}
+
+#[derive(Debug, Clone)]
+pub struct MemToDispatcherCmd {
+    pub session_gid: SessionGid,
+    pub frame: Frame,
+}

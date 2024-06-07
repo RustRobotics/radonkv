@@ -37,4 +37,11 @@ impl Stream {
             Self::Tcp(tcp_stream, _address) => Ok(tcp_stream.write(buf).await?),
         }
     }
+
+    pub async fn flush(&mut self) -> Result<(), Error> {
+        match self {
+            Self::Tcp(tcp_stream, _address) =>
+                Ok(tcp_stream.flush().await?),
+        }
+    }
 }
