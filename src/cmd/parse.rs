@@ -6,10 +6,10 @@ use std::vec::IntoIter;
 
 use bytes::Bytes;
 
+use crate::cmd::Command;
 use crate::cmd::frame::Frame;
 use crate::cmd::list::ListCommand;
 use crate::cmd::string::StringCommand;
-use crate::cmd::Command;
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub enum ParsingCommandError {
@@ -33,15 +33,15 @@ impl TryFrom<Frame> for Command {
         let mut parser = Parser {
             iter: arr.into_iter(),
         };
-
         let cmd_name = parser.next_string()?.to_ascii_lowercase();
-
         // TODO(Shaohua): Add a command hash map.
         let mut command: Option<Self> = StringCommand::parse(&cmd_name, &mut parser)?;
         if command.is_none() {
             command = ListCommand::parse(&cmd_name, &parser)?;
         }
-
+        if command.is_none() {
+            log::warn!("Command not found: {cmd_name}");
+        }
         command.ok_or(ParsingCommandError::CommandNotFound)
     }
 }

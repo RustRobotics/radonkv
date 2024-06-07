@@ -55,9 +55,9 @@ impl Listener {
     }
 
     fn new_connection(&mut self, stream: Stream) {
-        log::info!("Got new connection in listener: {}", self.id);
         let (sender, receiver) = mpsc::channel(CHANNEL_CAPACITY);
         let session_id = self.next_session_id();
+        log::info!("Got new connection in listener {}, session id: {session_id}", self.id);
         self.session_senders.insert(session_id, sender);
         let session_config = SessionConfig::new(self.config.keepalive());
         let session = Session::new(
