@@ -7,7 +7,12 @@ use crate::error::Error;
 use crate::session::Session;
 
 impl Session {
-    pub(crate) async fn handle_listener_cmd(&mut self, _cmd: ListenerToSessionCmd) -> Result<(), Error> {
-        todo!()
+    pub(crate) async fn handle_listener_cmd(&mut self, cmd: ListenerToSessionCmd) -> Result<(), Error> {
+        match cmd {
+            ListenerToSessionCmd::Reply(session_id, frame) => {
+                assert_eq!(session_id, self.id);
+                Ok(self.send_frame_to_client(frame).await?)
+            }
+        }
     }
 }
