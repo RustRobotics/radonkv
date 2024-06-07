@@ -5,6 +5,8 @@
 use std::fmt;
 use std::io;
 
+use tokio::sync::mpsc;
+
 use crate::cmd::frame::ParsingFrameError;
 
 #[derive(Debug, Clone)]
@@ -22,6 +24,7 @@ pub enum ErrorKind {
     // System errors.
     IoError,
     KernelError,
+    ChannelError,
 
     // Client errors
     FrameError,
@@ -61,5 +64,14 @@ impl From<ParsingFrameError> for Error {
             kind: ErrorKind::FrameError,
             message: format!("{err:?}"),
         }
+    }
+}
+
+impl<T> From<mpsc::error::SendError<T>> for Error {
+    fn from(err: mpsc::error::SendError<T>) -> Self {
+        Error::from_string(
+            ErrorKind::ChannelError,
+            format!("channel error: {err:?}"),
+        )
     }
 }

@@ -27,16 +27,16 @@ pub struct Session {
     stream: Stream,
     buffer: BytesMut,
 
-    sender: Sender<SessionToListenerCmd>,
-    receiver: Receiver<ListenerToSessionCmd>,
+    listener_sender: Sender<SessionToListenerCmd>,
+    listener_receiver: Receiver<ListenerToSessionCmd>,
 }
 
 impl Session {
     #[must_use]
     #[inline]
     pub fn new(id: SessionId, config: SessionConfig, stream: Stream,
-               sender: Sender<SessionToListenerCmd>,
-               receiver: Receiver<ListenerToSessionCmd>,
+               listener_sender: Sender<SessionToListenerCmd>,
+               listener_receiver: Receiver<ListenerToSessionCmd>,
     ) -> Self {
         Self {
             id,
@@ -46,8 +46,8 @@ impl Session {
             stream,
             buffer: BytesMut::with_capacity(BUF_SIZE),
 
-            sender,
-            receiver,
+            listener_sender,
+            listener_receiver,
         }
     }
 }

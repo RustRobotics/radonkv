@@ -10,6 +10,7 @@ pub enum ListenerToSessionCmd {}
 
 #[derive(Debug, Clone)]
 pub enum SessionToListenerCmd {
+    Frame(SessionId, Frame),
     Disconnect(SessionId),
 }
 
