@@ -14,6 +14,7 @@ use crate::server::Server;
 pub fn handle_cmdline() -> Result<(), Error> {
     let config = Config::default();
     init_log(&config.log())?;
+    log::info!("config: {config:#?}");
 
     let mut server = Server::new(config);
     // TODO(Shaohua): Check signal options
@@ -24,6 +25,7 @@ pub fn handle_cmdline() -> Result<(), Error> {
 
 pub fn run_server_with_config(config: Config) -> Result<(), Error> {
     init_log(&config.log())?;
+    log::info!("config: {config:#?}");
     let mut server = Server::new(config);
     let runtime = Runtime::new()?;
     server.run_loop(&runtime)

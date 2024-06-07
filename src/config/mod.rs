@@ -12,12 +12,21 @@ use crate::error::Error;
 mod listener;
 mod log;
 
-#[derive(Debug, Default, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct Config {
     #[serde(default = "Listener::default_listeners")]
     listeners: Vec<Listener>,
 
     log: Log,
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Self {
+            listeners: Listener::default_listeners(),
+            log: Log::default(),
+        }
+    }
 }
 
 impl Config {
