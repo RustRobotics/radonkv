@@ -5,11 +5,11 @@
 use bytes::BytesMut;
 use tokio::sync::mpsc::{Receiver, Sender};
 
-use crate::listener::commands::{ListenerToSessionCmd, SessionToListenerCmd};
-use crate::listener::session::config::SessionConfig;
-use crate::listener::session::status::Status;
+use crate::commands::{ListenerToSessionCmd, SessionToListenerCmd};
 use crate::listener::stream::Stream;
 use crate::listener::types::SessionId;
+use crate::session::config::SessionConfig;
+use crate::session::status::Status;
 
 pub mod config;
 mod run;

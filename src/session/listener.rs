@@ -2,12 +2,12 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
+use crate::commands::ListenerToSessionCmd;
 use crate::error::Error;
-use crate::listener::commands::ListenerToSessionCmd;
-use crate::listener::session::Session;
+use crate::session::Session;
 
 impl Session {
-    pub(super) async fn handle_listener_cmd(&mut self, _cmd: ListenerToSessionCmd) -> Result<(), Error> {
+    pub(crate) async fn handle_listener_cmd(&mut self, _cmd: ListenerToSessionCmd) -> Result<(), Error> {
         todo!()
     }
 }

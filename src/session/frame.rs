@@ -8,14 +8,14 @@ use bytes::Buf;
 
 use crate::cmd::frame::{Frame, ParsingFrameError};
 use crate::error::Error;
-use crate::listener::session::Session;
+use crate::session::Session;
 
 impl Session {
-    pub(super) async fn handle_client_frame(&mut self) -> Result<(), Error> {
+    pub(crate) async fn handle_client_frame(&mut self) -> Result<(), Error> {
         todo!()
     }
 
-    pub(super) async fn send_disconnect(&mut self) -> Result<(), Error> {
+    pub(crate) async fn send_disconnect(&mut self) -> Result<(), Error> {
         todo!()
     }
 

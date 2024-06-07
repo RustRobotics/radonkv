@@ -7,24 +7,22 @@ use std::collections::HashMap;
 use tokio::sync::mpsc;
 use tokio::sync::mpsc::{Receiver, Sender};
 
+use crate::commands::{ListenerToSessionCmd, SessionToListenerCmd};
 use crate::config;
 use crate::config::Protocol;
 use crate::error::Error;
-use crate::listener::commands::{ListenerToSessionCmd, SessionToListenerCmd};
-use crate::listener::session::config::SessionConfig;
-use crate::listener::session::Session;
 use crate::listener::socket::new_tcp_listener;
 use crate::listener::socket_listener::SocketListener;
 use crate::listener::stream::Stream;
 use crate::listener::types::{ListenerId, SessionId};
+use crate::session::config::SessionConfig;
+use crate::session::Session;
 
-pub(crate) mod types;
-mod stream;
+pub mod types;
+pub mod stream;
 mod socket;
 mod socket_listener;
-mod session;
 mod run;
-mod commands;
 
 #[derive(Debug)]
 pub struct Listener {

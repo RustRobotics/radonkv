@@ -25,3 +25,4 @@ pub mod mem;
 pub mod server;
 pub mod storage;
 mod commands;
+mod session;

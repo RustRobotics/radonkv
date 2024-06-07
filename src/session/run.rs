@@ -4,9 +4,9 @@
 
 use std::time::Instant;
 
-use crate::listener::commands::SessionToListenerCmd;
-use crate::listener::session::Session;
-use crate::listener::session::status::Status;
+use crate::commands::SessionToListenerCmd;
+use crate::session::Session;
+use crate::session::status::Status;
 
 impl Session {
     pub async fn run_loop(mut self) {
