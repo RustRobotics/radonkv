@@ -6,12 +6,12 @@ use std::io::Cursor;
 
 use bytes::{Buf, Bytes};
 
-use crate::cmd::frame::{Frame, ParsingFrameError};
 use crate::cmd::Command;
+use crate::cmd::frame::{Frame, ParsingFrameError};
 use crate::commands::SessionToListenerCmd;
 use crate::error::Error;
-use crate::session::status::Status;
 use crate::session::Session;
+use crate::session::status::Status;
 
 impl Session {
     pub(crate) async fn handle_client_frame(&mut self) -> Result<(), Error> {
@@ -49,6 +49,7 @@ impl Session {
         self.stream.flush().await
     }
 
+    #[allow(clippy::unused_async)]
     pub(crate) async fn send_disconnect(&mut self) -> Result<(), Error> {
         self.status = Status::Disconnecting;
         Ok(())
@@ -58,7 +59,8 @@ impl Session {
         let mut cursor = Cursor::new(&self.buffer[..]);
         match Frame::check_msg(&mut cursor) {
             Ok(()) => {
-                let len = cursor.position() as usize;
+                let len =
+                    usize::try_from(cursor.position()).map_err(Into::<ParsingFrameError>::into)?;
                 // Rewind to start.
                 cursor.set_position(0);
                 let frame = Frame::parse(&mut cursor)?;

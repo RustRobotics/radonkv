@@ -9,6 +9,7 @@ use crate::error::Error;
 use crate::storage::Storage;
 
 impl Storage {
+    #[allow(clippy::unused_async)]
     pub(super) async fn handle_dispatcher_cmd(
         &mut self,
         cmd: DispatcherToStorageCmd,

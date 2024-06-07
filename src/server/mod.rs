@@ -13,7 +13,7 @@ pub struct Server {
 
 impl Server {
     #[must_use]
-    pub fn new(config: Config) -> Self {
+    pub const fn new(config: Config) -> Self {
         Self { config }
     }
 }
