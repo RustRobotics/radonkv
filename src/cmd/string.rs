@@ -4,8 +4,8 @@
 
 use bytes::Bytes;
 
-use crate::cmd::Command;
 use crate::cmd::parse::{Parser, ParsingCommandError};
+use crate::cmd::Command;
 
 #[derive(Debug, Clone)]
 pub enum StringCommand {
@@ -15,7 +15,10 @@ pub enum StringCommand {
 }
 
 impl StringCommand {
-    pub fn parse(cmd_name: &str, parser: &mut Parser) -> Result<Option<Command>, ParsingCommandError> {
+    pub fn parse(
+        cmd_name: &str,
+        parser: &mut Parser,
+    ) -> Result<Option<Command>, ParsingCommandError> {
         let str_cmd = match cmd_name {
             "get" => {
                 let key = parser.next_string()?;

@@ -11,9 +11,7 @@ impl SessionConfig {
     #[must_use]
     #[inline]
     pub const fn new(keepalive: u16) -> Self {
-        Self {
-            keepalive,
-        }
+        Self { keepalive }
     }
 
     #[must_use]

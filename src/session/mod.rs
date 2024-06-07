@@ -12,10 +12,10 @@ use crate::session::config::SessionConfig;
 use crate::session::status::Status;
 
 pub mod config;
-mod run;
-mod status;
 mod frame;
 mod listener;
+mod run;
+mod status;
 
 const BUF_SIZE: usize = 4096;
 
@@ -34,9 +34,12 @@ pub struct Session {
 impl Session {
     #[must_use]
     #[inline]
-    pub fn new(id: SessionId, config: SessionConfig, stream: Stream,
-               listener_sender: Sender<SessionToListenerCmd>,
-               listener_receiver: Receiver<ListenerToSessionCmd>,
+    pub fn new(
+        id: SessionId,
+        config: SessionConfig,
+        stream: Stream,
+        listener_sender: Sender<SessionToListenerCmd>,
+        listener_receiver: Receiver<ListenerToSessionCmd>,
     ) -> Self {
         Self {
             id,

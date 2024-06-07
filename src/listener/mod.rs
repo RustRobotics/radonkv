@@ -8,7 +8,9 @@ use stdext::function_name;
 use tokio::sync::mpsc;
 use tokio::sync::mpsc::{Receiver, Sender};
 
-use crate::commands::{DispatcherToListenerCmd, ListenerToDispatcherCmd, ListenerToSessionCmd, SessionToListenerCmd};
+use crate::commands::{
+    DispatcherToListenerCmd, ListenerToDispatcherCmd, ListenerToSessionCmd, SessionToListenerCmd,
+};
 use crate::config;
 use crate::config::Protocol;
 use crate::error::Error;
@@ -19,13 +21,13 @@ use crate::listener::types::{ListenerId, SessionId};
 use crate::session::config::SessionConfig;
 use crate::session::Session;
 
-pub mod types;
-pub mod stream;
-mod socket;
-mod socket_listener;
+mod dispatcher;
 mod run;
 mod session;
-mod dispatcher;
+mod socket;
+mod socket_listener;
+pub mod stream;
+pub mod types;
 
 #[derive(Debug)]
 pub struct Listener {
@@ -69,9 +71,11 @@ impl Listener {
     }
 
     /// Bind to specific socket address.
-    pub(super) async fn bind(id: ListenerId, listener_config: config::Listener,
-                             dispatcher_sender: Sender<ListenerToDispatcherCmd>,
-                             dispatcher_receiver: Receiver<DispatcherToListenerCmd>,
+    pub(super) async fn bind(
+        id: ListenerId,
+        listener_config: config::Listener,
+        dispatcher_sender: Sender<ListenerToDispatcherCmd>,
+        dispatcher_receiver: Receiver<DispatcherToListenerCmd>,
     ) -> Result<Self, Error> {
         let device = listener_config.bind_device().to_owned();
         let address = listener_config.address().to_owned();

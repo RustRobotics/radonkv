@@ -6,13 +6,16 @@ use std::collections::HashMap;
 
 use tokio::sync::mpsc::{Receiver, Sender};
 
-use crate::commands::{DispatcherToListenerCmd, DispatcherToMemCmd, DispatcherToStorageCmd, ListenerToDispatcherCmd, MemToDispatcherCmd, StorageToDispatcherCmd};
+use crate::commands::{
+    DispatcherToListenerCmd, DispatcherToMemCmd, DispatcherToStorageCmd, ListenerToDispatcherCmd,
+    MemToDispatcherCmd, StorageToDispatcherCmd,
+};
 use crate::listener::types::ListenerId;
 
 mod listener;
+mod mem;
 mod run;
 mod storage;
-mod mem;
 
 #[derive(Debug)]
 pub struct Dispatcher {

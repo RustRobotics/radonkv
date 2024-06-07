@@ -11,4 +11,3 @@ mod internal;
 #[cfg(not(unix))]
 #[path = "socket_windows.rs"]
 mod internal;
-

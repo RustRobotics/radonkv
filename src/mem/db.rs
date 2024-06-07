@@ -6,8 +6,8 @@ use std::collections::HashMap;
 
 use bytes::Bytes;
 
-use crate::cmd::Command;
 use crate::cmd::frame::Frame;
+use crate::cmd::Command;
 use crate::error::Error;
 use crate::mem::Mem;
 

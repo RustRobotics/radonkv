@@ -11,32 +11,24 @@ use crate::mem::Mem;
 impl Mem {
     pub fn handle_string_command(&mut self, command: StringCommand) -> Result<Frame, Error> {
         match command {
-            StringCommand::Get(key) => {
-                match self.db.get(&key) {
-                    Some(MemObject::Str(value)) => {
-                        Ok(Frame::Bulk(value.clone()))
-                    }
-                    Some(_other) => {
-                        Ok(Frame::Error("Object type mismatch, expected string".to_owned()))
-                    }
-                    None => Ok(Frame::null()),
-                }
-            }
+            StringCommand::Get(key) => match self.db.get(&key) {
+                Some(MemObject::Str(value)) => Ok(Frame::Bulk(value.clone())),
+                Some(_other) => Ok(Frame::Error(
+                    "Object type mismatch, expected string".to_owned(),
+                )),
+                None => Ok(Frame::null()),
+            },
             StringCommand::Set(key, value) => {
                 self.db.insert(key, MemObject::Str(value));
                 Ok(Frame::ok())
             }
-            StringCommand::StrLen(key) => {
-                match self.db.get(&key) {
-                    Some(MemObject::Str(value)) => {
-                        Ok(Frame::Integer(value.len() as i64))
-                    }
-                    Some(_other) => {
-                        Ok(Frame::Error("Object type mismatch, expected string".to_owned()))
-                    }
-                    None => Ok(Frame::Integer(0)),
-                }
-            }
+            StringCommand::StrLen(key) => match self.db.get(&key) {
+                Some(MemObject::Str(value)) => Ok(Frame::Integer(value.len() as i64)),
+                Some(_other) => Ok(Frame::Error(
+                    "Object type mismatch, expected string".to_owned(),
+                )),
+                None => Ok(Frame::Integer(0)),
+            },
         }
     }
 }

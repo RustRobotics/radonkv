@@ -7,8 +7,14 @@ use crate::error::Error;
 use crate::mem::Mem;
 
 impl Mem {
-    pub(super) async fn handle_dispatcher_cmd(&mut self, cmd: DispatcherToMemCmd) -> Result<(), Error> {
-        let DispatcherToMemCmd { session_gid, command } = cmd;
+    pub(super) async fn handle_dispatcher_cmd(
+        &mut self,
+        cmd: DispatcherToMemCmd,
+    ) -> Result<(), Error> {
+        let DispatcherToMemCmd {
+            session_gid,
+            command,
+        } = cmd;
         let reply_frame = self.handle_db_command(command)?;
         let reply_cmd = MemToDispatcherCmd {
             session_gid,

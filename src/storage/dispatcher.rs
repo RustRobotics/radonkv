@@ -9,7 +9,10 @@ use crate::error::Error;
 use crate::storage::Storage;
 
 impl Storage {
-    pub(super) async fn handle_dispatcher_cmd(&mut self, cmd: DispatcherToStorageCmd) -> Result<(), Error> {
+    pub(super) async fn handle_dispatcher_cmd(
+        &mut self,
+        cmd: DispatcherToStorageCmd,
+    ) -> Result<(), Error> {
         println!("{} cmd: {cmd:?}", function_name!());
         Ok(())
     }

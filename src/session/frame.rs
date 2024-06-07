@@ -6,12 +6,12 @@ use std::io::Cursor;
 
 use bytes::{Buf, Bytes};
 
-use crate::cmd::Command;
 use crate::cmd::frame::{Frame, ParsingFrameError};
+use crate::cmd::Command;
 use crate::commands::SessionToListenerCmd;
 use crate::error::Error;
-use crate::session::Session;
 use crate::session::status::Status;
+use crate::session::Session;
 
 impl Session {
     pub(crate) async fn handle_client_frame(&mut self) -> Result<(), Error> {
@@ -22,24 +22,23 @@ impl Session {
         // 3.1. if command is parsed ok, send that new cmd to listener
         // 3.2. else send error to client.
         match self.parse_frame() {
-            Ok(None) => {
-                Ok(())
-            }
-            Ok(Some(frame)) =>
-                match Command::try_from(frame) {
-                    Ok(command) => {
-                        let cmd = SessionToListenerCmd::Cmd(self.id, command);
-                        self.listener_sender.send(cmd).await?;
-                        Ok(())
-                    }
-                    Err(err) => {
-                        log::warn!("Invalid command, err: {err:?}");
-                        self.send_frame_to_client(Frame::Error("Invalid command".to_owned())).await
-                    }
+            Ok(None) => Ok(()),
+            Ok(Some(frame)) => match Command::try_from(frame) {
+                Ok(command) => {
+                    let cmd = SessionToListenerCmd::Cmd(self.id, command);
+                    self.listener_sender.send(cmd).await?;
+                    Ok(())
                 }
+                Err(err) => {
+                    log::warn!("Invalid command, err: {err:?}");
+                    self.send_frame_to_client(Frame::Error("Invalid command".to_owned()))
+                        .await
+                }
+            },
             Err(err) => {
                 log::warn!("Invalid frame, err: {err:?}");
-                self.send_frame_to_client(Frame::Error("Invalid frame".to_owned())).await
+                self.send_frame_to_client(Frame::Error("Invalid frame".to_owned()))
+                    .await
             }
         }
     }

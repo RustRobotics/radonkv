@@ -8,8 +8,8 @@ use tokio::sync::mpsc;
 
 use crate::dispatcher::Dispatcher;
 use crate::error::Error;
-use crate::listener::Listener;
 use crate::listener::types::ListenerId;
+use crate::listener::Listener;
 use crate::mem::Mem;
 use crate::server::Server;
 use crate::storage::Storage;
@@ -42,8 +42,8 @@ impl Server {
                 listeners_to_dispatcher_sender.clone(),
                 dispatcher_to_listener_receiver,
             )
-                .await
-                .unwrap_or_else(|_| panic!("Failed to listen at {:?}", &listeners_info.last()));
+            .await
+            .unwrap_or_else(|_| panic!("Failed to listen at {:?}", &listeners_info.last()));
             listener_objs.push(listener);
         }
 
@@ -55,12 +55,11 @@ impl Server {
         }
 
         // Mem module
-        let (mem_to_dispatcher_sender, mem_to_dispatcher_receiver) = mpsc::channel(CHANNEL_CAPACITY);
-        let (dispatcher_to_mem_sender, dispatcher_to_mem_receiver) = mpsc::channel(CHANNEL_CAPACITY);
-        let mut mem = Mem::new(
-            mem_to_dispatcher_sender,
-            dispatcher_to_mem_receiver,
-        );
+        let (mem_to_dispatcher_sender, mem_to_dispatcher_receiver) =
+            mpsc::channel(CHANNEL_CAPACITY);
+        let (dispatcher_to_mem_sender, dispatcher_to_mem_receiver) =
+            mpsc::channel(CHANNEL_CAPACITY);
+        let mut mem = Mem::new(mem_to_dispatcher_sender, dispatcher_to_mem_receiver);
         let mem_handle = runtime.spawn(async move {
             mem.run_loop().await;
         });
@@ -69,11 +68,10 @@ impl Server {
         // Storage module
         let (storage_to_dispatcher_sender, storage_to_dispatcher_receiver) =
             mpsc::channel(CHANNEL_CAPACITY);
-        let (dispatcher_to_storage_sender, dispatcher_to_storage_receiver) = mpsc::channel(CHANNEL_CAPACITY);
-        let mut storage = Storage::new(
-            storage_to_dispatcher_sender,
-            dispatcher_to_storage_receiver,
-        );
+        let (dispatcher_to_storage_sender, dispatcher_to_storage_receiver) =
+            mpsc::channel(CHANNEL_CAPACITY);
+        let mut storage =
+            Storage::new(storage_to_dispatcher_sender, dispatcher_to_storage_receiver);
         let storage_handle = runtime.spawn(async move {
             storage.run_loop().await;
         });

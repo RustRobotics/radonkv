@@ -6,9 +6,9 @@ use crate::cmd::list::ListCommand;
 use crate::cmd::string::StringCommand;
 
 pub mod frame;
+pub mod list;
 mod parse;
 pub mod string;
-pub mod list;
 
 #[derive(Debug, Clone)]
 pub enum Command {

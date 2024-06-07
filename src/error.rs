@@ -42,10 +42,7 @@ impl Error {
     #[must_use]
     #[inline]
     pub const fn from_string(kind: ErrorKind, message: String) -> Self {
-        Self {
-            kind,
-            message,
-        }
+        Self { kind, message }
     }
 }
 
@@ -69,9 +66,6 @@ impl From<ParsingFrameError> for Error {
 
 impl<T> From<mpsc::error::SendError<T>> for Error {
     fn from(err: mpsc::error::SendError<T>) -> Self {
-        Error::from_string(
-            ErrorKind::ChannelError,
-            format!("channel error: {err:?}"),
-        )
+        Self::from_string(ErrorKind::ChannelError, format!("channel error: {err:?}"))
     }
 }

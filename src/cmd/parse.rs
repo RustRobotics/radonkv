@@ -6,10 +6,10 @@ use std::vec::IntoIter;
 
 use bytes::Bytes;
 
-use crate::cmd::Command;
 use crate::cmd::frame::Frame;
 use crate::cmd::list::ListCommand;
 use crate::cmd::string::StringCommand;
+use crate::cmd::Command;
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub enum ParsingCommandError {
@@ -30,17 +30,19 @@ impl TryFrom<Frame> for Command {
             }
         };
 
-        let mut parser = Parser { iter: arr.into_iter() };
+        let mut parser = Parser {
+            iter: arr.into_iter(),
+        };
 
         let cmd_name = parser.next_string()?.to_ascii_lowercase();
 
         // TODO(Shaohua): Add a command hash map.
-        let mut command: Option<Command> = StringCommand::parse(&cmd_name, &mut parser)?;
+        let mut command: Option<Self> = StringCommand::parse(&cmd_name, &mut parser)?;
         if command.is_none() {
             command = ListCommand::parse(&cmd_name, &parser)?;
         }
 
-        command.ok_or_else(|| ParsingCommandError::CommandNotFound)
+        command.ok_or(ParsingCommandError::CommandNotFound)
     }
 }
 
@@ -50,20 +52,20 @@ pub struct Parser {
 
 impl Parser {
     pub fn next(&mut self) -> Result<Frame, ParsingCommandError> {
-        self.iter.next().ok_or(ParsingCommandError::InvalidParameter)
+        self.iter
+            .next()
+            .ok_or(ParsingCommandError::InvalidParameter)
     }
 
     pub fn next_string(&mut self) -> Result<String, ParsingCommandError> {
         match self.next()? {
             Frame::Simple(s) => Ok(s),
-            Frame::Bulk(bytes) => {
-                std::str::from_utf8(&bytes[..])
-                    .map(|s| s.to_string())
-                    .map_err(|err| {
-                        log::warn!("Failed to parse string, got err: {err:?}");
-                        ParsingCommandError::InvalidParameter
-                    })
-            }
+            Frame::Bulk(bytes) => std::str::from_utf8(&bytes[..])
+                .map(std::string::ToString::to_string)
+                .map_err(|err| {
+                    log::warn!("Failed to parse string, got err: {err:?}");
+                    ParsingCommandError::InvalidParameter
+                }),
             frame => {
                 log::warn!("Protocol error, expected simple or bulk frame, got: {frame:?}");
                 Err(ParsingCommandError::ProtocolError)

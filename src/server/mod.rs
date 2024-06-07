@@ -4,8 +4,8 @@
 
 use crate::config::Config;
 
-pub mod run;
 mod init;
+pub mod run;
 
 pub struct Server {
     pub config: Config,
@@ -14,8 +14,6 @@ pub struct Server {
 impl Server {
     #[must_use]
     pub fn new(config: Config) -> Self {
-        Self {
-            config,
-        }
+        Self { config }
     }
 }

@@ -6,8 +6,8 @@ use tokio::sync::mpsc::{Receiver, Sender};
 
 use crate::commands::{DispatcherToStorageCmd, StorageToDispatcherCmd};
 
-mod run;
 mod dispatcher;
+mod run;
 
 #[derive(Debug)]
 pub struct Storage {
@@ -16,6 +16,7 @@ pub struct Storage {
 }
 
 impl Storage {
+    #[must_use]
     pub const fn new(
         dispatcher_sender: Sender<StorageToDispatcherCmd>,
         dispatcher_receiver: Receiver<DispatcherToStorageCmd>,

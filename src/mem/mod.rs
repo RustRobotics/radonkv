@@ -9,26 +9,26 @@ use tokio::sync::mpsc::{Receiver, Sender};
 use crate::commands::{DispatcherToMemCmd, MemToDispatcherCmd};
 use crate::mem::db::Db;
 
-mod set;
-mod zset;
+mod auto_suggest;
+mod bitmap;
+mod bloom_filter;
+mod count_min_sketch;
+mod cuckoo_filter;
+mod db;
+mod dispatcher;
+mod geo;
 mod hash;
 mod hyperloglog;
-mod list;
-mod bitmap;
-mod geo;
-mod stream;
-mod pub_sub;
-mod bloom_filter;
-mod cuckoo_filter;
-mod count_min_sketch;
 mod json;
-mod top_k;
-mod time_series;
-mod string;
-mod auto_suggest;
+mod list;
+mod pub_sub;
 mod run;
-mod dispatcher;
-mod db;
+mod set;
+mod stream;
+mod string;
+mod time_series;
+mod top_k;
+mod zset;
 
 #[derive(Debug)]
 pub struct Mem {

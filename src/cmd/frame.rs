@@ -47,7 +47,7 @@ impl Frame {
 
     pub fn into_bytes(self) -> Bytes {
         match self {
-            Frame::Array(arr) => {
+            Self::Array(arr) => {
                 let mut bytes = BytesMut::new();
                 bytes.put_u8(b'*');
                 let len = arr.len();
@@ -59,7 +59,7 @@ impl Frame {
 
                 bytes.freeze()
             }
-            Frame::Bulk(val) => {
+            Self::Bulk(val) => {
                 let len = val.len();
                 let mut bytes = BytesMut::new();
                 bytes.put_u8(b'$');
@@ -68,21 +68,21 @@ impl Frame {
                 bytes.put_slice(b"\r\n");
                 bytes.freeze()
             }
-            Frame::Error(err) => {
+            Self::Error(err) => {
                 let mut bytes = BytesMut::new();
                 bytes.put_u8(b'-');
                 bytes.put(Bytes::from(err));
                 bytes.put_slice(b"\r\n");
                 bytes.freeze()
             }
-            Frame::Integer(num) => {
+            Self::Integer(num) => {
                 let mut bytes = BytesMut::new();
                 bytes.put_u8(b':');
                 Self::write_i64(&mut bytes, num);
                 bytes.freeze()
             }
-            Frame::Null => Bytes::from("$-1\r\n"),
-            Frame::Simple(s) => {
+            Self::Null => Bytes::from("$-1\r\n"),
+            Self::Simple(s) => {
                 let mut bytes = BytesMut::new();
                 bytes.put_u8(b'+');
                 bytes.put(Bytes::from(s));
@@ -96,7 +96,7 @@ impl Frame {
         // NOTE(Shaohua): Replace String format with stack array.
         let mut buf = [0u8; 32];
         let mut cursor = Cursor::new(&mut buf[..]);
-        write!(&mut cursor, "{}", val).unwrap();
+        write!(&mut cursor, "{val}").unwrap();
         let pos = cursor.position() as usize;
         bytes.put(&cursor.get_ref()[0..pos]);
         bytes.put_slice(b"\r\n");
@@ -144,7 +144,7 @@ impl Frame {
                 }
                 Ok(())
             }
-            frame_type => Err(ParsingFrameError::InvalidFrameType(frame_type))
+            frame_type => Err(ParsingFrameError::InvalidFrameType(frame_type)),
         }
     }
 
@@ -153,22 +153,22 @@ impl Frame {
             b'+' => {
                 let line = Self::get_line(cursor)?;
                 let s: String = String::from_utf8(line.to_vec())?;
-                Ok(Frame::Simple(s))
+                Ok(Self::Simple(s))
             }
             b'-' => {
                 let line = Self::get_line(cursor)?;
                 let s = String::from_utf8(line.to_vec())?;
-                Ok(Frame::Error(s))
+                Ok(Self::Error(s))
             }
             b':' => {
                 let val = Self::get_i64(cursor)?;
-                Ok(Frame::Integer(val))
+                Ok(Self::Integer(val))
             }
             b'$' => {
                 if b'-' == Self::peek_u8(cursor)? {
                     let line = Self::get_line(cursor)?;
                     if line == b"-1" {
-                        Ok(Frame::Null)
+                        Ok(Self::Null)
                     } else {
                         Err(ParsingFrameError::InvalidFrameFormat)
                     }
@@ -183,7 +183,7 @@ impl Frame {
 
                     let data = Bytes::copy_from_slice(&cursor.chunk()[..len]);
                     cursor.advance(n);
-                    Ok(Frame::Bulk(data))
+                    Ok(Self::Bulk(data))
                 }
             }
             b'*' => {
@@ -195,7 +195,7 @@ impl Frame {
                 }
                 log::info!("frame arr: {arr:?}");
 
-                Ok(Frame::Array(arr))
+                Ok(Self::Array(arr))
             }
             _ => unimplemented!(),
         }
@@ -230,7 +230,7 @@ impl Frame {
 
     fn get_i64(cursor: &mut Cursor<&[u8]>) -> Result<i64, ParsingFrameError> {
         let line = Self::get_line(cursor)?;
-        atoi::<i64>(line).ok_or_else(|| ParsingFrameError::InvalidFrameFormat)
+        atoi::<i64>(line).ok_or(ParsingFrameError::InvalidFrameFormat)
     }
 
     /// Read one line from message.
@@ -250,7 +250,7 @@ impl Frame {
 
 impl From<FromUtf8Error> for ParsingFrameError {
     fn from(_err: FromUtf8Error) -> Self {
-        ParsingFrameError::InvalidFrameFormat
+        Self::InvalidFrameFormat
     }
 }
 
@@ -263,7 +263,10 @@ mod tests {
     #[test]
     fn test_parse_frame() {
         let s = "2a320d0a24330d0a6765740d0a24340d0a6e616d650d0a";
-        let bytes: Vec<u8> = (0..s.len()).step_by(2).map(|i| u8::from_str_radix(&s[i..i + 2], 16).unwrap()).collect();
+        let bytes: Vec<u8> = (0..s.len())
+            .step_by(2)
+            .map(|i| u8::from_str_radix(&s[i..i + 2], 16).unwrap())
+            .collect();
         let mut cursor = Cursor::new(&bytes[..]);
         let ret = Frame::check_msg(&mut cursor);
         assert!(ret.is_ok());

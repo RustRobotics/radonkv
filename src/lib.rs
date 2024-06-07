@@ -14,19 +14,18 @@
     clippy::module_name_repetitions,
     clippy::multiple_crate_versions
 )]
-
 // TODO(Shaohua): Remove
 #![allow(dead_code)]
 
 pub mod cluster;
 pub mod cmd;
+mod commands;
 pub mod config;
 pub mod dispatcher;
 pub mod error;
 pub mod listener;
+mod log;
 pub mod mem;
 pub mod server;
-pub mod storage;
-mod commands;
 mod session;
-mod log;
+pub mod storage;
