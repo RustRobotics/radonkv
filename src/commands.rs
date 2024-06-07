@@ -4,10 +4,12 @@
 
 use crate::cmd::Command;
 use crate::cmd::frame::Frame;
-use crate::listener::types::{ListenerId, SessionGid, SessionId};
+use crate::listener::types::{SessionGid, SessionId};
 
 #[derive(Debug, Clone)]
-pub enum ListenerToSessionCmd {}
+pub enum ListenerToSessionCmd {
+    Reply(SessionId, Frame),
+}
 
 #[derive(Debug, Clone)]
 pub enum SessionToListenerCmd {
@@ -22,7 +24,7 @@ pub enum ListenerToDispatcherCmd {
 
 #[derive(Debug, Clone)]
 pub enum DispatcherToListenerCmd {
-    Reply(ListenerId, Frame),
+    Reply(SessionGid, Frame),
 }
 
 #[derive(Debug, Clone)]
