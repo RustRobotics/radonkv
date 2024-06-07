@@ -8,6 +8,7 @@ use crate::error::Error;
 use crate::mem::Mem;
 
 impl Mem {
+    #[allow(clippy::needless_pass_by_value)]
     pub fn handle_list_command(&mut self, _command: ListCommand) -> Result<Frame, Error> {
         todo!()
     }

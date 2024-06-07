@@ -23,6 +23,7 @@ impl Mem {
                 Ok(Frame::ok())
             }
             StringCommand::StrLen(key) => match self.db.get(&key) {
+                #[allow(clippy::cast_possible_wrap)]
                 Some(MemObject::Str(value)) => Ok(Frame::Integer(value.len() as i64)),
                 Some(_other) => Ok(Frame::Error(
                     "Object type mismatch, expected string".to_owned(),

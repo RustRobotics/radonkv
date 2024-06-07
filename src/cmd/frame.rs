@@ -3,6 +3,7 @@
 // that can be found in the LICENSE file.
 
 use std::io::{Cursor, Write};
+use std::num::TryFromIntError;
 use std::string::FromUtf8Error;
 
 use atoi::atoi;
@@ -41,7 +42,7 @@ impl Frame {
 
     #[must_use]
     #[inline]
-    pub fn new_array() -> Self {
+    pub const fn new_array() -> Self {
         Self::Array(vec![])
     }
 
@@ -51,6 +52,7 @@ impl Frame {
                 let mut bytes = BytesMut::new();
                 bytes.put_u8(b'*');
                 let len = arr.len();
+                #[allow(clippy::cast_possible_wrap)]
                 Self::write_i64(&mut bytes, len as i64);
 
                 for frame in arr {
@@ -63,6 +65,7 @@ impl Frame {
                 let len = val.len();
                 let mut bytes = BytesMut::new();
                 bytes.put_u8(b'$');
+                #[allow(clippy::cast_possible_wrap)]
                 Self::write_i64(&mut bytes, len as i64);
                 bytes.put(val);
                 bytes.put_slice(b"\r\n");
@@ -97,7 +100,7 @@ impl Frame {
         let mut buf = [0u8; 32];
         let mut cursor = Cursor::new(&mut buf[..]);
         write!(&mut cursor, "{val}").unwrap();
-        let pos = cursor.position() as usize;
+        let pos = usize::try_from(cursor.position()).unwrap();
         bytes.put(&cursor.get_ref()[0..pos]);
         bytes.put_slice(b"\r\n");
     }
@@ -134,7 +137,7 @@ impl Frame {
                 Ok(())
             }
             b'$' => {
-                let len = Self::get_i64(cursor)? as usize;
+                let len = usize::try_from(Self::get_i64(cursor)?)?;
                 Self::skip(cursor, len + 2)
             }
             b'*' => {
@@ -173,8 +176,7 @@ impl Frame {
                         Err(ParsingFrameError::InvalidFrameFormat)
                     }
                 } else {
-                    // TODO(Shaohua): Fix cast error
-                    let len: usize = Self::get_i64(cursor)? as usize;
+                    let len = usize::try_from(Self::get_i64(cursor)?)?;
                     // data + '\r\n'
                     let n = len + 2;
                     if cursor.remaining() < n {
@@ -187,8 +189,7 @@ impl Frame {
                 }
             }
             b'*' => {
-                // TODO(Shaohua): Check cast overflow
-                let len = Self::get_i64(cursor)? as usize;
+                let len = usize::try_from(Self::get_i64(cursor)?)?;
                 let mut arr = Vec::with_capacity(len);
                 for _ in 0..len {
                     arr.push(Self::parse(cursor)?);
@@ -202,7 +203,7 @@ impl Frame {
     }
 
     #[allow(dead_code)]
-    fn peek_u8(cursor: &mut Cursor<&[u8]>) -> Result<u8, ParsingFrameError> {
+    fn peek_u8(cursor: &Cursor<&[u8]>) -> Result<u8, ParsingFrameError> {
         if cursor.has_remaining() {
             Ok(cursor.chunk()[0])
         } else {
@@ -235,7 +236,7 @@ impl Frame {
 
     /// Read one line from message.
     fn get_line<'a>(cursor: &mut Cursor<&'a [u8]>) -> Result<&'a [u8], ParsingFrameError> {
-        let left = cursor.position() as usize;
+        let left = usize::try_from(cursor.position())?;
         let right = cursor.get_ref().len() - 1;
         for i in left..right {
             if cursor.get_ref()[i] == b'\r' && cursor.get_ref()[i + 1] == b'\n' {
@@ -250,6 +251,13 @@ impl Frame {
 
 impl From<FromUtf8Error> for ParsingFrameError {
     fn from(_err: FromUtf8Error) -> Self {
+        Self::InvalidFrameFormat
+    }
+}
+
+impl From<TryFromIntError> for ParsingFrameError {
+    fn from(err: TryFromIntError) -> Self {
+        log::warn!("Failed to parse int value from frame, err: {err:?}");
         Self::InvalidFrameFormat
     }
 }
