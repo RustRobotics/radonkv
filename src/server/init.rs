@@ -8,13 +8,13 @@ use tokio::sync::mpsc;
 
 use crate::dispatcher::Dispatcher;
 use crate::error::Error;
-use crate::listener::Listener;
 use crate::listener::types::ListenerId;
+use crate::listener::Listener;
 use crate::mem::Mem;
 use crate::server::Server;
 use crate::storage::Storage;
 
-const CHANNEL_CAPACITY: usize = 16;
+const CHANNEL_CAPACITY: usize = 1024 * 16;
 
 impl Server {
     pub(crate) async fn init_modules(&mut self, runtime: &Runtime) -> Result<(), Error> {
@@ -41,8 +41,8 @@ impl Server {
                 listeners_to_dispatcher_sender.clone(),
                 dispatcher_to_listener_receiver,
             )
-                .await
-                .unwrap_or_else(|_| panic!("Failed to listen at {:?}", &listeners_info.last()));
+            .await
+            .unwrap_or_else(|_| panic!("Failed to listen at {:?}", &listeners_info.last()));
             listener_objs.push(listener);
         }
 
@@ -88,7 +88,6 @@ impl Server {
         let _dispatcher_handle = runtime.spawn(async move {
             dispatcher.run_loop().await;
         });
-
 
         Ok(())
     }

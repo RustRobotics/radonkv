@@ -4,9 +4,8 @@
 
 use std::time::Instant;
 
-use crate::commands::SessionToListenerCmd;
-use crate::session::status::Status;
 use crate::session::Session;
+use crate::session::status::Status;
 
 impl Session {
     pub async fn run_loop(mut self) {
@@ -40,19 +39,10 @@ impl Session {
             }
         }
 
-        if let Err(err) = self
-            .listener_sender
-            .send(SessionToListenerCmd::Disconnect(self.id))
-            .await
-        {
-            log::error!(
-                "Failed to send disconnect cmd to listener, id: {}, err: {:?}",
-                self.id,
-                err
-            );
-        }
-
         log::info!("Session {} exit main loop", self.id);
         // Now session object goes out of scope and stream is dropped.
+        if let Err(err) = self.stream.flush().await {
+            log::warn!("Failed to flush stream, err: {err:?}");
+        }
     }
 }

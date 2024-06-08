@@ -52,6 +52,7 @@ impl Session {
     #[allow(clippy::unused_async)]
     pub(crate) async fn send_disconnect(&mut self) -> Result<(), Error> {
         self.status = Status::Disconnecting;
+        self.listener_sender.send(SessionToListenerCmd::Disconnect(self.id)).await?;
         Ok(())
     }
 

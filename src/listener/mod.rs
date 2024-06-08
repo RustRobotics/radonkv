@@ -44,7 +44,7 @@ pub struct Listener {
     dispatcher_receiver: Option<Receiver<DispatcherToListenerCmd>>,
 }
 
-const CHANNEL_CAPACITY: usize = 16;
+const CHANNEL_CAPACITY: usize = 1024 * 8;
 
 impl Listener {
     #[must_use]
@@ -57,7 +57,10 @@ impl Listener {
     fn new_connection(&mut self, stream: Stream) {
         let (sender, receiver) = mpsc::channel(CHANNEL_CAPACITY);
         let session_id = self.next_session_id();
-        log::info!("Got new connection in listener {}, session id: {session_id}", self.id);
+        log::info!(
+            "Got new connection in listener {}, session id: {session_id}",
+            self.id
+        );
         self.session_senders.insert(session_id, sender);
         let session_config = SessionConfig::new(self.config.keepalive());
         let session = Session::new(
@@ -127,8 +130,8 @@ impl Listener {
     pub(super) async fn accept(&mut self) -> Result<Stream, Error> {
         match &mut self.socket_listener {
             SocketListener::Tcp(tcp_listener) => {
-                let (tcp_stream, address) = tcp_listener.accept().await?;
-                Ok(Stream::Tcp(tcp_stream, address))
+                let (tcp_stream, _address) = tcp_listener.accept().await?;
+                Ok(Stream::Tcp(tcp_stream))
             }
         }
     }
