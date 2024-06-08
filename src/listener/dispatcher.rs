@@ -2,6 +2,8 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
+use stdext::function_name;
+
 use crate::commands::{DispatcherToListenerCmd, ListenerToSessionCmd};
 use crate::error::{Error, ErrorKind};
 use crate::listener::Listener;
@@ -11,6 +13,7 @@ impl Listener {
         &mut self,
         cmd: DispatcherToListenerCmd,
     ) -> Result<(), Error> {
+        log::info!("{}, proxy cmd from listener to session, cmd: {cmd:?}", function_name!());
         match cmd {
             DispatcherToListenerCmd::Reply(session_group, frame) => {
                 assert_eq!(session_group.listener_id(), self.id);

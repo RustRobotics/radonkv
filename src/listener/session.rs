@@ -14,11 +14,13 @@ impl Listener {
         &mut self,
         cmd: SessionToListenerCmd,
     ) -> Result<(), Error> {
+        log::info!("{}", function_name!());
         match cmd {
             SessionToListenerCmd::Cmd(session_id, command) => {
                 // Pass cmd to dispatcher
                 let session_group = SessionGroup::new(self.id, session_id);
                 let cmd = ListenerToDispatcherCmd::Cmd(session_group, command);
+                log::info!("{} proxy cmd from session to dispatcher, cmd: {cmd:?}", function_name!());
                 self.dispatcher_sender.send(cmd).await?;
                 Ok(())
             }

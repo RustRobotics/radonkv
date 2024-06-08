@@ -17,7 +17,9 @@ pub async fn new_tcp_listener(address: &str, device: &str) -> Result<TcpListener
     let listener = TcpListener::bind(address).await?;
     let socket_fd: RawFd = listener.as_raw_fd();
 
-    bind_device(socket_fd, device)?;
+    if !device.is_empty() {
+        bind_device(socket_fd, device)?;
+    }
     enable_fast_open(socket_fd)?;
 
     // TODO(Shaohua): Tuning tcp keep alive flag.
@@ -26,33 +28,34 @@ pub async fn new_tcp_listener(address: &str, device: &str) -> Result<TcpListener
     Ok(listener)
 }
 
+#[allow(clippy::cast_possible_truncation)]
 fn bind_device(socket_fd: RawFd, device: &str) -> Result<(), Error> {
-    if !device.is_empty() {
-        unsafe {
-            #[allow(clippy::cast_possible_truncation)]
-            let socket_len = device.len() as nc::socklen_t;
-            nc::setsockopt(
-                socket_fd,
-                nc::SOL_SOCKET,
-                nc::SO_BINDTODEVICE,
-                device.as_ptr() as usize,
-                socket_len,
-            )
-            .map_err(|errno| {
-                Error::from_string(
-                    ErrorKind::KernelError,
-                    format!(
-                        "Failed to bind device: {}, err: {}",
-                        device,
-                        nc::strerror(errno)
-                    ),
-                )
-            })?;
-        }
+    debug_assert!(!device.is_empty());
+    let ret = unsafe {
+        let socket_len = device.len() as nc::socklen_t;
+        nc::setsockopt(
+            socket_fd,
+            nc::SOL_SOCKET,
+            nc::SO_BINDTODEVICE,
+            device.as_ptr() as usize,
+            socket_len,
+        )
+    };
+    if let Err(errno) = ret {
+        Err(Error::from_string(
+            ErrorKind::KernelError,
+            format!(
+                "Failed to bind device: {}, err: {}",
+                device,
+                nc::strerror(errno)
+            ),
+        ))
+    } else {
+        Ok(())
     }
-    Ok(())
 }
 
+#[allow(clippy::cast_possible_truncation)]
 fn enable_fast_open(socket_fd: RawFd) -> Result<(), Error> {
     // For Linux, value is the queue length of pending packets.
     //
@@ -61,8 +64,7 @@ fn enable_fast_open(socket_fd: RawFd) -> Result<(), Error> {
     // For the others, just a boolean value for enable and disable.
     let queue_len_ptr = std::ptr::addr_of!(queue_len) as usize;
 
-    unsafe {
-        #[allow(clippy::cast_possible_truncation)]
+    let ret = unsafe {
         let len = std::mem::size_of_val(&queue_len) as u32;
         nc::setsockopt(
             socket_fd,
@@ -71,14 +73,17 @@ fn enable_fast_open(socket_fd: RawFd) -> Result<(), Error> {
             queue_len_ptr,
             len,
         )
-        .map_err(|errno| {
-            Error::from_string(
-                ErrorKind::KernelError,
-                format!(
-                    "Failed to enable socket fast open, got err: {}",
-                    nc::strerror(errno)
-                ),
-            )
-        })
+    };
+
+    if let Err(errno) = ret {
+        Err(Error::from_string(
+            ErrorKind::KernelError,
+            format!(
+                "Failed to enable socket fast open, got err: {}",
+                nc::strerror(errno)
+            ),
+        ))
+    } else {
+        Ok(())
     }
 }
