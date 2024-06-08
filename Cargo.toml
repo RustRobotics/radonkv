@@ -5,14 +5,14 @@ authors = ["Xu Shaohua <shaohua@biofan.org>"]
 description = "Distributed in-memory cache service"
 edition = "2021"
 categories = [
-  "concurrency",
-  "network-programming",
+    "concurrency",
+    "network-programming",
 ]
 keywords = [
-  "cache",
-  "distributed",
-  "memory",
-  "redis",
+    "cache",
+    "distributed",
+    "memory",
+    "redis",
 ]
 repository = "https://github.com/xushaohua/tasha"
 homepage = "https://github.com/xushaohua/tasha"
@@ -35,3 +35,8 @@ toml = "0.8.14"
 
 [target.'cfg(unix)'.dependencies]
 nc = "0.8.21"
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = 3
