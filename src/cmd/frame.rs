@@ -28,24 +28,6 @@ pub enum ParsingFrameError {
 }
 
 impl Frame {
-    #[must_use]
-    #[inline]
-    pub fn ok() -> Self {
-        Self::Simple("Ok".to_owned())
-    }
-
-    #[must_use]
-    #[inline]
-    pub const fn null() -> Self {
-        Self::Null
-    }
-
-    #[must_use]
-    #[inline]
-    pub const fn new_array() -> Self {
-        Self::Array(vec![])
-    }
-
     pub fn into_bytes(self) -> Bytes {
         match self {
             Self::Array(arr) => {
