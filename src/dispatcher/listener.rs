@@ -2,6 +2,8 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
+use stdext::function_name;
+
 use crate::cmd::CommandCategory;
 use crate::commands::{DispatcherToMemCmd, ListenerToDispatcherCmd};
 use crate::dispatcher::Dispatcher;
@@ -12,6 +14,7 @@ impl Dispatcher {
         &mut self,
         cmd: ListenerToDispatcherCmd,
     ) -> Result<(), Error> {
+        log::info!("{}", function_name!());
         match cmd {
             ListenerToDispatcherCmd::Cmd(session_group, command) => match command.category() {
                 CommandCategory::Mem => {
@@ -20,6 +23,7 @@ impl Dispatcher {
                         session_group,
                         command,
                     };
+                    log::info!("{} proxy cmd from listener to mem, cmd: {cmd:?}", function_name!());
                     Ok(self.mem_sender.send(cmd).await?)
                 }
                 CommandCategory::System => {
