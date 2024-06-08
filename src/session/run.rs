@@ -10,33 +10,27 @@ use crate::session::status::Status;
 impl Session {
     pub async fn run_loop(mut self) {
         let _connect_timeout = Instant::now();
+        self.status = Status::Connected;
+        let mut listener_receiver = self.listener_receiver.take().unwrap();
 
-        loop {
-            if self.status == Status::Disconnected {
-                log::info!("session status is Disconnected");
-                break;
-            }
-
+        while self.status != Status::Disconnected {
             tokio::select! {
-                Ok(n_recv) = self.stream.read_buf(&mut self.buffer) => {
-                    if n_recv > 0 {
-                        if let Err(err) = self.handle_client_frame().await {
-                            log::error!("handle_client_frame() failed: {:?}", err);
-                        }
-                    } else {
-                        log::info!("session: Empty packet received, disconnect client, {}", self.id);
-                        if let Err(err) = self.send_disconnect().await {
-                            log::error!("session: Failed to send disconnect packet: {:?}", err);
-                        }
-                        break;
+                Some(frame) = self.read_frame() => {
+                    if let Err(err) = self.handle_client_frame(frame).await {
+                        log::warn!("fuck err: {err:?}");
                     }
                 }
-                Some(cmd) = self.listener_receiver.recv() => {
+                Some(cmd) = listener_receiver.recv() => {
                     if let Err(err) = self.handle_listener_cmd(cmd).await {
                         log::error!("Failed to handle server packet: {:?}", err);
                     }
+                    continue;
                 },
             }
+            ;
+        }
+        if let Err(err) = self.send_disconnect_to_listener().await {
+            log::warn!("Failed to send disconnect info to listener, err: {err:?}");
         }
 
         log::info!("Session {} exit main loop", self.id);

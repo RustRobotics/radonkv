@@ -5,6 +5,7 @@
 use std::io::Cursor;
 
 use bytes::{Buf, Bytes};
+use stdext::function_name;
 
 use crate::cmd::Command;
 use crate::cmd::frame::{Frame, ParsingFrameError};
@@ -14,45 +15,68 @@ use crate::session::Session;
 use crate::session::status::Status;
 
 impl Session {
-    pub(crate) async fn handle_client_frame(&mut self) -> Result<(), Error> {
+    pub(super) async fn read_frame(&mut self) -> Option<Frame> {
+        loop {
+            // Try parsing frame from buffer.
+            match self.parse_frame() {
+                Ok(Some(frame)) => {
+                    return Some(frame);
+                }
+                Ok(None) => (),
+                Err(err) => {
+                    log::warn!("Invalid frame, err: {err:?}");
+                    let frame = Frame::Error("Invalid frame".to_owned());
+                    if let Err(err) = self.send_frame_to_client(frame).await {
+                        log::warn!("Failed to send error frame to client, err: {err:?}");
+                    }
+                    // TODO(Shaohua): Close socket.
+                    return None;
+                }
+            }
+
+            match self.stream.read_buf(&mut self.buffer).await {
+                Ok(0) => {
+                    log::info!("{} Empty packet received, disconnect client, {}", function_name!(), self.id);
+                    self.status = Status::Disconnected;
+                    return None;
+                }
+                Err(err) => {
+                    log::warn!("{} Failed to read from socket with id: {}, err: {err:?}", function_name!(), self.id);
+                    self.status = Status::Disconnected;
+                    return None;
+                }
+                _ => (),
+            }
+        }
+    }
+
+    pub(super) async fn handle_client_frame(&mut self, frame: Frame) -> Result<(), Error> {
+        log::info!("{}", function_name!());
         // 1. parse frame
         // 2.1. if frame is None, waiting for more data
         // 2.2. if frame is ok, parse command
         // 2.3. if frame is invalid, send failed to client
         // 3.1. if command is parsed ok, send that new cmd to listener
         // 3.2. else send error to client.
-        match self.parse_frame() {
-            Ok(None) => Ok(()),
-            Ok(Some(frame)) => match Command::try_from(frame) {
-                Ok(command) => {
-                    let cmd = SessionToListenerCmd::Cmd(self.id, command);
-                    self.listener_sender.send(cmd).await?;
-                    Ok(())
-                }
-                Err(err) => {
-                    log::warn!("Invalid command, err: {err:?}");
-                    self.send_frame_to_client(Frame::Error("Invalid command".to_owned()))
-                        .await
-                }
-            },
+        match Command::try_from(frame) {
+            Ok(command) => {
+                let cmd = SessionToListenerCmd::Cmd(self.id, command);
+                log::debug!("{} send cmd to listener, cmd: {cmd:?}", function_name!());
+                Ok(self.listener_sender.send(cmd).await?)
+            }
             Err(err) => {
-                log::warn!("Invalid frame, err: {err:?}");
-                self.send_frame_to_client(Frame::Error("Invalid frame".to_owned()))
+                log::warn!("Invalid command, err: {err:?}");
+                self.send_frame_to_client(Frame::Error("Invalid command".to_owned()))
                     .await
             }
         }
     }
 
-    pub async fn send_frame_to_client(&mut self, frame: Frame) -> Result<(), Error> {
+    pub(super) async fn send_frame_to_client(&mut self, frame: Frame) -> Result<(), Error> {
+        log::debug!("{} frame: {frame:?}", function_name!());
         let bytes: Bytes = frame.into_bytes();
         self.stream.write(&bytes).await?;
-        self.stream.flush().await
-    }
-
-    #[allow(clippy::unused_async)]
-    pub(crate) async fn send_disconnect(&mut self) -> Result<(), Error> {
-        self.status = Status::Disconnecting;
-        self.listener_sender.send(SessionToListenerCmd::Disconnect(self.id)).await?;
+        //self.stream.flush().await
         Ok(())
     }
 

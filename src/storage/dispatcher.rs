@@ -14,7 +14,7 @@ impl Storage {
         &mut self,
         cmd: DispatcherToStorageCmd,
     ) -> Result<(), Error> {
-        println!("{} cmd: {cmd:?}", function_name!());
+        log::debug!("{} cmd: {cmd:?}", function_name!());
         Ok(())
     }
 }

@@ -28,7 +28,7 @@ pub struct Session {
     buffer: BytesMut,
 
     listener_sender: Sender<SessionToListenerCmd>,
-    listener_receiver: Receiver<ListenerToSessionCmd>,
+    listener_receiver: Option<Receiver<ListenerToSessionCmd>>,
 }
 
 impl Session {
@@ -50,7 +50,7 @@ impl Session {
             buffer: BytesMut::with_capacity(BUF_SIZE),
 
             listener_sender,
-            listener_receiver,
+            listener_receiver: Some(listener_receiver),
         }
     }
 }

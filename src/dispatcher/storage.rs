@@ -10,6 +10,6 @@ use crate::dispatcher::Dispatcher;
 impl Dispatcher {
     #[allow(clippy::unused_async)]
     pub(super) async fn handle_storage_cmd(&mut self, cmd: StorageToDispatcherCmd) {
-        println!("{} cmd: {cmd:?}", function_name!());
+        log::debug!("{} cmd: {cmd:?}", function_name!());
     }
 }

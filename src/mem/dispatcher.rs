@@ -13,7 +13,7 @@ impl Mem {
         &mut self,
         cmd: DispatcherToMemCmd,
     ) -> Result<(), Error> {
-        log::info!("{}, cmd: {cmd:?}", function_name!());
+        log::debug!("{}, cmd: {cmd:?}", function_name!());
         let DispatcherToMemCmd {
             session_group,
             command,
@@ -23,7 +23,7 @@ impl Mem {
             session_group,
             frame: reply_frame,
         };
-        log::info!("{} send cmd to dispatcher, cmd: {reply_cmd:?}", function_name!());
+        log::debug!("{} send cmd to dispatcher, cmd: {reply_cmd:?}", function_name!());
         Ok(self.dispatcher_sender.send(reply_cmd).await?)
     }
 }

@@ -6,8 +6,6 @@
 pub enum Status {
     #[default]
     Invalid,
-    Connecting,
     Connected,
-    Disconnecting,
     Disconnected,
 }

@@ -4,21 +4,28 @@
 
 use stdext::function_name;
 
-use crate::commands::ListenerToSessionCmd;
+use crate::commands::{ListenerToSessionCmd, SessionToListenerCmd};
 use crate::error::Error;
 use crate::session::Session;
 
 impl Session {
-    pub(crate) async fn handle_listener_cmd(
+    pub(super) async fn handle_listener_cmd(
         &mut self,
         cmd: ListenerToSessionCmd,
     ) -> Result<(), Error> {
+        log::debug!("{} got reply cmd from listener, cmd: {cmd:?}", function_name!());
         match cmd {
             ListenerToSessionCmd::Reply(session_id, frame) => {
                 assert_eq!(session_id, self.id);
-                log::info!("{} id: {}, send {frame:?} to client", function_name!(), self.id);
                 Ok(self.send_frame_to_client(frame).await?)
             }
         }
+    }
+
+
+    #[allow(clippy::unused_async)]
+    pub(super) async fn send_disconnect_to_listener(&mut self) -> Result<(), Error> {
+        self.listener_sender.send(SessionToListenerCmd::Disconnect(self.id)).await?;
+        Ok(())
     }
 }

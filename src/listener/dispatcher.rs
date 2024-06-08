@@ -13,7 +13,7 @@ impl Listener {
         &mut self,
         cmd: DispatcherToListenerCmd,
     ) -> Result<(), Error> {
-        log::info!("{}, proxy cmd from listener to session, cmd: {cmd:?}", function_name!());
+        log::debug!("{}, proxy cmd from listener to session, cmd: {cmd:?}", function_name!());
         match cmd {
             DispatcherToListenerCmd::Reply(session_group, frame) => {
                 assert_eq!(session_group.listener_id(), self.id);

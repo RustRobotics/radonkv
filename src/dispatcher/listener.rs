@@ -14,7 +14,7 @@ impl Dispatcher {
         &mut self,
         cmd: ListenerToDispatcherCmd,
     ) -> Result<(), Error> {
-        log::info!("{}", function_name!());
+        log::debug!("{}", function_name!());
         match cmd {
             ListenerToDispatcherCmd::Cmd(session_group, command) => match command.category() {
                 CommandCategory::Mem => {
@@ -23,7 +23,7 @@ impl Dispatcher {
                         session_group,
                         command,
                     };
-                    log::info!("{} proxy cmd from listener to mem, cmd: {cmd:?}", function_name!());
+                    log::debug!("{} proxy cmd from listener to mem, cmd: {cmd:?}", function_name!());
                     Ok(self.mem_sender.send(cmd).await?)
                 }
                 CommandCategory::System => {
