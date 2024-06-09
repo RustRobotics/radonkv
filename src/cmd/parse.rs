@@ -2,7 +2,7 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
-use std::num::ParseIntError;
+use std::num::{ParseFloatError, ParseIntError};
 use std::vec::IntoIter;
 
 use bytes::Bytes;
@@ -22,6 +22,13 @@ pub enum ParseCommandError {
 impl From<ParseIntError> for ParseCommandError {
     fn from(_err: ParseIntError) -> Self {
         // TODO(Shaohua): Inherit from thiserror
+        Self::InvalidParameter
+    }
+}
+
+impl From<ParseFloatError> for ParseCommandError {
+    fn from(_err: ParseFloatError) -> Self {
+        // TODO(Shaohua):
         Self::InvalidParameter
     }
 }
@@ -81,6 +88,47 @@ impl Parser {
         }
     }
 
+    pub fn next_i32(&mut self) -> Result<i32, ParseCommandError> {
+        match self.next()? {
+            Frame::Simple(s) => {
+                Ok(s.parse::<i32>()?)
+            }
+            // TODO(Shaohua): Convert ParseCommandError as complex enum
+            Frame::Bulk(bytes) => {
+                let s = std::str::from_utf8(&bytes[..])
+                    .map_err(|err| {
+                        log::warn!("Failed to parse string, got err: {err:?}");
+                        ParseCommandError::InvalidParameter
+                    })?;
+                Ok(s.parse::<i32>()?)
+            }
+            frame => {
+                log::warn!("Protocol error, expected simple or bulk frame, got: {frame:?}");
+                Err(ParseCommandError::ProtocolError)
+            }
+        }
+    }
+
+    pub fn next_isize(&mut self) -> Result<isize, ParseCommandError> {
+        match self.next()? {
+            Frame::Simple(s) => {
+                Ok(s.parse::<isize>()?)
+            }
+            Frame::Bulk(bytes) => {
+                let s = std::str::from_utf8(&bytes[..])
+                    .map_err(|err| {
+                        log::warn!("Failed to parse string, got err: {err:?}");
+                        ParseCommandError::InvalidParameter
+                    })?;
+                Ok(s.parse::<isize>()?)
+            }
+            frame => {
+                log::warn!("Protocol error, expected simple or bulk frame, got: {frame:?}");
+                Err(ParseCommandError::ProtocolError)
+            }
+        }
+    }
+
     pub fn next_i64(&mut self) -> Result<i64, ParseCommandError> {
         match self.next()? {
             Frame::Simple(s) => {
@@ -100,6 +148,28 @@ impl Parser {
             }
         }
     }
+
+    pub fn next_f64(&mut self) -> Result<f64, ParseCommandError> {
+        match self.next()? {
+            Frame::Simple(s) => {
+                Ok(s.parse::<f64>()?)
+            }
+            Frame::Bulk(bytes) => {
+                let s = std::str::from_utf8(&bytes[..])
+                    .map_err(|err| {
+                        log::warn!("Failed to parse string, got err: {err:?}");
+                        ParseCommandError::InvalidParameter
+                    })?;
+                Ok(s.parse::<f64>()?)
+            }
+            frame => {
+                log::warn!("Protocol error, expected simple or bulk frame, got: {frame:?}");
+                Err(ParseCommandError::ProtocolError)
+            }
+        }
+    }
+
+    // TODO(Shaohua): Add next_f128()
 
     pub fn next_bytes(&mut self) -> Result<Bytes, ParseCommandError> {
         match self.next()? {
