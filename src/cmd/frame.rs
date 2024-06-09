@@ -22,6 +22,8 @@ pub enum Frame {
     Const(FrameConst),
 }
 
+// TODO(Shaohua): Add ReplyFrame
+
 #[derive(Debug)]
 pub enum ParseFrameError {
     ArrayExpected,

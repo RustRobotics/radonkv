@@ -54,6 +54,18 @@ impl Frame {
 
     #[must_use]
     #[inline]
+    pub const fn zero() -> Self {
+        Self::Integer(0)
+    }
+
+    #[must_use]
+    #[inline]
+    pub const fn one() -> Self {
+        Self::Integer(1)
+    }
+
+    #[must_use]
+    #[inline]
     pub const fn ok() -> Self {
         FrameConst::from_str(OK)
     }

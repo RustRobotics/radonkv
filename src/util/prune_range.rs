@@ -14,11 +14,13 @@ pub fn prune_range(len: usize, mut start: i64, mut end: i64) -> Option<(usize, u
     if end < 0 {
         end += len_i64;
     };
+    start = start.max(0);
+    end = end.max(0);
+    end = end.min(len_i64 - 1);
 
-    if start >= len_i64 || end < start {
+    if start > end || len == 0 {
         return None;
     }
-    end = end.min(len_i64 - 1);
 
     let start_usize = start as usize;
     let end_usize = end as usize;

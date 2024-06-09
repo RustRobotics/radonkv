@@ -29,6 +29,7 @@ mod string;
 mod time_series;
 mod top_k;
 mod zset;
+mod util;
 
 #[derive(Debug)]
 pub struct Mem {

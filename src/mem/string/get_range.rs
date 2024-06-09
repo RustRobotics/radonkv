@@ -6,6 +6,14 @@ use crate::cmd::frame::Frame;
 use crate::mem::db::Db;
 use crate::mem::string::sub_str::sub_str;
 
+/// Returns the substring of the string value stored at key, determined by the offsets
+/// start and end (both are inclusive).
+///
+/// Negative offsets can be used in order to provide an offset starting from the end of the string.
+/// So -1 means the last character, -2 the penultimate and so forth.
+///
+/// The function handles out of range requests by limiting the resulting range
+/// to the actual length of the string.
 #[must_use]
 #[inline]
 pub fn get_range(db: &Db, key: &str, start: i64, end: i64) -> Frame {

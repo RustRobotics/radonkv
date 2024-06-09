@@ -15,6 +15,7 @@ pub enum StringCommand {
     GetRange(String, i64, i64),
     GetSet(String, Bytes),
     Set(String, Bytes),
+    SetRange(String, isize, Bytes),
     StrLen(String),
     SubStr(String, i64, i64),
 }
@@ -53,6 +54,12 @@ impl StringCommand {
                 let key = parser.next_string()?;
                 let value = parser.next_bytes()?;
                 Self::Set(key, value)
+            }
+            "setrange" => {
+                let key = parser.next_string()?;
+                let offset = parser.next_isize()?;
+                let value = parser.next_bytes()?;
+                Self::SetRange(key, offset, value)
             }
             "strlen" => {
                 let key = parser.next_string()?;

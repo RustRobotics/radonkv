@@ -17,6 +17,8 @@ mod get_del;
 mod get_set;
 mod sub_str;
 mod get_range;
+mod set_range;
+mod consts;
 
 #[derive(Debug, Clone)]
 pub enum StrObject {
@@ -25,6 +27,12 @@ pub enum StrObject {
 }
 
 impl StrObject {
+    #[must_use]
+    #[inline]
+    pub fn with_length(len: usize) -> Self {
+        Self::Vec(vec![0; len])
+    }
+
     #[must_use]
     #[inline]
     #[allow(clippy::needless_pass_by_value)]
@@ -77,6 +85,7 @@ impl Mem {
             StringCommand::GetRange(key, start, end) => get_range::get_range(&self.db, &key, start, end),
             StringCommand::GetSet(key, value) => get_set::get_set(&mut self.db, key, value),
             StringCommand::Set(key, value) => set::set(&mut self.db, key, value),
+            StringCommand::SetRange(key, offset, value) => set_range::set_range(&mut self.db, key, offset, value),
             StringCommand::StrLen(key) => strlen::strlen(&self.db, &key),
             StringCommand::SubStr(key, start, end) => sub_str::sub_str(&self.db, &key, start, end),
         }
