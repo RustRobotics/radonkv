@@ -2,20 +2,14 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
-use bytes::Bytes;
-
-pub fn slice_range_to_bytes(slice: &[u8], start: i64, end: i64) -> Bytes {
-    if let Some((start, end)) = prune_range(slice.len(), start, end) {
-        Bytes::copy_from_slice(&slice[start..=end])
-    } else {
-        Bytes::new()
-    }
-}
-
+#[allow(clippy::cast_possible_truncation)]
+#[allow(clippy::cast_possible_wrap)]
+#[allow(clippy::cast_sign_loss)]
 pub fn prune_range(len: usize, mut start: i64, mut end: i64) -> Option<(usize, usize)> {
+    // TODO(Shaohua): Handle cast error
     let len_i64 = len as i64;
     if start < 0 {
-        start += len_i64 + start
+        start += len_i64;
     }
     if end < 0 {
         end += len_i64;

@@ -12,6 +12,7 @@ pub enum StringCommand {
     Append(String, Bytes),
     Get(String),
     GetDel(String),
+    GetRange(String, i64, i64),
     GetSet(String, Bytes),
     Set(String, Bytes),
     StrLen(String),
@@ -36,6 +37,12 @@ impl StringCommand {
             "getdel" => {
                 let key = parser.next_string()?;
                 Self::GetDel(key)
+            }
+            "getrange" => {
+                let key = parser.next_string()?;
+                let start = parser.next_i64()?;
+                let end = parser.next_i64()?;
+                Self::GetRange(key, start, end)
             }
             "getset" => {
                 let key = parser.next_string()?;

@@ -2,10 +2,12 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
+use bytes::Bytes;
+
 use crate::cmd::frame::Frame;
 use crate::mem::db::{Db, MemObject};
 use crate::mem::string::StrObject;
-use crate::util::prune_range::slice_range_to_bytes;
+use crate::util::prune_range::prune_range;
 
 /// Returns the substring of the string value stored at key,
 /// determined by the offsets start and end (both are inclusive).
@@ -19,7 +21,11 @@ pub fn sub_str(db: &Db, key: &str, start: i64, end: i64) -> Frame {
         Some(MemObject::Str(value)) => match value {
             StrObject::Integer(_) => todo!(),
             StrObject::Vec(vec) => {
-                let bytes = slice_range_to_bytes(vec, start, end);
+                let bytes = if let Some((start, end)) = prune_range(vec.len(), start, end) {
+                    Bytes::copy_from_slice(&vec[start..=end])
+                } else {
+                    Bytes::new()
+                };
                 Frame::Bulk(bytes)
             }
         }

@@ -16,6 +16,7 @@ mod append;
 mod get_del;
 mod get_set;
 mod sub_str;
+mod get_range;
 
 #[derive(Debug, Clone)]
 pub enum StrObject {
@@ -73,6 +74,7 @@ impl Mem {
             StringCommand::Append(key, value) => append::append(&mut self.db, key, value),
             StringCommand::Get(key) => get::get(&self.db, &key),
             StringCommand::GetDel(key) => get_del::get_del(&mut self.db, &key),
+            StringCommand::GetRange(key, start, end) => get_range::get_range(&self.db, &key, start, end),
             StringCommand::GetSet(key, value) => get_set::get_set(&mut self.db, key, value),
             StringCommand::Set(key, value) => set::set(&mut self.db, key, value),
             StringCommand::StrLen(key) => strlen::strlen(&self.db, &key),
