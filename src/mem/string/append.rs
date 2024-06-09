@@ -31,7 +31,7 @@ pub fn append(db: &mut Db, key: String, value: Bytes) -> Frame {
         }
         Entry::Vacant(vacant) => {
             let len = value.len();
-            vacant.insert(MemObject::Str(StrObject::from_bytes(value)));
+            vacant.insert(StrObject::from_bytes(value));
             Frame::Integer(len as i64)
         }
     }

@@ -6,6 +6,7 @@ use bytes::Bytes;
 
 use crate::cmd::frame::Frame;
 use crate::cmd::string::StringCommand;
+use crate::mem::db::MemObject;
 use crate::mem::Mem;
 
 mod get;
@@ -13,6 +14,7 @@ mod set;
 mod strlen;
 mod append;
 mod get_del;
+mod get_set;
 
 #[derive(Debug, Clone)]
 pub enum StrObject {
@@ -24,8 +26,8 @@ impl StrObject {
     #[must_use]
     #[inline]
     #[allow(clippy::needless_pass_by_value)]
-    pub fn from_bytes(bytes: Bytes) -> Self {
-        Self::Vec(bytes.to_vec())
+    pub fn from_bytes(bytes: Bytes) -> MemObject {
+        MemObject::Str(Self::Vec(bytes.to_vec()))
     }
 
     pub fn append(&mut self, bytes: &Bytes) {
@@ -70,6 +72,7 @@ impl Mem {
             StringCommand::Append(key, value) => append::append(&mut self.db, key, value),
             StringCommand::Get(key) => get::get(&self.db, &key),
             StringCommand::GetDel(key) => get_del::get_del(&mut self.db, &key),
+            StringCommand::GetSet(key, value) => get_set::get_set(&mut self.db, key, value),
             StringCommand::Set(key, value) => set::set(&mut self.db, key, value),
             StringCommand::StrLen(key) => strlen::strlen(&self.db, &key),
         }

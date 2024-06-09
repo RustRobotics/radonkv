@@ -5,10 +5,10 @@
 use bytes::Bytes;
 
 use crate::cmd::frame::Frame;
-use crate::mem::db::{Db, MemObject};
+use crate::mem::db::Db;
 use crate::mem::string::StrObject;
 
 pub fn set(db: &mut Db, key: String, value: Bytes) -> Frame {
-    db.insert(key, MemObject::Str(StrObject::from_bytes(value)));
+    db.insert(key, StrObject::from_bytes(value));
     Frame::ok()
 }

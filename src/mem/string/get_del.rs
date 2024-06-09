@@ -5,6 +5,10 @@
 use crate::cmd::frame::Frame;
 use crate::mem::db::{Db, MemObject};
 
+/// Get the value of key and delete the key.
+///
+/// This command is similar to GET, except for the fact that it also deletes the key
+/// on success (if and only if the key's value type is a string).
 pub fn get_del(db: &mut Db, key: &String) -> Frame {
     match db.get(key) {
         Some(MemObject::Str(value)) => {

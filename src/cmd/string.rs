@@ -12,6 +12,7 @@ pub enum StringCommand {
     Append(String, Bytes),
     Get(String),
     GetDel(String),
+    GetSet(String, Bytes),
     Set(String, Bytes),
     StrLen(String),
 }
@@ -34,6 +35,11 @@ impl StringCommand {
             "getdel" => {
                 let key = parser.next_string()?;
                 Self::GetDel(key)
+            }
+            "getset" => {
+                let key = parser.next_string()?;
+                let value = parser.next_bytes()?;
+                Self::GetSet(key, value)
             }
             "set" => {
                 let key = parser.next_string()?;
