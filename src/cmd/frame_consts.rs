@@ -10,12 +10,11 @@ use crate::cmd::frame::Frame;
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub enum FrameConst {
-    Ok,
     EmptyBulk,
     EmptyArray,
-    Pong,
-    Queued,
     Str(&'static str),
+    // Add ERR prefix to str.
+    Err(&'static str),
 }
 
 impl FrameConst {
@@ -23,12 +22,13 @@ impl FrameConst {
     #[inline]
     pub(super) fn to_real_frame(self) -> Frame {
         match self {
-            Self::Ok => Frame::Simple("Ok".to_owned()),
             Self::EmptyBulk => Frame::Bulk(Bytes::new()),
             Self::EmptyArray => Frame::Array(vec![]),
-            Self::Pong => Frame::Simple("PONG".to_owned()),
-            Self::Queued => Frame::Simple("QUEUED".to_owned()),
             Self::Str(s) => Frame::Simple(s.to_owned()),
+            Self::Err(err) => {
+                let s: String = [ERR, err].concat();
+                Frame::Simple(s)
+            }
         }
     }
 
@@ -36,6 +36,12 @@ impl FrameConst {
     #[inline]
     pub const fn from_str(s: &'static str) -> Frame {
         Frame::Const(Self::Str(s))
+    }
+
+    #[must_use]
+    #[inline]
+    pub const fn from_err(s: &'static str) -> Frame {
+        Frame::Const(Self::Err(s))
     }
 }
 
@@ -49,7 +55,7 @@ impl Frame {
     #[must_use]
     #[inline]
     pub const fn ok() -> Self {
-        Self::Const(FrameConst::Ok)
+        FrameConst::from_str(OK)
     }
 
     #[must_use]
@@ -67,21 +73,25 @@ impl Frame {
     #[must_use]
     #[inline]
     pub const fn pong() -> Self {
-        Self::Const(FrameConst::Pong)
+        FrameConst::from_str(PONG)
     }
 
     #[must_use]
     #[inline]
     pub const fn queued() -> Self {
-        Self::Const(FrameConst::Queued)
+        FrameConst::from_str(QUEUED)
     }
 
     #[must_use]
     #[inline]
     pub const fn wrong_type_err() -> Self {
-        Self::Const(FrameConst::Str(WRONG_TYPE_ERR))
+        FrameConst::from_str(WRONG_TYPE_ERR)
     }
 }
+
+pub const OK: &str = "Ok";
+pub const PONG: &str = "PONG";
+pub const QUEUED: &str = "QUEUED";
 
 // Shared command error responses
 pub const WRONG_TYPE_ERR: &str = "WRONGTYPE Operation against a key holding the wrong kind of value";
