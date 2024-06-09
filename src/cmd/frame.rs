@@ -9,6 +9,8 @@ use std::string::FromUtf8Error;
 use atoi::atoi;
 use bytes::{Buf, BufMut, Bytes, BytesMut};
 
+use crate::cmd::frame_consts::FrameConst;
+
 #[derive(Debug, Clone)]
 pub enum Frame {
     Array(Vec<Frame>),
@@ -17,6 +19,7 @@ pub enum Frame {
     Integer(i64),
     Null,
     Simple(String),
+    Const(FrameConst),
 }
 
 #[derive(Debug)]
@@ -73,6 +76,9 @@ impl Frame {
                 bytes.put(Bytes::from(s));
                 bytes.put_slice(b"\r\n");
                 bytes.freeze()
+            }
+            Self::Const(frame_const) => {
+                frame_const.to_real_frame().into_bytes()
             }
         }
     }

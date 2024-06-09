@@ -8,13 +8,30 @@ use bytes::Bytes;
 
 use crate::cmd::frame::Frame;
 
-impl Frame {
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
+pub enum FrameConst {
+    Ok,
+    EmptyBulk,
+    EmptyArray,
+    Pong,
+    Queued,
+}
+
+impl FrameConst {
     #[must_use]
     #[inline]
-    pub fn ok() -> Self {
-        Self::Simple("Ok".to_owned())
+    pub(super) fn to_real_frame(self) -> Frame {
+        match self {
+            Self::Ok => Frame::Simple("Ok".to_owned()),
+            Self::EmptyBulk => Frame::Bulk(Bytes::new()),
+            Self::EmptyArray => Frame::Array(vec![]),
+            Self::Pong => Frame::Simple("PONG".to_owned()),
+            Self::Queued => Frame::Simple("QUEUED".to_owned()),
+        }
     }
+}
 
+impl Frame {
     #[must_use]
     #[inline]
     pub const fn null() -> Self {
@@ -23,26 +40,32 @@ impl Frame {
 
     #[must_use]
     #[inline]
+    pub const fn ok() -> Self {
+        Self::Const(FrameConst::Ok)
+    }
+
+    #[must_use]
+    #[inline]
     pub const fn empty_bulk() -> Self {
-        Self::Bulk(Bytes::new())
+        Self::Const(FrameConst::EmptyBulk)
     }
 
     #[must_use]
     #[inline]
     pub const fn empty_array() -> Self {
-        Self::Array(vec![])
+        Self::Const(FrameConst::EmptyArray)
     }
 
     #[must_use]
     #[inline]
-    pub fn pong() -> Self {
-        Self::Simple("PONG".to_owned())
+    pub const fn pong() -> Self {
+        Self::Const(FrameConst::Pong)
     }
 
     #[must_use]
     #[inline]
-    pub fn queued() -> Self {
-        Self::Simple("QUEUED".to_owned())
+    pub const fn queued() -> Self {
+        Self::Const(FrameConst::Queued)
     }
 }
 

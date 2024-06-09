@@ -9,7 +9,7 @@ pub mod frame;
 pub mod list;
 mod parse;
 pub mod string;
-mod frame_consts;
+pub mod frame_consts;
 
 #[derive(Debug, Clone)]
 pub enum Command {
