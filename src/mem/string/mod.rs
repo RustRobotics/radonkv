@@ -4,32 +4,18 @@
 
 use crate::cmd::frame::Frame;
 use crate::cmd::string::StringCommand;
-use crate::error::Error;
-use crate::mem::db::MemObject;
 use crate::mem::Mem;
 
+mod get;
+mod set;
+mod strlen;
+
 impl Mem {
-    pub fn handle_string_command(&mut self, command: StringCommand) -> Result<Frame, Error> {
+    pub fn handle_string_command(&mut self, command: StringCommand) -> Frame {
         match command {
-            StringCommand::Get(key) => match self.db.get(&key) {
-                Some(MemObject::Str(value)) => Ok(Frame::Bulk(value.clone())),
-                Some(_other) => Ok(Frame::Error(
-                    "Object type mismatch, expected string".to_owned(),
-                )),
-                None => Ok(Frame::null()),
-            },
-            StringCommand::Set(key, value) => {
-                self.db.insert(key, MemObject::Str(value));
-                Ok(Frame::ok())
-            }
-            StringCommand::StrLen(key) => match self.db.get(&key) {
-                #[allow(clippy::cast_possible_wrap)]
-                Some(MemObject::Str(value)) => Ok(Frame::Integer(value.len() as i64)),
-                Some(_other) => Ok(Frame::Error(
-                    "Object type mismatch, expected string".to_owned(),
-                )),
-                None => Ok(Frame::Integer(0)),
-            },
+            StringCommand::Get(key) => get::get(&self.db, &key),
+            StringCommand::Set(key, value) => set::set(&mut self.db, key, value),
+            StringCommand::StrLen(key) => strlen::strlen(&self.db, &key),
         }
     }
 }

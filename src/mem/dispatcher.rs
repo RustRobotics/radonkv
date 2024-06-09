@@ -18,7 +18,7 @@ impl Mem {
             session_group,
             command,
         } = cmd;
-        let reply_frame = self.handle_db_command(command)?;
+        let reply_frame = self.handle_db_command(command);
         let reply_cmd = MemToDispatcherCmd {
             session_group,
             frame: reply_frame,

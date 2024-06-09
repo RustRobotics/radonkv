@@ -6,9 +6,8 @@ use std::collections::HashMap;
 
 use bytes::Bytes;
 
-use crate::cmd::frame::Frame;
 use crate::cmd::Command;
-use crate::error::Error;
+use crate::cmd::frame::Frame;
 use crate::mem::Mem;
 
 pub type Db = HashMap<String, MemObject>;
@@ -20,7 +19,7 @@ pub enum MemObject {
 }
 
 impl Mem {
-    pub fn handle_db_command(&mut self, command: Command) -> Result<Frame, Error> {
+    pub fn handle_db_command(&mut self, command: Command) -> Frame {
         match command {
             Command::Str(command) => self.handle_string_command(command),
             Command::List(command) => self.handle_list_command(command),

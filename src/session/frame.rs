@@ -51,7 +51,7 @@ impl Session {
     }
 
     pub(super) async fn handle_client_frame(&mut self, frame: Frame) -> Result<(), Error> {
-        log::info!("{}", function_name!());
+        log::debug!("{}", function_name!());
         // 1. parse frame
         // 2.1. if frame is None, waiting for more data
         // 2.2. if frame is ok, parse command

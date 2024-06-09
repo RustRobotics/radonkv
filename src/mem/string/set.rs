@@ -2,13 +2,12 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
-use crate::cmd::frame::Frame;
-use crate::cmd::list::ListCommand;
-use crate::mem::Mem;
+use bytes::Bytes;
 
-impl Mem {
-    #[allow(clippy::needless_pass_by_value)]
-    pub fn handle_list_command(&mut self, _command: ListCommand) -> Frame {
-        todo!()
-    }
+use crate::cmd::frame::Frame;
+use crate::mem::db::{Db, MemObject};
+
+pub fn set(db: &mut Db, key: String, value: Bytes) -> Frame {
+    db.insert(key, MemObject::Str(value));
+    Frame::ok()
 }

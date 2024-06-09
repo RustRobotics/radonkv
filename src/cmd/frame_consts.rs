@@ -23,7 +23,7 @@ impl Frame {
 
     #[must_use]
     #[inline]
-    pub fn empty_bulk() -> Self {
+    pub const fn empty_bulk() -> Self {
         Self::Bulk(Bytes::new())
     }
 
