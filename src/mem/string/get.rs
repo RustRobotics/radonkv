@@ -7,10 +7,8 @@ use crate::mem::db::{Db, MemObject};
 
 pub fn get(db: &Db, key: &str) -> Frame {
     match db.get(key) {
-        Some(MemObject::Str(value)) => Frame::Bulk(value.clone()),
-        Some(_other) => Frame::Error(
-            "Object type mismatch, expected string".to_owned(),
-        ),
+        Some(MemObject::Str(value)) => Frame::Bulk(value.to_bytes()),
+        Some(_other) => Frame::wrong_type_err(),
         None => Frame::null(),
     }
 }

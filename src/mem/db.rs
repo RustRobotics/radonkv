@@ -4,17 +4,16 @@
 
 use std::collections::HashMap;
 
-use bytes::Bytes;
-
 use crate::cmd::Command;
 use crate::cmd::frame::Frame;
 use crate::mem::Mem;
+use crate::mem::string::StrObject;
 
 pub type Db = HashMap<String, MemObject>;
 
 #[derive(Debug, Clone)]
 pub enum MemObject {
-    Str(Bytes),
+    Str(StrObject),
     List(String),
 }
 

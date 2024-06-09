@@ -4,11 +4,12 @@
 
 use bytes::Bytes;
 
-use crate::cmd::parse::{Parser, ParsingCommandError};
 use crate::cmd::Command;
+use crate::cmd::parse::{Parser, ParsingCommandError};
 
 #[derive(Debug, Clone)]
 pub enum StringCommand {
+    Append(String, Bytes),
     Get(String),
     Set(String, Bytes),
     StrLen(String),
@@ -20,6 +21,11 @@ impl StringCommand {
         parser: &mut Parser,
     ) -> Result<Option<Command>, ParsingCommandError> {
         let str_cmd = match cmd_name {
+            "append" => {
+                let key = parser.next_string()?;
+                let value = parser.next_bytes()?;
+                Self::Append(key, value)
+            }
             "get" => {
                 let key = parser.next_string()?;
                 Self::Get(key)

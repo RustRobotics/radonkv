@@ -15,6 +15,7 @@ pub enum FrameConst {
     EmptyArray,
     Pong,
     Queued,
+    Str(&'static str),
 }
 
 impl FrameConst {
@@ -27,7 +28,14 @@ impl FrameConst {
             Self::EmptyArray => Frame::Array(vec![]),
             Self::Pong => Frame::Simple("PONG".to_owned()),
             Self::Queued => Frame::Simple("QUEUED".to_owned()),
+            Self::Str(s) => Frame::Simple(s.to_owned()),
         }
+    }
+
+    #[must_use]
+    #[inline]
+    pub const fn from_str(s: &'static str) -> Frame {
+        Frame::Const(Self::Str(s))
     }
 }
 
@@ -66,6 +74,12 @@ impl Frame {
     #[inline]
     pub const fn queued() -> Self {
         Self::Const(FrameConst::Queued)
+    }
+
+    #[must_use]
+    #[inline]
+    pub const fn wrong_type_err() -> Self {
+        Self::Const(FrameConst::Str(WRONG_TYPE_ERR))
     }
 }
 
