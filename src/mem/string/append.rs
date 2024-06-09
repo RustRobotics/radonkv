@@ -2,6 +2,8 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
+#![allow(clippy::cast_possible_wrap)]
+
 use std::collections::hash_map::Entry;
 
 use bytes::Bytes;
@@ -19,7 +21,7 @@ pub fn append(db: &mut Db, key: String, value: Bytes) -> Frame {
     match db.entry(key) {
         Entry::Occupied(mut occupied) => match occupied.get_mut() {
             MemObject::Str(old_str) => {
-                old_str.append(value);
+                old_str.append(&value);
                 let len = old_str.len();
                 Frame::Integer(len as i64)
             }

@@ -12,6 +12,7 @@ mod get;
 mod set;
 mod strlen;
 mod append;
+mod get_del;
 
 #[derive(Debug, Clone)]
 pub enum StrObject {
@@ -22,14 +23,15 @@ pub enum StrObject {
 impl StrObject {
     #[must_use]
     #[inline]
+    #[allow(clippy::needless_pass_by_value)]
     pub fn from_bytes(bytes: Bytes) -> Self {
         Self::Vec(bytes.to_vec())
     }
 
-    pub fn append(&mut self, bytes: Bytes) {
+    pub fn append(&mut self, bytes: &Bytes) {
         match self {
-            StrObject::Integer(_integer) => todo!(),
-            StrObject::Vec(vec) => {
+            Self::Integer(_integer) => todo!(),
+            Self::Vec(vec) => {
                 let mut bytes_vec = bytes.to_vec();
                 vec.append(&mut bytes_vec);
             }
@@ -38,9 +40,9 @@ impl StrObject {
 
     pub fn to_bytes(&self) -> Bytes {
         match self {
-            StrObject::Integer(_integer) => todo!(),
-            StrObject::Vec(vec) => {
-                Bytes::copy_from_slice(&vec)
+            Self::Integer(_integer) => todo!(),
+            Self::Vec(vec) => {
+                Bytes::copy_from_slice(vec)
             }
         }
     }
@@ -56,8 +58,8 @@ impl StrObject {
     pub fn len(&self) -> usize {
         match self {
             // TODO(Shaohua):
-            StrObject::Integer(_) => 8,
-            StrObject::Vec(vec) => vec.len(),
+            Self::Integer(_) => 8,
+            Self::Vec(vec) => vec.len(),
         }
     }
 }
@@ -67,6 +69,7 @@ impl Mem {
         match command {
             StringCommand::Append(key, value) => append::append(&mut self.db, key, value),
             StringCommand::Get(key) => get::get(&self.db, &key),
+            StringCommand::GetDel(key) => get_del::get_del(&mut self.db, &key),
             StringCommand::Set(key, value) => set::set(&mut self.db, key, value),
             StringCommand::StrLen(key) => strlen::strlen(&self.db, &key),
         }

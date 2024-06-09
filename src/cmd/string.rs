@@ -11,6 +11,7 @@ use crate::cmd::parse::{Parser, ParsingCommandError};
 pub enum StringCommand {
     Append(String, Bytes),
     Get(String),
+    GetDel(String),
     Set(String, Bytes),
     StrLen(String),
 }
@@ -29,6 +30,10 @@ impl StringCommand {
             "get" => {
                 let key = parser.next_string()?;
                 Self::Get(key)
+            }
+            "getdel" => {
+                let key = parser.next_string()?;
+                Self::GetDel(key)
             }
             "set" => {
                 let key = parser.next_string()?;
