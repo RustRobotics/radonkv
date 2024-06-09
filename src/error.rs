@@ -7,7 +7,7 @@ use std::io;
 
 use tokio::sync::mpsc;
 
-use crate::cmd::frame::ParsingFrameError;
+use crate::cmd::frame::ParseFrameError;
 
 #[derive(Debug, Clone)]
 pub struct Error {
@@ -56,8 +56,8 @@ impl From<io::Error> for Error {
     }
 }
 
-impl From<ParsingFrameError> for Error {
-    fn from(err: ParsingFrameError) -> Self {
+impl From<ParseFrameError> for Error {
+    fn from(err: ParseFrameError) -> Self {
         Self {
             kind: ErrorKind::FrameError,
             message: format!("{err:?}"),

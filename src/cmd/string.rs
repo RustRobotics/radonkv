@@ -5,7 +5,7 @@
 use bytes::Bytes;
 
 use crate::cmd::Command;
-use crate::cmd::parse::{Parser, ParsingCommandError};
+use crate::cmd::parse::{ParseCommandError, Parser};
 
 #[derive(Debug, Clone)]
 pub enum StringCommand {
@@ -15,13 +15,14 @@ pub enum StringCommand {
     GetSet(String, Bytes),
     Set(String, Bytes),
     StrLen(String),
+    SubStr(String, i64, i64),
 }
 
 impl StringCommand {
     pub fn parse(
         cmd_name: &str,
         parser: &mut Parser,
-    ) -> Result<Option<Command>, ParsingCommandError> {
+    ) -> Result<Option<Command>, ParseCommandError> {
         let str_cmd = match cmd_name {
             "append" => {
                 let key = parser.next_string()?;
@@ -49,6 +50,12 @@ impl StringCommand {
             "strlen" => {
                 let key = parser.next_string()?;
                 Self::StrLen(key)
+            }
+            "substr" => {
+                let key = parser.next_string()?;
+                let start = parser.next_i64()?;
+                let end = parser.next_i64()?;
+                Self::SubStr(key, start, end)
             }
             _ => return Ok(None),
         };

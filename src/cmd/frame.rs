@@ -23,7 +23,7 @@ pub enum Frame {
 }
 
 #[derive(Debug)]
-pub enum ParsingFrameError {
+pub enum ParseFrameError {
     ArrayExpected,
     Incomplete,
     InvalidFrameType(u8),
@@ -93,25 +93,25 @@ impl Frame {
         bytes.put_slice(b"\r\n");
     }
 
-    pub fn push_bulk(&mut self, bytes: Bytes) -> Result<(), ParsingFrameError> {
+    pub fn push_bulk(&mut self, bytes: Bytes) -> Result<(), ParseFrameError> {
         if let Self::Array(vec) = self {
             vec.push(Self::Bulk(bytes));
             Ok(())
         } else {
-            Err(ParsingFrameError::ArrayExpected)
+            Err(ParseFrameError::ArrayExpected)
         }
     }
 
-    pub fn push_i64(&mut self, num: i64) -> Result<(), ParsingFrameError> {
+    pub fn push_i64(&mut self, num: i64) -> Result<(), ParseFrameError> {
         if let Self::Array(vec) = self {
             vec.push(Self::Integer(num));
             Ok(())
         } else {
-            Err(ParsingFrameError::ArrayExpected)
+            Err(ParseFrameError::ArrayExpected)
         }
     }
 
-    pub fn check_msg(cursor: &mut Cursor<&[u8]>) -> Result<(), ParsingFrameError> {
+    pub fn check_msg(cursor: &mut Cursor<&[u8]>) -> Result<(), ParseFrameError> {
         // Read first byte and check its type.
         let frame_type = Self::get_u8(cursor)?;
 
@@ -135,11 +135,11 @@ impl Frame {
                 }
                 Ok(())
             }
-            frame_type => Err(ParsingFrameError::InvalidFrameType(frame_type)),
+            frame_type => Err(ParseFrameError::InvalidFrameType(frame_type)),
         }
     }
 
-    pub fn parse(cursor: &mut Cursor<&[u8]>) -> Result<Self, ParsingFrameError> {
+    pub fn parse(cursor: &mut Cursor<&[u8]>) -> Result<Self, ParseFrameError> {
         match Self::get_u8(cursor)? {
             b'+' => {
                 let line = Self::get_line(cursor)?;
@@ -161,14 +161,14 @@ impl Frame {
                     if line == b"-1" {
                         Ok(Self::Null)
                     } else {
-                        Err(ParsingFrameError::InvalidFrameFormat)
+                        Err(ParseFrameError::InvalidFrameFormat)
                     }
                 } else {
                     let len = usize::try_from(Self::get_i64(cursor)?)?;
                     // data + '\r\n'
                     let n = len + 2;
                     if cursor.remaining() < n {
-                        return Err(ParsingFrameError::Incomplete);
+                        return Err(ParseFrameError::Incomplete);
                     }
 
                     let data = Bytes::copy_from_slice(&cursor.chunk()[..len]);
@@ -191,39 +191,39 @@ impl Frame {
     }
 
     #[allow(dead_code)]
-    fn peek_u8(cursor: &Cursor<&[u8]>) -> Result<u8, ParsingFrameError> {
+    fn peek_u8(cursor: &Cursor<&[u8]>) -> Result<u8, ParseFrameError> {
         if cursor.has_remaining() {
             Ok(cursor.chunk()[0])
         } else {
-            Err(ParsingFrameError::Incomplete)
+            Err(ParseFrameError::Incomplete)
         }
     }
 
-    fn skip(cursor: &mut Cursor<&[u8]>, n: usize) -> Result<(), ParsingFrameError> {
+    fn skip(cursor: &mut Cursor<&[u8]>, n: usize) -> Result<(), ParseFrameError> {
         if cursor.remaining() >= n {
             cursor.advance(n);
             Ok(())
         } else {
-            Err(ParsingFrameError::Incomplete)
+            Err(ParseFrameError::Incomplete)
         }
     }
 
     /// Read one byte from buffer.
-    fn get_u8(cursor: &mut Cursor<&[u8]>) -> Result<u8, ParsingFrameError> {
+    fn get_u8(cursor: &mut Cursor<&[u8]>) -> Result<u8, ParseFrameError> {
         if cursor.has_remaining() {
             Ok(cursor.get_u8())
         } else {
-            Err(ParsingFrameError::Incomplete)
+            Err(ParseFrameError::Incomplete)
         }
     }
 
-    fn get_i64(cursor: &mut Cursor<&[u8]>) -> Result<i64, ParsingFrameError> {
+    fn get_i64(cursor: &mut Cursor<&[u8]>) -> Result<i64, ParseFrameError> {
         let line = Self::get_line(cursor)?;
-        atoi::<i64>(line).ok_or(ParsingFrameError::InvalidFrameFormat)
+        atoi::<i64>(line).ok_or(ParseFrameError::InvalidFrameFormat)
     }
 
     /// Read one line from message.
-    fn get_line<'a>(cursor: &mut Cursor<&'a [u8]>) -> Result<&'a [u8], ParsingFrameError> {
+    fn get_line<'a>(cursor: &mut Cursor<&'a [u8]>) -> Result<&'a [u8], ParseFrameError> {
         let left = usize::try_from(cursor.position())?;
         let right = cursor.get_ref().len() - 1;
         for i in left..right {
@@ -233,17 +233,17 @@ impl Frame {
             }
         }
 
-        Err(ParsingFrameError::Incomplete)
+        Err(ParseFrameError::Incomplete)
     }
 }
 
-impl From<FromUtf8Error> for ParsingFrameError {
+impl From<FromUtf8Error> for ParseFrameError {
     fn from(_err: FromUtf8Error) -> Self {
         Self::InvalidFrameFormat
     }
 }
 
-impl From<TryFromIntError> for ParsingFrameError {
+impl From<TryFromIntError> for ParseFrameError {
     fn from(err: TryFromIntError) -> Self {
         log::warn!("Failed to parse int value from frame, err: {err:?}");
         Self::InvalidFrameFormat

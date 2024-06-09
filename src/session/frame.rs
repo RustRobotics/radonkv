@@ -8,7 +8,7 @@ use bytes::{Buf, Bytes};
 use stdext::function_name;
 
 use crate::cmd::Command;
-use crate::cmd::frame::{Frame, ParsingFrameError};
+use crate::cmd::frame::{Frame, ParseFrameError};
 use crate::commands::SessionToListenerCmd;
 use crate::error::Error;
 use crate::session::Session;
@@ -85,14 +85,14 @@ impl Session {
         match Frame::check_msg(&mut cursor) {
             Ok(()) => {
                 let len =
-                    usize::try_from(cursor.position()).map_err(Into::<ParsingFrameError>::into)?;
+                    usize::try_from(cursor.position()).map_err(Into::<ParseFrameError>::into)?;
                 // Rewind to start.
                 cursor.set_position(0);
                 let frame = Frame::parse(&mut cursor)?;
                 self.buffer.advance(len);
                 Ok(Some(frame))
             }
-            Err(ParsingFrameError::Incomplete) => Ok(None),
+            Err(ParseFrameError::Incomplete) => Ok(None),
             Err(err) => Err(err.into()),
         }
     }
