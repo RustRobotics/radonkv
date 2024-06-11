@@ -55,3 +55,30 @@ pub fn push_back(
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::cmd::reply_frame::ReplyFrame;
+    use crate::mem::db::Db;
+    use crate::mem::list::push_back::push_back;
+    use crate::mem::list::range::range;
+
+    #[test]
+    fn test_push_front_exist() {
+        let mut db = Db::new();
+        let key = "mylist".to_owned();
+        let reply = push_back(&mut db, key.clone(), b"hello".to_vec(), None);
+        assert_eq!(reply, ReplyFrame::Usize(1));
+
+        let reply = push_back(&mut db, key.clone(), b"world".to_vec(), None);
+        assert_eq!(reply, ReplyFrame::Usize(2));
+        let reply = range(&mut db, &key, 0, -1);
+        assert_eq!(
+            reply,
+            ReplyFrame::Array(vec![
+                ReplyFrame::Bulk(b"hello".to_vec()),
+                ReplyFrame::Bulk(b"world".to_vec()),
+            ])
+        );
+    }
+}

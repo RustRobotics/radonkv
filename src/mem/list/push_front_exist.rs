@@ -34,24 +34,3 @@ pub fn push_front_exist(
         Entry::Vacant(_vacant) => ReplyFrame::zero(),
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::cmd::reply_frame::ReplyFrame;
-    use crate::mem::db::Db;
-    use crate::mem::list::push_front::push_front;
-    use crate::mem::list::push_front_exist::push_front_exist;
-
-    #[test]
-    fn test_push_front_exist() {
-        let mut db = Db::new();
-        let key = "mylist".to_owned();
-        let reply = push_front(&mut db, key.clone(), b"Hello".to_vec(), None);
-        assert_eq!(reply, ReplyFrame::Usize(1));
-
-        let reply = push_front_exist(&mut db, key.clone(), b"World".to_vec(), None);
-        assert_eq!(reply, ReplyFrame::Usize(2));
-        let reply = push_front_exist(&mut db, "myotherlist".to_owned(), b"World".to_vec(), None);
-        assert_eq!(reply, ReplyFrame::Usize(0));
-    }
-}

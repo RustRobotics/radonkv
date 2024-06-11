@@ -17,7 +17,7 @@ pub fn range(db: &Db, key: &str, start: isize, end: isize) -> ReplyFrame {
     match db.get(key) {
         Some(MemObject::List(list)) => range_to_reply_frame(list, start, end),
         Some(_other) => ReplyFrame::wrong_type_err(),
-        None => ReplyFrame::Null,
+        None => ReplyFrame::EmptyArray,
     }
 }
 
