@@ -6,7 +6,7 @@ use crate::cmd::frame::Frame;
 use crate::mem::db::{Db, MemObject};
 
 #[allow(clippy::cast_possible_wrap)]
-pub fn strlen(db: &Db, key: &str) -> Frame {
+pub fn len(db: &Db, key: &str) -> Frame {
     match db.get(key) {
         Some(MemObject::Str(value)) => Frame::Integer(value.len() as i64),
         Some(_other) => Frame::Error(

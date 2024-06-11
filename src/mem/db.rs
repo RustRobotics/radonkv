@@ -6,6 +6,7 @@ use std::collections::HashMap;
 
 use crate::cmd::Command;
 use crate::cmd::frame::Frame;
+use crate::mem::list::ListObject;
 use crate::mem::Mem;
 use crate::mem::string::StrObject;
 
@@ -14,7 +15,7 @@ pub type Db = HashMap<String, MemObject>;
 #[derive(Debug, Clone)]
 pub enum MemObject {
     Str(StrObject),
-    List(String),
+    List(ListObject),
 }
 
 impl Mem {

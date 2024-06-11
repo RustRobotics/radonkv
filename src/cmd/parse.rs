@@ -52,7 +52,7 @@ impl TryFrom<Frame> for Command {
         // TODO(Shaohua): Add a command hash map.
         let mut command: Option<Self> = StringCommand::parse(&cmd_name, &mut parser)?;
         if command.is_none() {
-            command = ListCommand::parse(&cmd_name, &parser)?;
+            command = ListCommand::parse(&cmd_name, &mut parser)?;
         }
         if command.is_none() {
             log::warn!("Command not found: {cmd_name}");

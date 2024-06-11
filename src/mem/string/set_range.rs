@@ -28,10 +28,8 @@ pub fn set_range(db: &mut Db, key: String, offset: isize, value: Bytes) -> Frame
         let old_value = match old_value {
             MemObject::Str(s) => match s {
                 StrObject::Integer(_int) => todo!(),
-                StrObject::Vec(vec) => {
-                    vec
-                }
-            }
+                StrObject::Vec(vec) => vec,
+            },
             _ => return Frame::wrong_type_err(),
         };
         return if value.is_empty() {
@@ -40,6 +38,7 @@ pub fn set_range(db: &mut Db, key: String, offset: isize, value: Bytes) -> Frame
             if !check_string_length(offset_usize, value.len()) {
                 return FrameConst::from_str(STRING_TOO_LONG_ERR);
             }
+            // FIXME(Shaohua): merge two parts of vector
             old_value.put_slice(&value);
             Frame::Integer(old_value.len() as i64)
         };
