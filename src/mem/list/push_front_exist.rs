@@ -12,6 +12,9 @@ use crate::mem::db::{Db, MemObject};
 /// only if key already exists and holds a list.
 ///
 /// In contrary to `LPUSH`, no operation will be performed when key does not yet exist.
+///
+/// Reply:
+// - Integer reply: the length of the list after the push operation.
 pub fn push_front_exist(
     db: &mut Db,
     key: String,

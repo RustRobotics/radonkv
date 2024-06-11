@@ -11,8 +11,12 @@ use crate::mem::util::prune_index;
 /// The index is zero-based, so 0 means the first element, 1 the second element and so on.
 /// Negative indices can be used to designate elements starting at the tail of the list.
 /// Here, -1 means the last element, -2 means the penultimate and so forth.
-//
-// When the value at key is not a list, an error is returned.
+///
+/// When the value at key is not a list, an error is returned.
+///
+/// One of the following reply:
+/// - Null reply: when index is out of range.
+/// - Bulk string reply: the requested element.
 pub fn index(db: &Db, key: &str, index: isize) -> ReplyFrame {
     match db.get(key) {
         Some(MemObject::List(list)) => {

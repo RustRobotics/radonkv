@@ -13,6 +13,11 @@ use crate::mem::db::{Db, MemObject};
 ///
 /// When provided with the optional count argument, the reply will consist of up to count elements,
 /// depending on the list's length.
+///
+/// One of the following reply:
+/// - Nil reply: if the key does not exist.
+/// - Bulk string reply: when called without the count argument, the value of the last element.
+/// - Array reply: when called with the count argument, a list of popped elements.
 pub fn pop_front(db: &mut Db, key: String, count: Option<usize>) -> ReplyFrame {
     match db.entry(key) {
         Entry::Occupied(mut occupied) => match occupied.get_mut() {
