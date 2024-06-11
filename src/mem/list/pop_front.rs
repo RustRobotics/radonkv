@@ -4,8 +4,6 @@
 
 use std::collections::hash_map::Entry;
 
-use bytes::Bytes;
-
 use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::db::{Db, MemObject};
 
@@ -24,7 +22,7 @@ pub fn pop_front(db: &mut Db, key: String, count: Option<usize>) -> ReplyFrame {
                 let mut items = Vec::new();
                 for _i in 0..real_count {
                     let item = if let Some(item) = old_list.pop_front() {
-                        ReplyFrame::Bulk(Bytes::from(item))
+                        ReplyFrame::Bulk(item)
                     } else {
                         ReplyFrame::EmptyBulk
                     };

@@ -15,7 +15,7 @@ use crate::mem::string::StrObject;
 pub fn get_set(db: &mut Db, key: String, value: Bytes) -> ReplyFrame {
     match db.get(&key) {
         Some(MemObject::Str(old_value)) => {
-            let frame = ReplyFrame::Bulk(old_value.to_bytes());
+            let frame = old_value.to_bulk();
             db.insert(key, StrObject::from_bytes(value));
             frame
         }

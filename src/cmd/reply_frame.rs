@@ -23,7 +23,7 @@ pub enum ReplyFrame {
     EmptyArray,
 
     // String or bytes
-    Bulk(Bytes),
+    Bulk(Vec<u8>),
     EmptyBulk,
 
     // Decimal
@@ -81,7 +81,7 @@ impl ReplyFrame {
                 bytes.put_u8(b'*');
                 let len = arr.len();
                 #[allow(clippy::cast_possible_wrap)]
-                Self::write_i64(&mut bytes, len as i64);
+                Self::write_usize(&mut bytes, len);
 
                 for frame in arr {
                     bytes.put(frame.into_bytes());
@@ -99,13 +99,19 @@ impl ReplyFrame {
                 let mut bytes = BytesMut::new();
                 bytes.put_u8(b'$');
                 #[allow(clippy::cast_possible_wrap)]
-                Self::write_i64(&mut bytes, len as i64);
-                bytes.put(val);
+                Self::write_usize(&mut bytes, len);
+                bytes.put_slice(&val);
                 bytes.put_slice(b"\r\n");
                 bytes.freeze()
             }
             Self::EmptyBulk => {
-                todo!()
+                let len: i64 = 0;
+                let mut bytes = BytesMut::new();
+                bytes.put_u8(b'$');
+                #[allow(clippy::cast_possible_wrap)]
+                Self::write_i64(&mut bytes, len);
+                bytes.put_slice(b"\r\n");
+                bytes.freeze()
             }
 
             Self::I64(num) => {
@@ -123,7 +129,7 @@ impl ReplyFrame {
             Self::Usize(num) => {
                 let mut bytes = BytesMut::new();
                 bytes.put_u8(b':');
-                Self::write_i64(&mut bytes, num as i64);
+                Self::write_usize(&mut bytes, num);
                 bytes.freeze()
             }
             Self::Double(_num) => {
@@ -136,6 +142,16 @@ impl ReplyFrame {
     }
 
     fn write_i64(bytes: &mut BytesMut, val: i64) {
+        // NOTE(Shaohua): Replace String format with stack array.
+        let mut buf = [0u8; 32];
+        let mut cursor = Cursor::new(&mut buf[..]);
+        write!(&mut cursor, "{val}").unwrap();
+        let pos = usize::try_from(cursor.position()).unwrap();
+        bytes.put(&cursor.get_ref()[0..pos]);
+        bytes.put_slice(b"\r\n");
+    }
+
+    fn write_usize(bytes: &mut BytesMut, val: usize) {
         // NOTE(Shaohua): Replace String format with stack array.
         let mut buf = [0u8; 32];
         let mut cursor = Cursor::new(&mut buf[..]);

@@ -2,8 +2,6 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
-use bytes::Bytes;
-
 use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::db::{Db, MemObject};
 use crate::mem::string::StrObject;
@@ -21,12 +19,11 @@ pub fn sub_str(db: &Db, key: &str, start: i64, end: i64) -> ReplyFrame {
         Some(MemObject::Str(value)) => match value {
             StrObject::Integer(_) => todo!(),
             StrObject::Vec(vec) => {
-                let bytes = if let Some((start, end)) = prune_range(vec.len(), start, end) {
-                    Bytes::copy_from_slice(&vec[start..=end])
+                if let Some((start, end)) = prune_range(vec.len(), start, end) {
+                    ReplyFrame::Bulk(vec[start..=end].to_vec())
                 } else {
-                    Bytes::new()
-                };
-                ReplyFrame::Bulk(bytes)
+                    ReplyFrame::EmptyBulk
+                }
             }
         }
         Some(_other) => ReplyFrame::wrong_type_err(),

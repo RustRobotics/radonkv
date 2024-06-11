@@ -12,7 +12,7 @@ use crate::mem::db::{Db, MemObject};
 pub fn get_del(db: &mut Db, key: &String) -> ReplyFrame {
     match db.get(key) {
         Some(MemObject::Str(value)) => {
-            let frame = ReplyFrame::Bulk(value.to_bytes());
+            let frame = value.to_bulk();
             db.remove(key);
             frame
         }

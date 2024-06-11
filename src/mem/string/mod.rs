@@ -50,11 +50,13 @@ impl StrObject {
         }
     }
 
-    pub fn to_bytes(&self) -> Bytes {
+    #[must_use]
+    #[inline]
+    pub fn to_bulk(&self) -> ReplyFrame {
         match self {
             Self::Integer(_integer) => todo!(),
             Self::Vec(vec) => {
-                Bytes::copy_from_slice(vec)
+                ReplyFrame::Bulk(vec.clone())
             }
         }
     }
