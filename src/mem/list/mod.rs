@@ -14,6 +14,7 @@ mod push_back;
 mod pop_front;
 mod pop_back;
 mod push_back_exist;
+mod push_front_exist;
 
 pub type ListObject = LinkedList<Vec<u8>>;
 
@@ -25,6 +26,7 @@ impl Mem {
             ListCommand::PushBack(key, values) => push_back::push_back(&mut self.db, key, values),
             ListCommand::PushBackExist(key, values) => push_back_exist::push_back_exist(&mut self.db, key, values),
             ListCommand::PushFront(key, values) => push_front::push_front(&mut self.db, key, values),
+            ListCommand::PushFrontExist(key, values) => push_front_exist::push_front_exist(&mut self.db, key, values),
             ListCommand::PopBack(key, count) => pop_back::pop_back(&mut self.db, key, count),
             ListCommand::PopFront(key, count) => pop_front::pop_front(&mut self.db, key, count),
         }

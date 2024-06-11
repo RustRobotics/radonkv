@@ -13,6 +13,7 @@ pub enum ListCommand {
     PushBack(String, Vec<Bytes>),
     PushBackExist(String, Vec<Bytes>),
     PushFront(String, Vec<Bytes>),
+    PushFrontExist(String, Vec<Bytes>),
     PopBack(String, Option<usize>),
     PopFront(String, Option<usize>),
 }
@@ -36,6 +37,11 @@ impl ListCommand {
                 let key = parser.next_string()?;
                 let values = parser.remaining()?;
                 Self::PushFront(key, values)
+            }
+            "lpushx" => {
+                let key = parser.next_string()?;
+                let values = parser.remaining()?;
+                Self::PushFrontExist(key, values)
             }
             "rpop" => {
                 let key = parser.next_string()?;
