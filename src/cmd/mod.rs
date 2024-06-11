@@ -2,6 +2,7 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
+use crate::cmd::generic::GenericCommand;
 use crate::cmd::list::ListCommand;
 use crate::cmd::string::StringCommand;
 
@@ -10,11 +11,13 @@ pub mod list;
 mod parse;
 pub mod string;
 pub mod reply_frame;
+pub mod generic;
 
 #[derive(Debug, Clone)]
 pub enum Command {
     Str(StringCommand),
     List(ListCommand),
+    Generic(GenericCommand),
 }
 
 #[derive(Debug, Default, Clone, Copy, Eq, PartialEq)]
@@ -30,7 +33,7 @@ impl Command {
     #[must_use]
     pub const fn category(&self) -> CommandCategory {
         match self {
-            Self::Str(_) | Self::List(_) => CommandCategory::Mem,
+            Self::Str(_) | Self::List(_) | Self::Generic(_) => CommandCategory::Mem,
         }
     }
 

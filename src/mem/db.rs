@@ -23,6 +23,7 @@ impl Mem {
         match command {
             Command::Str(command) => self.handle_string_command(command),
             Command::List(command) => self.handle_list_command(command),
+            Command::Generic(command) => self.handle_generic_command(command),
         }
     }
 }

@@ -9,6 +9,7 @@ use bytes::Bytes;
 
 use crate::cmd::Command;
 use crate::cmd::frame::Frame;
+use crate::cmd::generic::GenericCommand;
 use crate::cmd::list::ListCommand;
 use crate::cmd::string::StringCommand;
 
@@ -55,6 +56,9 @@ impl TryFrom<Frame> for Command {
             command = ListCommand::parse(&cmd_name, &mut parser)?;
         }
         if command.is_none() {
+            command = GenericCommand::parse(&cmd_name, &mut parser)?;
+        }
+        if command.is_none() {
             log::warn!("Command not found: {cmd_name}");
         }
         command.ok_or(ParseCommandError::CommandNotFound)
@@ -77,6 +81,28 @@ impl Parser {
         while let Some(frame) = self.iter.next() {
             match frame {
                 Frame::Bulk(frame) => list.push(frame.to_vec()),
+                frame => {
+                    log::warn!("Protocol error, expected bulk frame, got: {frame:?}");
+                    return Err(ParseCommandError::ProtocolError);
+                }
+            }
+        }
+        Ok(list)
+    }
+
+    pub fn remaining_strings(&mut self) -> Result<Vec<String>, ParseCommandError> {
+        let mut list = Vec::new();
+        while let Some(frame) = self.iter.next() {
+            match frame {
+                Frame::Bulk(bytes) => {
+                    let s = std::str::from_utf8(&bytes[..])
+                        .map(ToString::to_string)
+                        .map_err(|err| {
+                            log::warn!("Failed to parse string, got err: {err:?}");
+                            ParseCommandError::InvalidParameter
+                        })?;
+                    list.push(s);
+                }
                 frame => {
                     log::warn!("Protocol error, expected bulk frame, got: {frame:?}");
                     return Err(ParseCommandError::ProtocolError);
