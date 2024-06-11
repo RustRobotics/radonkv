@@ -11,6 +11,7 @@ use crate::cmd::parse::{ParseCommandError, Parser};
 pub enum ListCommand {
     Len(String),
     PushBack(String, Vec<Bytes>),
+    PushBackExist(String, Vec<Bytes>),
     PushFront(String, Vec<Bytes>),
     PopBack(String, Option<usize>),
     PopFront(String, Option<usize>),
@@ -45,6 +46,11 @@ impl ListCommand {
                 let key = parser.next_string()?;
                 let values = parser.remaining()?;
                 Self::PushBack(key, values)
+            }
+            "rpushx" => {
+                let key = parser.next_string()?;
+                let values = parser.remaining()?;
+                Self::PushBackExist(key, values)
             }
             _ => return Ok(None),
         };
