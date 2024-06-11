@@ -63,7 +63,7 @@ mod tests {
     use crate::mem::list::range::range;
 
     #[test]
-    fn test_push_front_exist() {
+    fn test_push_front() {
         let mut db = Db::new();
         let key = "mylist".to_owned();
         let reply = push_front(&mut db, key.clone(), b"world".to_vec(), None);
