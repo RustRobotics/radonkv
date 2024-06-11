@@ -10,7 +10,8 @@ use crate::cmd::parse::{ParseCommandError, Parser};
 #[derive(Debug, Clone)]
 pub enum ListCommand {
     Len(String),
-    Push(String, Vec<Bytes>),
+    PushFront(String, Vec<Bytes>),
+    PushBack(String, Vec<Bytes>),
 }
 
 impl ListCommand {
@@ -26,7 +27,12 @@ impl ListCommand {
             "lpush" => {
                 let key = parser.next_string()?;
                 let values = parser.remaining()?;
-                Self::Push(key, values)
+                Self::PushFront(key, values)
+            }
+            "rpush" => {
+                let key = parser.next_string()?;
+                let values = parser.remaining()?;
+                Self::PushBack(key, values)
             }
             _ => return Ok(None),
         };
