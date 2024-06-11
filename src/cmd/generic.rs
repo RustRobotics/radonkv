@@ -8,6 +8,7 @@ use crate::cmd::parse::{ParseCommandError, Parser};
 #[derive(Debug, Clone)]
 pub enum GenericCommand {
     Delete(Vec<String>),
+    Rename(String, String),
     Type(String),
 }
 
@@ -20,6 +21,11 @@ impl GenericCommand {
             "del" => {
                 let keys = parser.remaining_strings()?;
                 Self::Delete(keys)
+            }
+            "rename" => {
+                let key = parser.next_string()?;
+                let new_key = parser.next_string()?;
+                Self::Rename(key, new_key)
             }
             "type" => {
                 let key = parser.next_string()?;

@@ -204,6 +204,12 @@ impl ReplyFrame {
     pub const fn invalid_command() -> Self {
         Self::ConstError(INVALID_COMMAND)
     }
+
+    #[must_use]
+    #[inline]
+    pub const fn no_such_key() -> Self {
+        Self::ConstError(NO_KEY_ERR)
+    }
 }
 
 
