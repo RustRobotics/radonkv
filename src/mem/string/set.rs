@@ -9,6 +9,7 @@ use crate::mem::db::Db;
 use crate::mem::string::StrObject;
 
 pub fn set(db: &mut Db, key: String, value: Bytes) -> ReplyFrame {
+    // TODO(Shaohua): Check type of old value.
     db.insert(key, StrObject::from_bytes(value));
     ReplyFrame::ok()
 }

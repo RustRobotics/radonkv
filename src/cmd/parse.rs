@@ -72,6 +72,20 @@ impl Parser {
             .ok_or(ParseCommandError::InvalidParameter)
     }
 
+    pub fn remaining(&mut self) -> Result<Vec<Bytes>, ParseCommandError> {
+        let mut list = Vec::new();
+        while let Some(frame) = self.iter.next() {
+            match frame {
+                Frame::Bulk(frame) => list.push(frame),
+                frame => {
+                    log::warn!("Protocol error, expected bulk frame, got: {frame:?}");
+                    return Err(ParseCommandError::ProtocolError);
+                }
+            }
+        }
+        Ok(list)
+    }
+
     pub fn next_string(&mut self) -> Result<String, ParseCommandError> {
         match self.next()? {
             Frame::Simple(s) => Ok(s),
@@ -172,6 +186,7 @@ impl Parser {
     // TODO(Shaohua): Add next_f128()
 
     pub fn next_bytes(&mut self) -> Result<Bytes, ParseCommandError> {
+        // TODO(Shaohua): Handles None
         match self.next()? {
             Frame::Simple(s) => Ok(Bytes::from(s)),
             Frame::Bulk(bytes) => Ok(bytes),

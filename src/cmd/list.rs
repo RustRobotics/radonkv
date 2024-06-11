@@ -2,12 +2,15 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
+use bytes::Bytes;
+
 use crate::cmd::Command;
 use crate::cmd::parse::{ParseCommandError, Parser};
 
 #[derive(Debug, Clone)]
 pub enum ListCommand {
     Len(String),
+    Push(String, Vec<Bytes>),
 }
 
 impl ListCommand {
@@ -19,6 +22,11 @@ impl ListCommand {
             "llen" => {
                 let key = parser.next_string()?;
                 Self::Len(key)
+            }
+            "lpush" => {
+                let key = parser.next_string()?;
+                let values = parser.remaining()?;
+                Self::Push(key, values)
             }
             _ => return Ok(None),
         };

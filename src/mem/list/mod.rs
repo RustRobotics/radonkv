@@ -9,6 +9,7 @@ use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::Mem;
 
 mod len;
+mod push;
 
 pub type ListObject = LinkedList<Vec<u8>>;
 
@@ -17,6 +18,7 @@ impl Mem {
     pub fn handle_list_command(&mut self, command: ListCommand) -> ReplyFrame {
         match command {
             ListCommand::Len(key) => len::len(&self.db, &key),
+            ListCommand::Push(key, values) => push::push(&mut self.db, key, values),
         }
     }
 }

@@ -8,7 +8,7 @@ use bytes::{BufMut, Bytes, BytesMut};
 
 #[derive(Debug, Clone)]
 pub enum ReplyFrame {
-    // simple values
+    // status values
     Status(String),
     ConstStatus(&'static str),
 
