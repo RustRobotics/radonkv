@@ -2,6 +2,8 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
+use rand::Rng;
+
 use crate::cmd::Command;
 use crate::cmd::parse::{ParseCommandError, Parser};
 
@@ -9,6 +11,7 @@ use crate::cmd::parse::{ParseCommandError, Parser};
 pub enum GenericCommand {
     Delete(Vec<String>),
     Exists(Vec<String>),
+    RandomKey(usize),
     Rename(String, String),
     Type(String),
 }
@@ -26,6 +29,11 @@ impl GenericCommand {
             "exists" => {
                 let keys = parser.remaining_strings()?;
                 Self::Exists(keys)
+            }
+            "randomkey" => {
+                let mut rng = rand::thread_rng();
+                let random_index = rng.gen::<usize>();
+                Self::RandomKey(random_index)
             }
             "rename" => {
                 let key = parser.next_string()?;

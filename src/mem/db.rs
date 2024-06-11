@@ -6,8 +6,8 @@ use std::collections::HashMap;
 
 use crate::cmd::Command;
 use crate::cmd::reply_frame::ReplyFrame;
+use crate::mem::{list, Mem};
 use crate::mem::list::ListObject;
-use crate::mem::Mem;
 use crate::mem::string::StrObject;
 
 pub type Db = HashMap<String, MemObject>;
@@ -24,6 +24,15 @@ impl Mem {
             Command::Str(command) => self.handle_string_command(command),
             Command::List(command) => self.handle_list_command(command),
             Command::Generic(command) => self.handle_generic_command(command),
+        }
+    }
+}
+
+impl MemObject {
+    pub fn to_reply_frame(&self) -> ReplyFrame {
+        match self {
+            MemObject::Str(s) => s.to_bulk(),
+            MemObject::List(list_obj) => list::to_reply_frame(list_obj),
         }
     }
 }

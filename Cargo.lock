@@ -740,6 +740,7 @@ dependencies = [
  "log",
  "log4rs",
  "nc",
+ "rand",
  "serde",
  "stdext",
  "thiserror",

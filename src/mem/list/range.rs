@@ -4,7 +4,7 @@
 
 use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::db::{Db, MemObject};
-use crate::util::prune_range::prune_range;
+use crate::mem::list::range_to_reply_frame;
 
 /// Returns the specified elements of the list stored at key.
 ///
@@ -15,18 +15,7 @@ use crate::util::prune_range::prune_range;
 // For example, -1 is the last element of the list, -2 the penultimate, and so on.
 pub fn range(db: &Db, key: &str, start: isize, end: isize) -> ReplyFrame {
     match db.get(key) {
-        Some(MemObject::List(list)) => {
-            if let Some((start, end)) = prune_range(list.len(), start, end) {
-                let mut sub_list = Vec::new();
-                // FIXME(Shaohua): Check list range error.
-                for item in list.iter().take(end + 1).skip(start) {
-                    sub_list.push(ReplyFrame::Bulk(item.clone()));
-                }
-                ReplyFrame::Array(sub_list)
-            } else {
-                ReplyFrame::EmptyArray
-            }
-        }
+        Some(MemObject::List(list)) => range_to_reply_frame(list, start, end),
         Some(_other) => ReplyFrame::wrong_type_err(),
         None => ReplyFrame::Null,
     }

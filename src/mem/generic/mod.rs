@@ -10,13 +10,14 @@ mod delete;
 mod get_type;
 mod rename;
 mod exists;
-
+mod random_key;
 
 impl Mem {
     pub fn handle_generic_command(&mut self, command: GenericCommand) -> ReplyFrame {
         match command {
             GenericCommand::Delete(keys) => delete::delete(&mut self.db, keys),
             GenericCommand::Exists(keys) => exists::exists(&mut self.db, keys),
+            GenericCommand::RandomKey(random_index) => random_key::random_key(&self.db, random_index),
             GenericCommand::Rename(key, new_key) => rename::rename(&mut self.db, key, new_key),
             GenericCommand::Type(key) => get_type::get_type(&self.db, &key),
         }

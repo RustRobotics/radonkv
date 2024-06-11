@@ -7,6 +7,7 @@ use std::collections::LinkedList;
 use crate::cmd::list::ListCommand;
 use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::Mem;
+use crate::util::prune_range::prune_range;
 
 mod len;
 mod push_front;
@@ -32,5 +33,26 @@ impl Mem {
             ListCommand::PopFront(key, count) => pop_front::pop_front(&mut self.db, key, count),
             ListCommand::Range(key, start, end) => range::range(&self.db, &key, start, end),
         }
+    }
+}
+
+pub fn to_reply_frame(list: &ListObject) -> ReplyFrame {
+    let mut sub_list = Vec::new();
+    for item in list.iter() {
+        sub_list.push(ReplyFrame::Bulk(item.clone()));
+    }
+    ReplyFrame::Array(sub_list)
+}
+
+pub fn range_to_reply_frame(list: &ListObject, start: isize, end: isize) -> ReplyFrame {
+    if let Some((start, end)) = prune_range(list.len(), start, end) {
+        let mut sub_list = Vec::new();
+        // FIXME(Shaohua): Check list range error.
+        for item in list.iter().take(end + 1).skip(start) {
+            sub_list.push(ReplyFrame::Bulk(item.clone()));
+        }
+        ReplyFrame::Array(sub_list)
+    } else {
+        ReplyFrame::EmptyArray
     }
 }
