@@ -2,8 +2,6 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
-use bytes::Bytes;
-
 use crate::cmd::reply_frame::ReplyFrame;
 use crate::cmd::string::StringCommand;
 use crate::mem::db::MemObject;
@@ -36,16 +34,15 @@ impl StrObject {
     #[must_use]
     #[inline]
     #[allow(clippy::needless_pass_by_value)]
-    pub fn from_bytes(bytes: Bytes) -> MemObject {
-        MemObject::Str(Self::Vec(bytes.to_vec()))
+    pub fn from_bytes(bytes: Vec<u8>) -> MemObject {
+        MemObject::Str(Self::Vec(bytes))
     }
 
-    pub fn append(&mut self, bytes: &Bytes) {
+    pub fn append(&mut self, mut bytes: Vec<u8>) {
         match self {
             Self::Integer(_integer) => todo!(),
             Self::Vec(vec) => {
-                let mut bytes_vec = bytes.to_vec();
-                vec.append(&mut bytes_vec);
+                vec.append(&mut bytes);
             }
         }
     }

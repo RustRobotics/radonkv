@@ -6,8 +6,6 @@
 
 use std::collections::hash_map::Entry;
 
-use bytes::Bytes;
-
 use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::db::{Db, MemObject};
 use crate::mem::string::StrObject;
@@ -17,11 +15,11 @@ use crate::mem::string::StrObject;
 /// so APPEND will be similar to SET in this special case.
 ///
 /// Returns new length of string.
-pub fn append(db: &mut Db, key: String, value: Bytes) -> ReplyFrame {
+pub fn append(db: &mut Db, key: String, value: Vec<u8>) -> ReplyFrame {
     match db.entry(key) {
         Entry::Occupied(mut occupied) => match occupied.get_mut() {
             MemObject::Str(old_str) => {
-                old_str.append(&value);
+                old_str.append(value);
                 ReplyFrame::Usize(old_str.len())
             }
             MemObject::List(_) => {

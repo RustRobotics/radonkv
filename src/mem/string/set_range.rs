@@ -2,7 +2,7 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
-use bytes::{BufMut, Bytes};
+use bytes::BufMut;
 
 use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::db::{Db, MemObject};
@@ -17,7 +17,7 @@ use crate::mem::util::check_string_length;
 /// the string is padded with zero-bytes to make offset fit.
 /// Non-existing keys are considered as empty strings, so this command will make sure
 /// it holds a string large enough to be able to set value at offset.
-pub fn set_range(db: &mut Db, key: String, offset: isize, value: Bytes) -> ReplyFrame {
+pub fn set_range(db: &mut Db, key: String, offset: isize, value: Vec<u8>) -> ReplyFrame {
     if offset < 0 {
         return ReplyFrame::ConstError("offset is out of range");
     }
@@ -51,7 +51,7 @@ pub fn set_range(db: &mut Db, key: String, offset: isize, value: Bytes) -> Reply
         }
 
         let mut s = StrObject::with_length(offset_usize);
-        s.append(&value);
+        s.append(value);
         let len = s.len();
         db.insert(key, MemObject::Str(s));
         ReplyFrame::Usize(len)

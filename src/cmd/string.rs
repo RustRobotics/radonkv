@@ -2,20 +2,18 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
-use bytes::Bytes;
-
 use crate::cmd::Command;
 use crate::cmd::parse::{ParseCommandError, Parser};
 
 #[derive(Debug, Clone)]
 pub enum StringCommand {
-    Append(String, Bytes),
+    Append(String, Vec<u8>),
     Get(String),
     GetDel(String),
     GetRange(String, i64, i64),
-    GetSet(String, Bytes),
-    Set(String, Bytes),
-    SetRange(String, isize, Bytes),
+    GetSet(String, Vec<u8>),
+    Set(String, Vec<u8>),
+    SetRange(String, isize, Vec<u8>),
     StrLen(String),
     SubStr(String, i64, i64),
 }
@@ -28,7 +26,7 @@ impl StringCommand {
         let str_cmd = match cmd_name {
             "append" => {
                 let key = parser.next_string()?;
-                let value = parser.next_bytes()?;
+                let value = parser.next_vec()?;
                 Self::Append(key, value)
             }
             "get" => {
@@ -47,18 +45,18 @@ impl StringCommand {
             }
             "getset" => {
                 let key = parser.next_string()?;
-                let value = parser.next_bytes()?;
+                let value = parser.next_vec()?;
                 Self::GetSet(key, value)
             }
             "set" => {
                 let key = parser.next_string()?;
-                let value = parser.next_bytes()?;
+                let value = parser.next_vec()?;
                 Self::Set(key, value)
             }
             "setrange" => {
                 let key = parser.next_string()?;
                 let offset = parser.next_isize()?;
-                let value = parser.next_bytes()?;
+                let value = parser.next_vec()?;
                 Self::SetRange(key, offset, value)
             }
             "strlen" => {
