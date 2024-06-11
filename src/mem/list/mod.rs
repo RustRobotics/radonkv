@@ -11,6 +11,7 @@ use crate::mem::Mem;
 mod len;
 mod push_front;
 mod push_back;
+mod pop_front;
 
 pub type ListObject = LinkedList<Vec<u8>>;
 
@@ -19,8 +20,9 @@ impl Mem {
     pub fn handle_list_command(&mut self, command: ListCommand) -> ReplyFrame {
         match command {
             ListCommand::Len(key) => len::len(&self.db, &key),
-            ListCommand::PushFront(key, values) => push_front::push_front(&mut self.db, key, values),
             ListCommand::PushBack(key, values) => push_back::push_back(&mut self.db, key, values),
+            ListCommand::PushFront(key, values) => push_front::push_front(&mut self.db, key, values),
+            ListCommand::PopFront(key, count) => pop_front::pop_front(&mut self.db, key, count),
         }
     }
 }

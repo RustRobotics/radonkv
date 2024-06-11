@@ -10,8 +10,9 @@ use crate::cmd::parse::{ParseCommandError, Parser};
 #[derive(Debug, Clone)]
 pub enum ListCommand {
     Len(String),
-    PushFront(String, Vec<Bytes>),
     PushBack(String, Vec<Bytes>),
+    PushFront(String, Vec<Bytes>),
+    PopFront(String, Option<usize>),
 }
 
 impl ListCommand {
@@ -23,6 +24,11 @@ impl ListCommand {
             "llen" => {
                 let key = parser.next_string()?;
                 Self::Len(key)
+            }
+            "lpop" => {
+                let key = parser.next_string()?;
+                let count = parser.try_next_usize()?;
+                Self::PopFront(key, count)
             }
             "lpush" => {
                 let key = parser.next_string()?;
