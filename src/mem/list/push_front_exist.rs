@@ -11,19 +11,23 @@ use crate::mem::db::{Db, MemObject};
 /// only if key already exists and holds a list.
 ///
 /// In contrary to `LPUSH`, no operation will be performed when key does not yet exist.
-pub fn push_front_exist(db: &mut Db, key: String, values: Vec<Vec<u8>>) -> ReplyFrame {
+pub fn push_front_exist(
+    db: &mut Db,
+    key: String,
+    value: Vec<u8>,
+    extra_values: Vec<Vec<u8>>,
+) -> ReplyFrame {
     match db.entry(key) {
         Entry::Occupied(mut occupied) => match occupied.get_mut() {
             MemObject::Str(_) => ReplyFrame::wrong_type_err(),
             MemObject::List(old_list) => {
-                for value in values {
-                    old_list.push_front(value);
+                old_list.push_front(value);
+                for extra_value in extra_values {
+                    old_list.push_front(extra_value);
                 }
                 ReplyFrame::Usize(old_list.len())
             }
-        }
-        Entry::Vacant(_vacant) => {
-            ReplyFrame::zero()
-        }
+        },
+        Entry::Vacant(_vacant) => ReplyFrame::zero(),
     }
 }

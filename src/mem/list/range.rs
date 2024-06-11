@@ -20,3 +20,16 @@ pub fn range(db: &Db, key: &str, start: isize, end: isize) -> ReplyFrame {
         None => ReplyFrame::Null,
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::mem::db::Db;
+    use crate::mem::list::push_back::push_back;
+
+    #[test]
+    fn test_range() {
+        let mut db = Db::new();
+        let key = "mylist";
+        push_back(&mut db, key.to_owned(), vec);
+    }
+}

@@ -19,21 +19,31 @@ use crate::mem::list::ListObject;
 // from the leftmost element to the rightmost element.
 // So for instance the command `LPUSH mylist a b c` will result into a list containing
 // `c` as first element, `b` as second element and `a` as third element.
-pub fn push_front(db: &mut Db, key: String, values: Vec<Vec<u8>>) -> ReplyFrame {
+pub fn push_front(
+    db: &mut Db,
+    key: String,
+    value: Vec<u8>,
+    extra_values: Vec<Vec<u8>>,
+) -> ReplyFrame {
     match db.entry(key) {
         Entry::Occupied(mut occupied) => match occupied.get_mut() {
             MemObject::Str(_) => ReplyFrame::wrong_type_err(),
             MemObject::List(old_list) => {
-                for value in values {
-                    old_list.push_front(value);
+                old_list.push_front(value);
+                for extra_value in extra_values {
+                    old_list.push_front(extra_value);
                 }
                 ReplyFrame::Usize(old_list.len())
             }
-        }
+        },
         Entry::Vacant(vacant) => {
-            let len = values.len();
             // NOTE(Shaohua): Reverse order of items in values.
-            let list = ListObject::from_iter(values.into_iter().rev().map(|item| item.to_vec()));
+            let mut list = ListObject::new();
+            list.push_front(value);
+            for extra_value in extra_values {
+                list.push_front(extra_value);
+            }
+            let len = list.len();
             vacant.insert(MemObject::List(list));
             ReplyFrame::Usize(len)
         }

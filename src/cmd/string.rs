@@ -26,7 +26,7 @@ impl StringCommand {
         let str_cmd = match cmd_name {
             "append" => {
                 let key = parser.next_string()?;
-                let value = parser.next_vec()?;
+                let value = parser.next_bytes()?;
                 Self::Append(key, value)
             }
             "get" => {
@@ -45,18 +45,18 @@ impl StringCommand {
             }
             "getset" => {
                 let key = parser.next_string()?;
-                let value = parser.next_vec()?;
+                let value = parser.next_bytes()?;
                 Self::GetSet(key, value)
             }
             "set" => {
                 let key = parser.next_string()?;
-                let value = parser.next_vec()?;
+                let value = parser.next_bytes()?;
                 Self::Set(key, value)
             }
             "setrange" => {
                 let key = parser.next_string()?;
                 let offset = parser.next_isize()?;
-                let value = parser.next_vec()?;
+                let value = parser.next_bytes()?;
                 Self::SetRange(key, offset, value)
             }
             "strlen" => {

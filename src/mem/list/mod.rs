@@ -9,15 +9,15 @@ use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::Mem;
 use crate::mem::util::prune_range;
 
+mod index;
 mod len;
-mod push_front;
-mod push_back;
-mod pop_front;
 mod pop_back;
+mod pop_front;
+mod push_back;
 mod push_back_exist;
+mod push_front;
 mod push_front_exist;
 mod range;
-mod index;
 
 pub type ListObject = LinkedList<Vec<u8>>;
 
@@ -27,10 +27,18 @@ impl Mem {
         match command {
             ListCommand::Index(key, index) => index::index(&self.db, &key, index),
             ListCommand::Len(key) => len::len(&self.db, &key),
-            ListCommand::PushBack(key, values) => push_back::push_back(&mut self.db, key, values),
-            ListCommand::PushBackExist(key, values) => push_back_exist::push_back_exist(&mut self.db, key, values),
-            ListCommand::PushFront(key, values) => push_front::push_front(&mut self.db, key, values),
-            ListCommand::PushFrontExist(key, values) => push_front_exist::push_front_exist(&mut self.db, key, values),
+            ListCommand::PushBack(key, value, extra_values) => {
+                push_back::push_back(&mut self.db, key, value, extra_values)
+            }
+            ListCommand::PushBackExist(key, value, extra_values) => {
+                push_back_exist::push_back_exist(&mut self.db, key, value, extra_values)
+            }
+            ListCommand::PushFront(key, value, extra_values) => {
+                push_front::push_front(&mut self.db, key, value, extra_values)
+            }
+            ListCommand::PushFrontExist(key, value, extra_values) => {
+                push_front_exist::push_front_exist(&mut self.db, key, value, extra_values)
+            }
             ListCommand::PopBack(key, count) => pop_back::pop_back(&mut self.db, key, count),
             ListCommand::PopFront(key, count) => pop_front::pop_front(&mut self.db, key, count),
             ListCommand::Range(key, start, end) => range::range(&self.db, &key, start, end),

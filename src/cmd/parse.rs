@@ -5,8 +5,6 @@
 use std::num::{ParseFloatError, ParseIntError};
 use std::vec::IntoIter;
 
-use bytes::Bytes;
-
 use crate::cmd::Command;
 use crate::cmd::frame::Frame;
 use crate::cmd::generic::GenericCommand;
@@ -234,22 +232,10 @@ impl Parser {
 
     // TODO(Shaohua): Add next_f128()
 
-    pub fn next_vec(&mut self) -> Result<Vec<u8>, ParseCommandError> {
+    pub fn next_bytes(&mut self) -> Result<Vec<u8>, ParseCommandError> {
         match self.next()? {
             Frame::Simple(s) => Ok(s.into_bytes()),
             Frame::Bulk(bytes) => Ok(bytes.to_vec()),
-            frame => {
-                log::warn!("Protocol error, expected simple or bulk frame, got: {frame:?}");
-                Err(ParseCommandError::ProtocolError)
-            }
-        }
-    }
-
-    pub fn next_bytes(&mut self) -> Result<Bytes, ParseCommandError> {
-        // TODO(Shaohua): Handles None
-        match self.next()? {
-            Frame::Simple(s) => Ok(Bytes::from(s)),
-            Frame::Bulk(bytes) => Ok(bytes),
             frame => {
                 log::warn!("Protocol error, expected simple or bulk frame, got: {frame:?}");
                 Err(ParseCommandError::ProtocolError)

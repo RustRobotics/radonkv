@@ -9,10 +9,10 @@ use crate::cmd::parse::{ParseCommandError, Parser};
 pub enum ListCommand {
     Index(String, isize),
     Len(String),
-    PushBack(String, Vec<Vec<u8>>),
-    PushBackExist(String, Vec<Vec<u8>>),
-    PushFront(String, Vec<Vec<u8>>),
-    PushFrontExist(String, Vec<Vec<u8>>),
+    PushBack(String, Vec<u8>, Vec<Vec<u8>>),
+    PushBackExist(String, Vec<u8>, Vec<Vec<u8>>),
+    PushFront(String, Vec<u8>, Vec<Vec<u8>>),
+    PushFrontExist(String, Vec<u8>, Vec<Vec<u8>>),
     PopBack(String, Option<usize>),
     PopFront(String, Option<usize>),
     Range(String, isize, isize),
@@ -40,13 +40,15 @@ impl ListCommand {
             }
             "lpush" => {
                 let key = parser.next_string()?;
-                let values = parser.remaining()?;
-                Self::PushFront(key, values)
+                let value = parser.next_bytes()?;
+                let extra = parser.remaining()?;
+                Self::PushFront(key, value, extra)
             }
             "lpushx" => {
                 let key = parser.next_string()?;
-                let values = parser.remaining()?;
-                Self::PushFrontExist(key, values)
+                let value = parser.next_bytes()?;
+                let extra_values = parser.remaining()?;
+                Self::PushFrontExist(key, value, extra_values)
             }
             "rpop" => {
                 let key = parser.next_string()?;
@@ -55,13 +57,15 @@ impl ListCommand {
             }
             "rpush" => {
                 let key = parser.next_string()?;
-                let values = parser.remaining()?;
-                Self::PushBack(key, values)
+                let value = parser.next_bytes()?;
+                let extra_values = parser.remaining()?;
+                Self::PushBack(key, value, extra_values)
             }
             "rpushx" => {
                 let key = parser.next_string()?;
-                let values = parser.remaining()?;
-                Self::PushBackExist(key, values)
+                let value = parser.next_bytes()?;
+                let extra_values = parser.remaining()?;
+                Self::PushBackExist(key, value, extra_values)
             }
             "lrange" => {
                 let key = parser.next_string()?;
