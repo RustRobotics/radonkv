@@ -14,6 +14,7 @@ pub enum ListCommand {
     PushFrontExist(String, Vec<Vec<u8>>),
     PopBack(String, Option<usize>),
     PopFront(String, Option<usize>),
+    Range(String, isize, isize),
 }
 
 impl ListCommand {
@@ -55,6 +56,12 @@ impl ListCommand {
                 let key = parser.next_string()?;
                 let values = parser.remaining()?;
                 Self::PushBackExist(key, values)
+            }
+            "lrange" => {
+                let key = parser.next_string()?;
+                let start = parser.next_isize()?;
+                let end = parser.next_isize()?;
+                Self::Range(key, start, end)
             }
             _ => return Ok(None),
         };

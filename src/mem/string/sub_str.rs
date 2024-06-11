@@ -14,7 +14,7 @@ use crate::util::prune_range::prune_range;
 /// So -1 means the last character, -2 the penultimate and so forth.
 ///
 /// The function handles out of range requests by limiting the resulting range to the actual length of the string.
-pub fn sub_str(db: &Db, key: &str, start: i64, end: i64) -> ReplyFrame {
+pub fn sub_str(db: &Db, key: &str, start: isize, end: isize) -> ReplyFrame {
     match db.get(key) {
         Some(MemObject::Str(value)) => match value {
             StrObject::Integer(_) => todo!(),

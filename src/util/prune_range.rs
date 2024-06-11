@@ -5,18 +5,18 @@
 #[allow(clippy::cast_possible_truncation)]
 #[allow(clippy::cast_possible_wrap)]
 #[allow(clippy::cast_sign_loss)]
-pub fn prune_range(len: usize, mut start: i64, mut end: i64) -> Option<(usize, usize)> {
+pub fn prune_range(len: usize, mut start: isize, mut end: isize) -> Option<(usize, usize)> {
     // TODO(Shaohua): Handle cast error
-    let len_i64 = len as i64;
+    let len_isize = len as isize;
     if start < 0 {
-        start += len_i64;
+        start += len_isize;
     }
     if end < 0 {
-        end += len_i64;
+        end += len_isize;
     };
     start = start.max(0);
     end = end.max(0);
-    end = end.min(len_i64 - 1);
+    end = end.min(len_isize - 1);
 
     if start > end || len == 0 {
         return None;

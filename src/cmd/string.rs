@@ -10,12 +10,12 @@ pub enum StringCommand {
     Append(String, Vec<u8>),
     Get(String),
     GetDel(String),
-    GetRange(String, i64, i64),
+    GetRange(String, isize, isize),
     GetSet(String, Vec<u8>),
     Set(String, Vec<u8>),
     SetRange(String, isize, Vec<u8>),
     StrLen(String),
-    SubStr(String, i64, i64),
+    SubStr(String, isize, isize),
 }
 
 impl StringCommand {
@@ -39,8 +39,8 @@ impl StringCommand {
             }
             "getrange" => {
                 let key = parser.next_string()?;
-                let start = parser.next_i64()?;
-                let end = parser.next_i64()?;
+                let start = parser.next_isize()?;
+                let end = parser.next_isize()?;
                 Self::GetRange(key, start, end)
             }
             "getset" => {
@@ -65,8 +65,8 @@ impl StringCommand {
             }
             "substr" => {
                 let key = parser.next_string()?;
-                let start = parser.next_i64()?;
-                let end = parser.next_i64()?;
+                let start = parser.next_isize()?;
+                let end = parser.next_isize()?;
                 Self::SubStr(key, start, end)
             }
             _ => return Ok(None),

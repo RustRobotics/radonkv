@@ -16,6 +16,6 @@ use crate::mem::string::sub_str::sub_str;
 /// to the actual length of the string.
 #[must_use]
 #[inline]
-pub fn get_range(db: &Db, key: &str, start: i64, end: i64) -> ReplyFrame {
+pub fn get_range(db: &Db, key: &str, start: isize, end: isize) -> ReplyFrame {
     sub_str(db, key, start, end)
 }
