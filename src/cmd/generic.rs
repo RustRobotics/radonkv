@@ -8,6 +8,7 @@ use crate::cmd::parse::{ParseCommandError, Parser};
 #[derive(Debug, Clone)]
 pub enum GenericCommand {
     Delete(Vec<String>),
+    Exists(Vec<String>),
     Rename(String, String),
     Type(String),
 }
@@ -21,6 +22,10 @@ impl GenericCommand {
             "del" => {
                 let keys = parser.remaining_strings()?;
                 Self::Delete(keys)
+            }
+            "exists" => {
+                let keys = parser.remaining_strings()?;
+                Self::Exists(keys)
             }
             "rename" => {
                 let key = parser.next_string()?;
