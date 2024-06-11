@@ -9,9 +9,7 @@ use crate::mem::db::{Db, MemObject};
 pub fn len(db: &Db, key: &str) -> ReplyFrame {
     match db.get(key) {
         Some(MemObject::Str(value)) => ReplyFrame::Usize(value.len()),
-        Some(_other) => ReplyFrame::ConstError(
-            "Object type mismatch, expected string"
-        ),
+        Some(_other) => ReplyFrame::wrong_type_err(),
         None => ReplyFrame::Usize(0),
     }
 }
