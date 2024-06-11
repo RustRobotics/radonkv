@@ -2,14 +2,12 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
-use std::io::{Cursor, Write};
+use std::io::Cursor;
 use std::num::TryFromIntError;
 use std::string::FromUtf8Error;
 
 use atoi::atoi;
-use bytes::{Buf, BufMut, Bytes, BytesMut};
-
-use crate::cmd::frame_consts::FrameConst;
+use bytes::{Buf, Bytes};
 
 #[derive(Debug, Clone)]
 pub enum Frame {
@@ -19,10 +17,7 @@ pub enum Frame {
     Integer(i64),
     Null,
     Simple(String),
-    Const(FrameConst),
 }
-
-// TODO(Shaohua): Add ReplyFrame
 
 #[derive(Debug)]
 pub enum ParseFrameError {
@@ -33,68 +28,6 @@ pub enum ParseFrameError {
 }
 
 impl Frame {
-    pub fn into_bytes(self) -> Bytes {
-        match self {
-            Self::Array(arr) => {
-                let mut bytes = BytesMut::new();
-                bytes.put_u8(b'*');
-                let len = arr.len();
-                #[allow(clippy::cast_possible_wrap)]
-                Self::write_i64(&mut bytes, len as i64);
-
-                for frame in arr {
-                    bytes.put(frame.into_bytes());
-                }
-
-                bytes.freeze()
-            }
-            Self::Bulk(val) => {
-                let len = val.len();
-                let mut bytes = BytesMut::new();
-                bytes.put_u8(b'$');
-                #[allow(clippy::cast_possible_wrap)]
-                Self::write_i64(&mut bytes, len as i64);
-                bytes.put(val);
-                bytes.put_slice(b"\r\n");
-                bytes.freeze()
-            }
-            Self::Error(err) => {
-                let mut bytes = BytesMut::new();
-                bytes.put_u8(b'-');
-                bytes.put(Bytes::from(err));
-                bytes.put_slice(b"\r\n");
-                bytes.freeze()
-            }
-            Self::Integer(num) => {
-                let mut bytes = BytesMut::new();
-                bytes.put_u8(b':');
-                Self::write_i64(&mut bytes, num);
-                bytes.freeze()
-            }
-            Self::Null => Bytes::from("$-1\r\n"),
-            Self::Simple(s) => {
-                let mut bytes = BytesMut::new();
-                bytes.put_u8(b'+');
-                bytes.put(Bytes::from(s));
-                bytes.put_slice(b"\r\n");
-                bytes.freeze()
-            }
-            Self::Const(frame_const) => {
-                frame_const.to_real_frame().into_bytes()
-            }
-        }
-    }
-
-    fn write_i64(bytes: &mut BytesMut, val: i64) {
-        // NOTE(Shaohua): Replace String format with stack array.
-        let mut buf = [0u8; 32];
-        let mut cursor = Cursor::new(&mut buf[..]);
-        write!(&mut cursor, "{val}").unwrap();
-        let pos = usize::try_from(cursor.position()).unwrap();
-        bytes.put(&cursor.get_ref()[0..pos]);
-        bytes.put_slice(b"\r\n");
-    }
-
     pub fn push_bulk(&mut self, bytes: Bytes) -> Result<(), ParseFrameError> {
         if let Self::Array(vec) = self {
             vec.push(Self::Bulk(bytes));

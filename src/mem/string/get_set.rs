@@ -4,7 +4,7 @@
 
 use bytes::Bytes;
 
-use crate::cmd::frame::Frame;
+use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::db::{Db, MemObject};
 use crate::mem::string::StrObject;
 
@@ -12,17 +12,17 @@ use crate::mem::string::StrObject;
 ///
 /// Returns an error when key exists but does not hold a string value.
 /// Any previous time to live associated with the key is discarded on successful SET operation.
-pub fn get_set(db: &mut Db, key: String, value: Bytes) -> Frame {
+pub fn get_set(db: &mut Db, key: String, value: Bytes) -> ReplyFrame {
     match db.get(&key) {
         Some(MemObject::Str(old_value)) => {
-            let frame = Frame::Bulk(old_value.to_bytes());
+            let frame = ReplyFrame::Bulk(old_value.to_bytes());
             db.insert(key, StrObject::from_bytes(value));
             frame
         }
-        Some(_other) => Frame::wrong_type_err(),
+        Some(_other) => ReplyFrame::wrong_type_err(),
         None => {
             db.insert(key, StrObject::from_bytes(value));
-            Frame::null()
+            ReplyFrame::Null
         }
     }
 }

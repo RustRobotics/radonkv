@@ -21,7 +21,7 @@ impl Mem {
         let reply_frame = self.handle_db_command(command);
         let reply_cmd = MemToDispatcherCmd {
             session_group,
-            frame: reply_frame,
+            reply_frame,
         };
         log::debug!("{} send cmd to dispatcher, cmd: {reply_cmd:?}", function_name!());
         Ok(self.dispatcher_sender.send(reply_cmd).await?)

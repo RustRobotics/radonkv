@@ -9,6 +9,7 @@ use stdext::function_name;
 
 use crate::cmd::Command;
 use crate::cmd::frame::{Frame, ParseFrameError};
+use crate::cmd::reply_frame::ReplyFrame;
 use crate::commands::SessionToListenerCmd;
 use crate::error::Error;
 use crate::session::Session;
@@ -25,8 +26,8 @@ impl Session {
                 Ok(None) => (),
                 Err(err) => {
                     log::warn!("Invalid frame, err: {err:?}");
-                    let frame = Frame::Error("Invalid frame".to_owned());
-                    if let Err(err) = self.send_frame_to_client(frame).await {
+                    let reply_frame = ReplyFrame::ConstError("Invalid frame");
+                    if let Err(err) = self.send_frame_to_client(reply_frame).await {
                         log::warn!("Failed to send error frame to client, err: {err:?}");
                     }
                     // TODO(Shaohua): Close socket.
@@ -66,16 +67,18 @@ impl Session {
             }
             Err(err) => {
                 log::warn!("Invalid command, err: {err:?}");
-                self.send_frame_to_client(Frame::Error("Invalid command".to_owned()))
+                self.send_frame_to_client(ReplyFrame::invalid_command())
                     .await
             }
         }
     }
 
-    pub(super) async fn send_frame_to_client(&mut self, frame: Frame) -> Result<(), Error> {
-        log::debug!("{} frame: {frame:?}", function_name!());
-        let bytes: Bytes = frame.into_bytes();
+    pub(super) async fn send_frame_to_client(&mut self, reply_frame: ReplyFrame) -> Result<(), Error> {
+        log::debug!("{} reply_frame: {reply_frame:?}", function_name!());
+        // TODO(Shaohua): Call io::Write trait, do not convert to Bytes object.
+        let bytes: Bytes = reply_frame.into_bytes();
         self.stream.write(&bytes).await?;
+        // TODO(Shaohua): flush stream with pipeline
         //self.stream.flush().await
         Ok(())
     }

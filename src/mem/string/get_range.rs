@@ -2,7 +2,7 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
-use crate::cmd::frame::Frame;
+use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::db::Db;
 use crate::mem::string::sub_str::sub_str;
 
@@ -16,6 +16,6 @@ use crate::mem::string::sub_str::sub_str;
 /// to the actual length of the string.
 #[must_use]
 #[inline]
-pub fn get_range(db: &Db, key: &str, start: i64, end: i64) -> Frame {
+pub fn get_range(db: &Db, key: &str, start: i64, end: i64) -> ReplyFrame {
     sub_str(db, key, start, end)
 }

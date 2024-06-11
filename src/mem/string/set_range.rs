@@ -4,8 +4,7 @@
 
 use bytes::{BufMut, Bytes};
 
-use crate::cmd::frame::Frame;
-use crate::cmd::frame_consts::FrameConst;
+use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::db::{Db, MemObject};
 use crate::mem::string::consts::STRING_TOO_LONG_ERR;
 use crate::mem::string::StrObject;
@@ -18,9 +17,9 @@ use crate::mem::util::check_string_length;
 /// the string is padded with zero-bytes to make offset fit.
 /// Non-existing keys are considered as empty strings, so this command will make sure
 /// it holds a string large enough to be able to set value at offset.
-pub fn set_range(db: &mut Db, key: String, offset: isize, value: Bytes) -> Frame {
+pub fn set_range(db: &mut Db, key: String, offset: isize, value: Bytes) -> ReplyFrame {
     if offset < 0 {
-        return FrameConst::from_err("offset is out of range");
+        return ReplyFrame::ConstError("offset is out of range");
     }
     let offset_usize = offset as usize;
 
@@ -30,31 +29,31 @@ pub fn set_range(db: &mut Db, key: String, offset: isize, value: Bytes) -> Frame
                 StrObject::Integer(_int) => todo!(),
                 StrObject::Vec(vec) => vec,
             },
-            _ => return Frame::wrong_type_err(),
+            _ => return ReplyFrame::wrong_type_err(),
         };
         return if value.is_empty() {
-            Frame::Integer(old_value.len() as i64)
+            ReplyFrame::Usize(old_value.len())
         } else {
             if !check_string_length(offset_usize, value.len()) {
-                return FrameConst::from_str(STRING_TOO_LONG_ERR);
+                return ReplyFrame::ConstErrorWithErr(STRING_TOO_LONG_ERR);
             }
             // FIXME(Shaohua): merge two parts of vector
             old_value.put_slice(&value);
-            Frame::Integer(old_value.len() as i64)
+            ReplyFrame::Usize(old_value.len())
         };
     } else {
         if value.is_empty() {
-            return Frame::zero();
+            return ReplyFrame::zero();
         }
 
         if !check_string_length(offset_usize, value.len()) {
-            return FrameConst::from_str(STRING_TOO_LONG_ERR);
+            return ReplyFrame::ConstErrorWithErr(STRING_TOO_LONG_ERR);
         }
 
         let mut s = StrObject::with_length(offset_usize);
         s.append(&value);
         let len = s.len();
         db.insert(key, MemObject::Str(s));
-        Frame::Integer(len as i64)
+        ReplyFrame::Usize(len)
     }
 }

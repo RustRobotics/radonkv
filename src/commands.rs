@@ -3,12 +3,12 @@
 // that can be found in the LICENSE file.
 
 use crate::cmd::Command;
-use crate::cmd::frame::Frame;
+use crate::cmd::reply_frame::ReplyFrame;
 use crate::listener::types::{SessionGroup, SessionId};
 
 #[derive(Debug, Clone)]
 pub enum ListenerToSessionCmd {
-    Reply(SessionId, Frame),
+    Reply(SessionId, ReplyFrame),
 }
 
 #[derive(Debug, Clone)]
@@ -24,7 +24,7 @@ pub enum ListenerToDispatcherCmd {
 
 #[derive(Debug, Clone)]
 pub enum DispatcherToListenerCmd {
-    Reply(SessionGroup, Frame),
+    Reply(SessionGroup, ReplyFrame),
 }
 
 #[derive(Debug, Clone)]
@@ -44,5 +44,5 @@ pub struct DispatcherToMemCmd {
 #[derive(Debug, Clone)]
 pub struct MemToDispatcherCmd {
     pub session_group: SessionGroup,
-    pub frame: Frame,
+    pub reply_frame: ReplyFrame,
 }

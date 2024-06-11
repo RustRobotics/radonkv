@@ -4,7 +4,7 @@
 
 use bytes::Bytes;
 
-use crate::cmd::frame::Frame;
+use crate::cmd::reply_frame::ReplyFrame;
 use crate::cmd::string::StringCommand;
 use crate::mem::db::MemObject;
 use crate::mem::Mem;
@@ -77,7 +77,7 @@ impl StrObject {
 }
 
 impl Mem {
-    pub fn handle_string_command(&mut self, command: StringCommand) -> Frame {
+    pub fn handle_string_command(&mut self, command: StringCommand) -> ReplyFrame {
         match command {
             StringCommand::Append(key, value) => append::append(&mut self.db, key, value),
             StringCommand::Get(key) => get::get(&self.db, &key),

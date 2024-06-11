@@ -14,7 +14,7 @@ impl Dispatcher {
         log::debug!("{}, proxy cmd from mem to listener, cmd: {cmd:?}", function_name!());
         let listener_id = cmd.session_group.listener_id();
         if let Some(listener_sender) = self.listener_senders.get(&listener_id) {
-            let cmd = DispatcherToListenerCmd::Reply(cmd.session_group, cmd.frame);
+            let cmd = DispatcherToListenerCmd::Reply(cmd.session_group, cmd.reply_frame);
             Ok(listener_sender.send(cmd).await?)
         } else {
             Err(Error::from_string(
