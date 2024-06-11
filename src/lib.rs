@@ -29,4 +29,3 @@ pub mod mem;
 pub mod server;
 mod session;
 pub mod storage;
-mod util;

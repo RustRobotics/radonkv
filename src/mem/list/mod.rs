@@ -7,7 +7,7 @@ use std::collections::LinkedList;
 use crate::cmd::list::ListCommand;
 use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::Mem;
-use crate::util::prune_range::prune_range;
+use crate::mem::util::prune_range;
 
 mod len;
 mod push_front;
@@ -17,6 +17,7 @@ mod pop_back;
 mod push_back_exist;
 mod push_front_exist;
 mod range;
+mod index;
 
 pub type ListObject = LinkedList<Vec<u8>>;
 
@@ -24,6 +25,7 @@ impl Mem {
     #[allow(clippy::needless_pass_by_value)]
     pub fn handle_list_command(&mut self, command: ListCommand) -> ReplyFrame {
         match command {
+            ListCommand::Index(key, index) => index::index(&self.db, &key, index),
             ListCommand::Len(key) => len::len(&self.db, &key),
             ListCommand::PushBack(key, values) => push_back::push_back(&mut self.db, key, values),
             ListCommand::PushBackExist(key, values) => push_back_exist::push_back_exist(&mut self.db, key, values),

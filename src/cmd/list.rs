@@ -7,6 +7,7 @@ use crate::cmd::parse::{ParseCommandError, Parser};
 
 #[derive(Debug, Clone)]
 pub enum ListCommand {
+    Index(String, isize),
     Len(String),
     PushBack(String, Vec<Vec<u8>>),
     PushBackExist(String, Vec<Vec<u8>>),
@@ -23,6 +24,11 @@ impl ListCommand {
         parser: &mut Parser,
     ) -> Result<Option<Command>, ParseCommandError> {
         let list_cmd = match cmd_name {
+            "lindex" => {
+                let key = parser.next_string()?;
+                let index = parser.next_isize()?;
+                Self::Index(key, index)
+            }
             "llen" => {
                 let key = parser.next_string()?;
                 Self::Len(key)

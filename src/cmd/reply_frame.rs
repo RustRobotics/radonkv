@@ -6,7 +6,7 @@ use std::io::{Cursor, Write};
 
 use bytes::{BufMut, Bytes, BytesMut};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum ReplyFrame {
     // status values
     Status(String),
@@ -27,6 +27,7 @@ pub enum ReplyFrame {
     // Empty bulk string.
     EmptyBulk,
     // Nil bulk string.
+    // TODO(Shaohua): Support Null data type in RESP3
     Null,
 
     // Decimal

@@ -5,7 +5,7 @@
 use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::db::{Db, MemObject};
 use crate::mem::string::StrObject;
-use crate::util::prune_range::prune_range;
+use crate::mem::util::prune_range;
 
 /// Returns the substring of the string value stored at key,
 /// determined by the offsets start and end (both are inclusive).
