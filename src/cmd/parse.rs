@@ -69,12 +69,10 @@ pub struct Parser {
 
 impl Parser {
     pub fn next(&mut self) -> Result<Frame, ParseCommandError> {
-        self.iter
-            .next()
-            .ok_or(ParseCommandError::InvalidParameter)
+        self.iter.next().ok_or(ParseCommandError::InvalidParameter)
     }
 
-    pub fn remaining(&mut self) -> Result<Vec<Vec<u8>>, ParseCommandError> {
+    pub fn remaining(&mut self) -> Result<Option<Vec<Vec<u8>>>, ParseCommandError> {
         let mut list = Vec::new();
         while let Some(frame) = self.iter.next() {
             match frame {
@@ -85,7 +83,11 @@ impl Parser {
                 }
             }
         }
-        Ok(list)
+        if list.is_empty() {
+            Ok(None)
+        } else {
+            Ok(Some(list))
+        }
     }
 
     pub fn remaining_strings(&mut self) -> Result<Vec<String>, ParseCommandError> {
@@ -128,16 +130,13 @@ impl Parser {
 
     pub fn next_i32(&mut self) -> Result<i32, ParseCommandError> {
         match self.next()? {
-            Frame::Simple(s) => {
-                Ok(s.parse::<i32>()?)
-            }
+            Frame::Simple(s) => Ok(s.parse::<i32>()?),
             // TODO(Shaohua): Convert ParseCommandError as complex enum
             Frame::Bulk(bytes) => {
-                let s = std::str::from_utf8(&bytes[..])
-                    .map_err(|err| {
-                        log::warn!("Failed to parse string, got err: {err:?}");
-                        ParseCommandError::InvalidParameter
-                    })?;
+                let s = std::str::from_utf8(&bytes[..]).map_err(|err| {
+                    log::warn!("Failed to parse string, got err: {err:?}");
+                    ParseCommandError::InvalidParameter
+                })?;
                 Ok(s.parse::<i32>()?)
             }
             frame => {
@@ -149,15 +148,12 @@ impl Parser {
 
     pub fn next_isize(&mut self) -> Result<isize, ParseCommandError> {
         match self.next()? {
-            Frame::Simple(s) => {
-                Ok(s.parse::<isize>()?)
-            }
+            Frame::Simple(s) => Ok(s.parse::<isize>()?),
             Frame::Bulk(bytes) => {
-                let s = std::str::from_utf8(&bytes[..])
-                    .map_err(|err| {
-                        log::warn!("Failed to parse string, got err: {err:?}");
-                        ParseCommandError::InvalidParameter
-                    })?;
+                let s = std::str::from_utf8(&bytes[..]).map_err(|err| {
+                    log::warn!("Failed to parse string, got err: {err:?}");
+                    ParseCommandError::InvalidParameter
+                })?;
                 Ok(s.parse::<isize>()?)
             }
             frame => {
@@ -175,11 +171,10 @@ impl Parser {
                 Ok(Some(num))
             }
             Some(Frame::Bulk(bytes)) => {
-                let s = std::str::from_utf8(&bytes[..])
-                    .map_err(|err| {
-                        log::warn!("Failed to parse string, got err: {err:?}");
-                        ParseCommandError::InvalidParameter
-                    })?;
+                let s = std::str::from_utf8(&bytes[..]).map_err(|err| {
+                    log::warn!("Failed to parse string, got err: {err:?}");
+                    ParseCommandError::InvalidParameter
+                })?;
                 let num = s.parse::<usize>()?;
                 Ok(Some(num))
             }
@@ -192,15 +187,12 @@ impl Parser {
 
     pub fn next_i64(&mut self) -> Result<i64, ParseCommandError> {
         match self.next()? {
-            Frame::Simple(s) => {
-                Ok(s.parse::<i64>()?)
-            }
+            Frame::Simple(s) => Ok(s.parse::<i64>()?),
             Frame::Bulk(bytes) => {
-                let s = std::str::from_utf8(&bytes[..])
-                    .map_err(|err| {
-                        log::warn!("Failed to parse string, got err: {err:?}");
-                        ParseCommandError::InvalidParameter
-                    })?;
+                let s = std::str::from_utf8(&bytes[..]).map_err(|err| {
+                    log::warn!("Failed to parse string, got err: {err:?}");
+                    ParseCommandError::InvalidParameter
+                })?;
                 Ok(s.parse::<i64>()?)
             }
             frame => {
@@ -212,15 +204,12 @@ impl Parser {
 
     pub fn next_f64(&mut self) -> Result<f64, ParseCommandError> {
         match self.next()? {
-            Frame::Simple(s) => {
-                Ok(s.parse::<f64>()?)
-            }
+            Frame::Simple(s) => Ok(s.parse::<f64>()?),
             Frame::Bulk(bytes) => {
-                let s = std::str::from_utf8(&bytes[..])
-                    .map_err(|err| {
-                        log::warn!("Failed to parse string, got err: {err:?}");
-                        ParseCommandError::InvalidParameter
-                    })?;
+                let s = std::str::from_utf8(&bytes[..]).map_err(|err| {
+                    log::warn!("Failed to parse string, got err: {err:?}");
+                    ParseCommandError::InvalidParameter
+                })?;
                 Ok(s.parse::<f64>()?)
             }
             frame => {

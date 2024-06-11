@@ -4,6 +4,7 @@
 
 use std::collections::hash_map::Entry;
 
+use crate::cmd::list::ExtraValues;
 use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::db::{Db, MemObject};
 use crate::mem::list::ListObject;
@@ -23,15 +24,17 @@ pub fn push_front(
     db: &mut Db,
     key: String,
     value: Vec<u8>,
-    extra_values: Vec<Vec<u8>>,
+    extra_values: ExtraValues,
 ) -> ReplyFrame {
     match db.entry(key) {
         Entry::Occupied(mut occupied) => match occupied.get_mut() {
             MemObject::Str(_) => ReplyFrame::wrong_type_err(),
             MemObject::List(old_list) => {
                 old_list.push_front(value);
-                for extra_value in extra_values {
-                    old_list.push_front(extra_value);
+                if let Some(extra_values) = extra_values {
+                    for extra_value in extra_values {
+                        old_list.push_front(extra_value);
+                    }
                 }
                 ReplyFrame::Usize(old_list.len())
             }
@@ -40,8 +43,10 @@ pub fn push_front(
             // NOTE(Shaohua): Reverse order of items in values.
             let mut list = ListObject::new();
             list.push_front(value);
-            for extra_value in extra_values {
-                list.push_front(extra_value);
+            if let Some(extra_values) = extra_values {
+                for extra_value in extra_values {
+                    list.push_front(extra_value);
+                }
             }
             let len = list.len();
             vacant.insert(MemObject::List(list));

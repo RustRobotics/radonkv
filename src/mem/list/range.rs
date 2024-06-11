@@ -23,13 +23,48 @@ pub fn range(db: &Db, key: &str, start: isize, end: isize) -> ReplyFrame {
 
 #[cfg(test)]
 mod tests {
+    use crate::cmd::reply_frame::ReplyFrame;
     use crate::mem::db::Db;
     use crate::mem::list::push_back::push_back;
+    use crate::mem::list::range::range;
 
     #[test]
     fn test_range() {
         let mut db = Db::new();
-        let key = "mylist";
-        push_back(&mut db, key.to_owned(), vec);
+        let key = "mylist".to_owned();
+        let reply = push_back(&mut db, key.clone(), b"one".to_vec(), None);
+        assert_eq!(reply, ReplyFrame::Usize(1));
+        let reply = push_back(&mut db, key.clone(), b"two".to_vec(), None);
+        assert_eq!(reply, ReplyFrame::Usize(2));
+        let reply = push_back(&mut db, key.clone(), b"three".to_vec(), None);
+        assert_eq!(reply, ReplyFrame::Usize(3));
+
+        let reply = range(&db, &key, 0, 0);
+        assert_eq!(
+            reply,
+            ReplyFrame::Array(vec![ReplyFrame::Bulk(b"one".to_vec())])
+        );
+        let reply = range(&db, &key, -3, 2);
+        assert_eq!(
+            reply,
+            ReplyFrame::Array(vec![
+                ReplyFrame::Bulk(b"one".to_vec()),
+                ReplyFrame::Bulk(b"two".to_vec()),
+                ReplyFrame::Bulk(b"three".to_vec()),
+            ])
+        );
+
+        let reply = range(&db, &key, -100, 100);
+        assert_eq!(
+            reply,
+            ReplyFrame::Array(vec![
+                ReplyFrame::Bulk(b"one".to_vec()),
+                ReplyFrame::Bulk(b"two".to_vec()),
+                ReplyFrame::Bulk(b"three".to_vec()),
+            ])
+        );
+
+        let reply = range(&db, &key, 5, 10);
+        assert_eq!(reply, ReplyFrame::EmptyArray);
     }
 }

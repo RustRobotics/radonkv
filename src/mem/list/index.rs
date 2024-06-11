@@ -43,9 +43,9 @@ mod tests {
     fn test_index() {
         let mut db = Db::new();
         let key = "mylist".to_owned();
-        let reply = push_front(&mut db, key.clone(), vec![b"World".to_vec()]);
+        let reply = push_front(&mut db, key.clone(), b"World".to_vec(), None);
         assert_eq!(reply, ReplyFrame::Usize(1));
-        let reply = push_front(&mut db, key.clone(), vec![b"Hello".to_vec()]);
+        let reply = push_front(&mut db, key.clone(), b"Hello".to_vec(), None);
         assert_eq!(reply, ReplyFrame::Usize(2));
 
         let reply = index(&db, &key, 0);

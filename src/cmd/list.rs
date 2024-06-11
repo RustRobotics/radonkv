@@ -5,14 +5,16 @@
 use crate::cmd::Command;
 use crate::cmd::parse::{ParseCommandError, Parser};
 
+pub type ExtraValues = Option<Vec<Vec<u8>>>;
+
 #[derive(Debug, Clone)]
 pub enum ListCommand {
     Index(String, isize),
     Len(String),
-    PushBack(String, Vec<u8>, Vec<Vec<u8>>),
-    PushBackExist(String, Vec<u8>, Vec<Vec<u8>>),
-    PushFront(String, Vec<u8>, Vec<Vec<u8>>),
-    PushFrontExist(String, Vec<u8>, Vec<Vec<u8>>),
+    PushBack(String, Vec<u8>, ExtraValues),
+    PushBackExist(String, Vec<u8>, ExtraValues),
+    PushFront(String, Vec<u8>, ExtraValues),
+    PushFrontExist(String, Vec<u8>, ExtraValues),
     PopBack(String, Option<usize>),
     PopFront(String, Option<usize>),
     Range(String, isize, isize),
