@@ -4,8 +4,6 @@
 
 use std::collections::hash_map::Entry;
 
-use bytes::Bytes;
-
 use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::db::{Db, MemObject};
 use crate::mem::list::ListObject;
@@ -21,13 +19,13 @@ use crate::mem::list::ListObject;
 // from the leftmost element to the rightmost element.
 // So for instance the command `LPUSH mylist a b c` will result into a list containing
 // `c` as first element, `b` as second element and `a` as third element.
-pub fn push_front(db: &mut Db, key: String, values: Vec<Bytes>) -> ReplyFrame {
+pub fn push_front(db: &mut Db, key: String, values: Vec<Vec<u8>>) -> ReplyFrame {
     match db.entry(key) {
         Entry::Occupied(mut occupied) => match occupied.get_mut() {
             MemObject::Str(_) => ReplyFrame::wrong_type_err(),
             MemObject::List(old_list) => {
                 for value in values {
-                    old_list.push_front(value.to_vec());
+                    old_list.push_front(value);
                 }
                 ReplyFrame::Usize(old_list.len())
             }

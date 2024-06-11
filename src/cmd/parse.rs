@@ -72,11 +72,11 @@ impl Parser {
             .ok_or(ParseCommandError::InvalidParameter)
     }
 
-    pub fn remaining(&mut self) -> Result<Vec<Bytes>, ParseCommandError> {
+    pub fn remaining(&mut self) -> Result<Vec<Vec<u8>>, ParseCommandError> {
         let mut list = Vec::new();
         while let Some(frame) = self.iter.next() {
             match frame {
-                Frame::Bulk(frame) => list.push(frame),
+                Frame::Bulk(frame) => list.push(frame.to_vec()),
                 frame => {
                     log::warn!("Protocol error, expected bulk frame, got: {frame:?}");
                     return Err(ParseCommandError::ProtocolError);

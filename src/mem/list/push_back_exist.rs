@@ -4,8 +4,6 @@
 
 use std::collections::hash_map::Entry;
 
-use bytes::Bytes;
-
 use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::db::{Db, MemObject};
 
@@ -13,13 +11,13 @@ use crate::mem::db::{Db, MemObject};
 /// and holds a list.
 ///
 /// In contrary to `RPUSH`, no operation will be performed when key does not yet exist.
-pub fn push_back_exist(db: &mut Db, key: String, values: Vec<Bytes>) -> ReplyFrame {
+pub fn push_back_exist(db: &mut Db, key: String, values: Vec<Vec<u8>>) -> ReplyFrame {
     match db.entry(key) {
         Entry::Occupied(mut occupied) => match occupied.get_mut() {
             MemObject::Str(_) => ReplyFrame::wrong_type_err(),
             MemObject::List(old_list) => {
                 for value in values {
-                    old_list.push_back(value.to_vec());
+                    old_list.push_back(value);
                 }
                 ReplyFrame::Usize(old_list.len())
             }

@@ -2,18 +2,16 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
-use bytes::Bytes;
-
 use crate::cmd::Command;
 use crate::cmd::parse::{ParseCommandError, Parser};
 
 #[derive(Debug, Clone)]
 pub enum ListCommand {
     Len(String),
-    PushBack(String, Vec<Bytes>),
-    PushBackExist(String, Vec<Bytes>),
-    PushFront(String, Vec<Bytes>),
-    PushFrontExist(String, Vec<Bytes>),
+    PushBack(String, Vec<Vec<u8>>),
+    PushBackExist(String, Vec<Vec<u8>>),
+    PushFront(String, Vec<Vec<u8>>),
+    PushFrontExist(String, Vec<Vec<u8>>),
     PopBack(String, Option<usize>),
     PopFront(String, Option<usize>),
 }
