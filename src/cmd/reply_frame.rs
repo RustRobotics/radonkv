@@ -24,7 +24,10 @@ pub enum ReplyFrame {
 
     // String or bytes
     Bulk(Vec<u8>),
+    // Empty bulk string.
     EmptyBulk,
+    // Nil bulk string.
+    Null,
 
     // Decimal
     I64(i64),
@@ -32,8 +35,6 @@ pub enum ReplyFrame {
     Usize(usize),
     Double(f64),
 
-    // None of the above
-    Null,
 }
 
 impl ReplyFrame {
@@ -113,6 +114,7 @@ impl ReplyFrame {
                 bytes.put_slice(b"\r\n");
                 bytes.freeze()
             }
+            Self::Null => Bytes::from("$-1\r\n"),
 
             Self::I64(num) => {
                 let mut bytes = BytesMut::new();
@@ -136,8 +138,6 @@ impl ReplyFrame {
                 // TODO(Shaohua): Convert as bulk reply
                 todo!()
             }
-
-            Self::Null => Bytes::from("$-1\r\n"),
         }
     }
 

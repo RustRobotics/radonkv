@@ -14,5 +14,5 @@ pub fn random_key(db: &Db, random_index: usize) -> ReplyFrame {
         }
     }
 
-    ReplyFrame::EmptyBulk
+    ReplyFrame::Null
 }
