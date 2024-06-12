@@ -19,6 +19,7 @@ pub enum ListCommand {
     PopFront(String, Option<usize>),
     Range(String, isize, isize),
     Remove(String, isize, Vec<u8>),
+    Set(String, isize, Vec<u8>),
 }
 
 impl ListCommand {
@@ -81,6 +82,12 @@ impl ListCommand {
                 let count = parser.next_isize()?;
                 let element = parser.next_bytes()?;
                 Self::Remove(key, count, element)
+            }
+            "lset" => {
+                let key = parser.next_string()?;
+                let index = parser.next_isize()?;
+                let element = parser.next_bytes()?;
+                Self::Set(key, index, element)
             }
             _ => return Ok(None),
         };

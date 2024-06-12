@@ -38,7 +38,7 @@ pub fn prune_index(len: usize, mut index: isize) -> Option<usize> {
     if index < 0 {
         index += len_isize;
     }
-    if index >= len_isize || len == 0 {
+    if index >= len_isize || index < 0 || len == 0 {
         None
     } else {
         let index_usize = index as usize;
@@ -64,5 +64,6 @@ mod tests {
         assert_eq!(prune_index(2, -1), Some(1));
         assert_eq!(prune_index(2, -2), Some(0));
         assert_eq!(prune_index(2, 3), None);
+        assert_eq!(prune_index(2, -3), None);
     }
 }

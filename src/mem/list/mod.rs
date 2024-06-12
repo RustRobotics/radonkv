@@ -19,6 +19,7 @@ mod push_front;
 mod push_front_exist;
 mod range;
 mod remove;
+mod set;
 
 pub type ListObject = LinkedList<Vec<u8>>;
 
@@ -40,12 +41,13 @@ impl Mem {
             ListCommand::PushFrontExist(key, value, extra_values) => {
                 push_front_exist::push_front_exist(&mut self.db, key, value, extra_values)
             }
-            ListCommand::PopBack(key, count) => pop_back::pop_back(&mut self.db, key, count),
+            ListCommand::PopBack(key, count) => pop_back::pop_back(&mut self.db, &key, count),
             ListCommand::PopFront(key, count) => pop_front::pop_front(&mut self.db, key, count),
             ListCommand::Range(key, start, end) => range::range(&self.db, &key, start, end),
             ListCommand::Remove(key, count, element) => {
                 remove::remove(&mut self.db, key, count, element)
             }
+            ListCommand::Set(key, index, value) => set::set(&mut self.db, &key, index, value),
         }
     }
 }

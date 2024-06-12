@@ -35,7 +35,6 @@ pub enum ReplyFrame {
     I32(i32),
     Usize(usize),
     Double(f64),
-
 }
 
 impl ReplyFrame {
@@ -211,27 +210,37 @@ impl ReplyFrame {
     pub const fn no_such_key() -> Self {
         Self::ConstError(NO_KEY_ERR)
     }
-}
 
+    #[must_use]
+    #[inline]
+    pub const fn index_out_of_range() -> Self {
+        Self::ConstError(INDEX_OUT_OF_RANGE)
+    }
+}
 
 pub const OK: &str = "Ok";
 pub const PONG: &str = "PONG";
 pub const QUEUED: &str = "QUEUED";
 
 // Shared command error responses
-pub const WRONG_TYPE_ERR: &str = "WRONGTYPE Operation against a key holding the wrong kind of value";
-pub const INVALID_COMMAND: &str = "ERR Invalid command";
+pub const WRONG_TYPE_ERR: &str =
+    "WRONGTYPE Operation against a key holding the wrong kind of value";
 pub const ERR: &str = "ERR";
+pub const INVALID_COMMAND: &str = "ERR invalid command";
+pub const INDEX_OUT_OF_RANGE: &str = "ERR index out of range";
 pub const NO_KEY_ERR: &str = "ERR no such key";
 pub const SYNTAX_ERR: &str = "ERR syntax error";
 pub const SAME_OBJECT_ERR: &str = "ERR source and destination objects are the same";
 pub const OUT_OF_RANGE_ERR: &str = "ERR index out of range";
 pub const NO_SCRIPT_ERR: &str = "NOSCRIPT No matching script. Please use EVAL.";
 pub const LOADING_ERR: &str = "LOADING Server is loading the dataset in memory";
-pub const SLOW_EVAL_ERR: &str = "BUSY Server is busy running a script. You can only call SCRIPT KILL or SHUTDOWN NOSAVE.";
-pub const SLOW_SCRIPT_ERR: &str = "BUSY Redis is busy running a script. You can only call FUNCTION KILL or SHUTDOWN NOSAVE.";
+pub const SLOW_EVAL_ERR: &str =
+    "BUSY Server is busy running a script. You can only call SCRIPT KILL or SHUTDOWN NOSAVE.";
+pub const SLOW_SCRIPT_ERR: &str =
+    "BUSY Redis is busy running a script. You can only call FUNCTION KILL or SHUTDOWN NOSAVE.";
 pub const SLOW_MODULE_ERR: &str = "BUSY Redis is busy running a module command.";
-pub const MASTER_DOWN_ERR: &str = "MASTERDOWN Link with MASTER is down and replica-serve-stale-data is set to 'no'.";
+pub const MASTER_DOWN_ERR: &str =
+    "MASTERDOWN Link with MASTER is down and replica-serve-stale-data is set to 'no'.";
 pub const BG_SAVE_ERR: &str = "MISCONF Redis is configured to save RDB snapshots, but it's currently unable to persist to disk. Commands that may modify the data set are disabled, because this instance is configured to report errors during writes if RDB snapshotting fails (stop-writes-on-bgsave-error option). Please check the Redis logs for details about the RDB error.";
 pub const RO_SLAVE_ERR: &str = "READONLY You can't write against a read only replica.";
 pub const NO_AUTH_ERR: &str = "NOAUTH Authentication required.";
