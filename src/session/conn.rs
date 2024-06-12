@@ -6,19 +6,60 @@ use crate::cmd::Command;
 use crate::cmd::conn::ConnectManagementCommand;
 use crate::cmd::reply_frame::ReplyFrame;
 use crate::error::Error;
+use crate::listener::types::SessionId;
 use crate::session::Session;
 
 impl Session {
     pub(super) async fn handle_client_command(&mut self, command: Command) -> Result<(), Error> {
         if let Command::ConnManagement(cmd) = command {
             let reply_frame = match cmd {
-                ConnectManagementCommand::Ping(message) => Self::ping_command(message),
+                ConnectManagementCommand::GetId() => Self::get_id_command(self.id),
                 ConnectManagementCommand::Echo(message) => Self::echo_command(message),
+                ConnectManagementCommand::Ping(message) => Self::ping_command(message),
+                ConnectManagementCommand::GetName() => Self::get_name_command(&self.name),
+                ConnectManagementCommand::SetName(new_name) => self.set_name_command(new_name),
             };
             self.send_frame_to_client(reply_frame).await
         } else {
             unreachable!()
         }
+    }
+
+    /// The `CLIENT GETNAME` returns the name of the current connection as
+    /// set by `CLIENT SETNAME`.
+    ///
+    /// Since every new connection starts without an associated name,
+    /// if no name was assigned a null bulk reply is returned.
+    ///
+    /// One of the following reply:
+    /// - Bulk string reply: the connection name of the current connection.
+    /// - Null reply: the connection name was not set.
+
+    pub fn get_name_command(old_name: &Option<String>) -> ReplyFrame {
+        if let Some(name) = old_name {
+            ReplyFrame::Bulk(name.as_bytes().to_vec())
+        } else {
+            ReplyFrame::Null
+        }
+    }
+
+    /// The `CLIENT SETNAME` command assigns a name to the current connection.
+    ///
+    /// Reply:
+    /// - Simple string reply: OK if the connection name was successfully set.
+    pub fn set_name_command(&mut self, new_name: String) -> ReplyFrame {
+        self.name = Some(new_name);
+        ReplyFrame::ok()
+    }
+
+    /// The command just returns the ID of the current connection.
+    ///
+    /// Reply:
+    /// - Integer reply: the ID of the client.
+    #[must_use]
+    #[inline]
+    pub fn get_id_command(id: SessionId) -> ReplyFrame {
+        ReplyFrame::I64(id)
     }
 
     /// Returns PONG if no argument is provided, otherwise return a copy of the argument as a bulk.

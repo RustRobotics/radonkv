@@ -9,6 +9,9 @@ use crate::cmd::parse::{ParseCommandError, Parser};
 pub enum ConnectManagementCommand {
     Ping(Option<String>),
     Echo(String),
+    GetId(),
+    GetName(),
+    SetName(String),
 }
 
 impl ConnectManagementCommand {
@@ -17,13 +20,26 @@ impl ConnectManagementCommand {
         parser: &mut Parser,
     ) -> Result<Option<Command>, ParseCommandError> {
         let conn_cmd = match cmd_name {
-            "ping" => {
-                let message = parser.try_next_string()?;
-                Self::Ping(message)
+            "client" => {
+                let mut sub_command = parser.next_string()?;
+                sub_command.make_ascii_lowercase();
+                match sub_command.as_str() {
+                    "id" => Self::GetId(),
+                    "getname" => Self::GetName(),
+                    "setname" => {
+                        let new_name = parser.next_string()?;
+                        Self::SetName(new_name)
+                    }
+                    _ => return Err(ParseCommandError::InvalidParameter),
+                }
             }
             "echo" => {
                 let message = parser.next_string()?;
                 Self::Echo(message)
+            }
+            "ping" => {
+                let message = parser.try_next_string()?;
+                Self::Ping(message)
             }
             _ => return Ok(None),
         };

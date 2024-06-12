@@ -22,6 +22,7 @@ const BUF_SIZE: usize = 4096;
 
 pub struct Session {
     id: SessionId,
+    name: Option<String>,
     config: SessionConfig,
 
     status: Status,
@@ -44,6 +45,7 @@ impl Session {
     ) -> Self {
         Self {
             id,
+            name: None,
             config,
 
             status: Status::Invalid,

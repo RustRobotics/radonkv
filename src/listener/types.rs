@@ -2,8 +2,8 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
-pub type SessionId = u64;
-pub type ListenerId = u32;
+pub type SessionId = i64;
+pub type ListenerId = i32;
 
 /// Global session id.
 ///
