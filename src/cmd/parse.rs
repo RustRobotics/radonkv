@@ -94,7 +94,7 @@ impl Parser {
         }
     }
 
-    pub fn remaining_strings(&mut self) -> Result<Option<Vec<String>>, ParseCommandError> {
+    pub fn remaining_strings(&mut self) -> Result<Vec<String>, ParseCommandError> {
         let mut list = Vec::new();
         while let Some(frame) = self.iter.next() {
             match frame {
@@ -114,13 +114,13 @@ impl Parser {
             }
         }
         if list.is_empty() {
-            Ok(None)
+            Err(ParseCommandError::ProtocolError)
         } else {
-            Ok(Some(list))
+            Ok(list)
         }
     }
 
-    pub fn remaining_pairs(&mut self) -> Result<Option<Vec<(String, Vec<u8>)>>, ParseCommandError> {
+    pub fn remaining_pairs(&mut self) -> Result<Vec<(String, Vec<u8>)>, ParseCommandError> {
         if let Some(remains) = self.remaining()? {
             let mut list: Vec<(String, Vec<u8>)> = Vec::new();
             if remains.len() % 2 != 0 {
@@ -135,9 +135,9 @@ impl Parser {
                     })?;
                 list.push((s, remains[i + 1].clone()));
             }
-            Ok(Some(list))
+            Ok(list)
         } else {
-            Ok(None)
+            return Err(ParseCommandError::InvalidParameter);
         }
     }
 

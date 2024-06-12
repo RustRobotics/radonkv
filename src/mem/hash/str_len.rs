@@ -40,12 +40,11 @@ mod tests {
         let reply = set(
             &mut db,
             key.clone(),
-            "f1".to_owned(),
-            b"HelloWorld".to_vec(),
-            Some(vec![
+            vec![
+                ("f1".to_owned(), b"HelloWorld".to_vec()),
                 ("f2".to_owned(), b"99".to_vec()),
                 ("f3".to_owned(), b"-256".to_vec()),
-            ]),
+            ],
         );
         assert_eq!(reply, ReplyFrame::Usize(3));
 

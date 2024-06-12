@@ -13,23 +13,13 @@ use crate::mem::db::{Db, MemObject};
 /// Reply:
 /// - Integer reply: The number of fields that were removed from the hash,
 ///   excluding any specified but non-existing fields.
-pub fn delete(
-    db: &mut Db,
-    key: &str,
-    field: &str,
-    extra_fields: Option<Vec<String>>,
-) -> ReplyFrame {
+pub fn delete(db: &mut Db, key: &str, fields: &[String]) -> ReplyFrame {
     match db.get_mut(key) {
         Some(MemObject::Hash(old_hash)) => {
             let mut count = 0;
-            if old_hash.remove(field).is_some() {
-                count += 1;
-            }
-            if let Some(extra_fields) = extra_fields {
-                for field in &extra_fields {
-                    if old_hash.remove(field).is_some() {
-                        count += 1;
-                    }
+            for field in fields {
+                if old_hash.remove(field).is_some() {
+                    count += 1;
                 }
             }
 
@@ -54,14 +44,12 @@ mod tests {
         let reply = set(
             &mut db,
             key.clone(),
-            "field1".to_owned(),
-            b"foo".to_vec(),
-            None,
+            vec![("field1".to_owned(), b"foo".to_vec())],
         );
         assert_eq!(reply, ReplyFrame::one());
-        let reply = delete(&mut db, &key, "field1", None);
+        let reply = delete(&mut db, &key, &["field1".to_owned()]);
         assert_eq!(reply, ReplyFrame::one());
-        let reply = delete(&mut db, &key, "field2", None);
+        let reply = delete(&mut db, &key, &["field2".to_owned()]);
         assert_eq!(reply, ReplyFrame::zero());
     }
 }

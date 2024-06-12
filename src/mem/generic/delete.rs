@@ -6,16 +6,11 @@ use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::db::Db;
 
 /// Removes the specified keys. A key is ignored if it does not exist.
-pub fn delete(db: &mut Db, key: &str, extra_keys: Option<Vec<String>>) -> ReplyFrame {
+pub fn delete(db: &mut Db, keys: &[String]) -> ReplyFrame {
     let mut count: usize = 0;
-    if let Some(_value) = db.remove(key) {
-        count += 1;
-    }
-    if let Some(extra_keys) = extra_keys {
-        for key in extra_keys {
-            if let Some(_value) = db.remove(&key) {
-                count += 1;
-            }
+    for key in keys {
+        if db.remove(key).is_some() {
+            count += 1;
         }
     }
 

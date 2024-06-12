@@ -75,3 +75,15 @@ impl StringCommand {
         Ok(Some(Command::Str(str_cmd)))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::mem::size_of;
+
+    use crate::cmd::string::StringCommand;
+
+    #[test]
+    fn test_string_command() {
+        assert_eq!(size_of::<StringCommand>(), 64);
+    }
+}

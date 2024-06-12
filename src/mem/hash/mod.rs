@@ -4,7 +4,7 @@
 
 use std::collections::HashMap;
 
-use crate::cmd::hash::{ExtraValues, HashCommand};
+use crate::cmd::hash::HashCommand;
 use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::Mem;
 
@@ -23,17 +23,13 @@ pub type HashObject = HashMap<String, Vec<u8>>;
 impl Mem {
     pub fn handle_hash_command(&mut self, command: HashCommand) -> ReplyFrame {
         match command {
-            HashCommand::Del(key, field, extra_fields) => {
-                delete::delete(&mut self.db, &key, &field, extra_fields)
-            }
+            HashCommand::Del(key, fields) => delete::delete(&mut self.db, &key, &fields),
             HashCommand::Exists(key, field) => exists::exists(&self.db, &key, &field),
             HashCommand::Get(key, field) => get::get(&self.db, &key, &field),
             HashCommand::GetAll(key) => get_all::get_all(&self.db, &key),
             HashCommand::Keys(key) => keys::keys(&self.db, &key),
             HashCommand::Len(key) => len::len(&self.db, &key),
-            HashCommand::Set(key, field, value, extra_values) => {
-                set::set(&mut self.db, key, field, value, extra_values)
-            }
+            HashCommand::Set(key, pairs) => set::set(&mut self.db, key, pairs),
             HashCommand::StrLen(key, field) => str_len::str_len(&self.db, &key, &field),
             HashCommand::Values(key) => values::values(&self.db, &key),
         }
@@ -42,24 +38,4 @@ impl Mem {
 
 pub fn to_reply_frame(_hash_object: &HashObject) -> ReplyFrame {
     todo!()
-}
-
-fn append_to_hash(
-    hash_object: &mut HashObject,
-    field: String,
-    value: Vec<u8>,
-    extra_values: ExtraValues,
-) -> usize {
-    let mut count = 0;
-    if hash_object.insert(field, value).is_none() {
-        count += 1;
-    }
-    if let Some(extra_values) = extra_values {
-        for (field, value) in extra_values.into_iter() {
-            if hash_object.insert(field, value).is_none() {
-                count += 1;
-            }
-        }
-    }
-    count
 }

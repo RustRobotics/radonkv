@@ -5,17 +5,15 @@
 use crate::cmd::Command;
 use crate::cmd::parse::{ParseCommandError, Parser};
 
-pub type ExtraValues = Option<Vec<(String, Vec<u8>)>>;
-
 #[derive(Debug, Clone)]
 pub enum HashCommand {
-    Del(String, String, Option<Vec<String>>),
+    Del(String, Vec<String>),
     Exists(String, String),
     Get(String, String),
     GetAll(String),
     Keys(String),
     Len(String),
-    Set(String, String, Vec<u8>, ExtraValues),
+    Set(String, Vec<(String, Vec<u8>)>),
     StrLen(String, String),
     Values(String),
 }
@@ -28,9 +26,8 @@ impl HashCommand {
         let list_cmd = match cmd_name {
             "hdel" => {
                 let key = parser.next_string()?;
-                let field = parser.next_string()?;
-                let extra_fields = parser.remaining_strings()?;
-                Self::Del(key, field, extra_fields)
+                let fields = parser.remaining_strings()?;
+                Self::Del(key, fields)
             }
             "hexists" => {
                 let key = parser.next_string()?;
@@ -56,10 +53,8 @@ impl HashCommand {
             }
             "hset" => {
                 let key = parser.next_string()?;
-                let field = parser.next_string()?;
-                let value = parser.next_bytes()?;
-                let extra_values = parser.remaining_pairs()?;
-                Self::Set(key, field, value, extra_values)
+                let pairs = parser.remaining_pairs()?;
+                Self::Set(key, pairs)
             }
             "hstrlen" => {
                 let key = parser.next_string()?;
@@ -73,5 +68,17 @@ impl HashCommand {
             _ => return Ok(None),
         };
         Ok(Some(Command::Hash(list_cmd)))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::mem::size_of;
+
+    use crate::cmd::hash::HashCommand;
+
+    #[test]
+    fn test_hash_command() {
+        assert_eq!(size_of::<HashCommand>(), 64);
     }
 }

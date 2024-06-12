@@ -42,17 +42,13 @@ mod tests {
         let reply = set(
             &mut db,
             key.clone(),
-            "field1".to_owned(),
-            b"Hello".to_vec(),
-            None,
+            vec![("field1".to_owned(), b"Hello".to_vec())],
         );
         assert_eq!(reply, ReplyFrame::Usize(1));
         let reply = set(
             &mut db,
             key.clone(),
-            "field2".to_owned(),
-            b"World".to_vec(),
-            None,
+            vec![("field2".to_owned(), b"World".to_vec())],
         );
         assert_eq!(reply, ReplyFrame::Usize(1));
         let reply = get_all(&db, &key);

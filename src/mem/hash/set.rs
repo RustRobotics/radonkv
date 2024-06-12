@@ -4,10 +4,9 @@
 
 use std::collections::hash_map::Entry;
 
-use crate::cmd::hash::ExtraValues;
 use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::db::{Db, MemObject};
-use crate::mem::hash::{append_to_hash, HashObject};
+use crate::mem::hash::HashObject;
 
 /// Sets the specified fields to their respective values in the hash stored at key.
 ///
@@ -16,24 +15,28 @@ use crate::mem::hash::{append_to_hash, HashObject};
 ///
 /// Reply:
 /// - Integer reply: the number of fields that were added.
-pub fn set(
-    db: &mut Db,
-    key: String,
-    field: String,
-    value: Vec<u8>,
-    extra_values: ExtraValues,
-) -> ReplyFrame {
+pub fn set(db: &mut Db, key: String, pairs: Vec<(String, Vec<u8>)>) -> ReplyFrame {
     match db.entry(key) {
         Entry::Occupied(mut occupied) => match occupied.get_mut() {
             MemObject::Hash(old_hash) => {
-                let count = append_to_hash(old_hash, field, value, extra_values);
+                let mut count = 0;
+                for (field, value) in pairs.into_iter() {
+                    if old_hash.insert(field, value).is_none() {
+                        count += 1;
+                    }
+                }
                 ReplyFrame::Usize(count)
             }
             _ => ReplyFrame::wrong_type_err(),
         },
         Entry::Vacant(vacant) => {
             let mut new_hash = HashObject::new();
-            let count = append_to_hash(&mut new_hash, field, value, extra_values);
+            let mut count = 0;
+            for (field, value) in pairs.into_iter() {
+                if new_hash.insert(field, value).is_none() {
+                    count += 1;
+                }
+            }
             vacant.insert(MemObject::Hash(new_hash));
             ReplyFrame::Usize(count)
         }
@@ -55,9 +58,7 @@ mod tests {
         let reply = set(
             &mut db,
             key.clone(),
-            "field1".to_owned(),
-            b"Hello".to_vec(),
-            None,
+            vec![("field1".to_owned(), b"Hello".to_vec())],
         );
         assert_eq!(reply, ReplyFrame::Usize(1));
 
@@ -67,9 +68,10 @@ mod tests {
         let reply = set(
             &mut db,
             key.clone(),
-            "field2".to_owned(),
-            b"Hi".to_vec(),
-            Some(vec![("field3".to_owned(), b"World".to_vec())]),
+            vec![
+                ("field2".to_owned(), b"Hi".to_vec()),
+                ("field3".to_owned(), b"World".to_vec()),
+            ],
         );
         assert_eq!(reply, ReplyFrame::Usize(2));
 

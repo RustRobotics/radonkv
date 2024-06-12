@@ -46,3 +46,15 @@ impl Command {
         self.category() == CommandCategory::Mem
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::mem::size_of;
+
+    use crate::cmd::Command;
+
+    #[test]
+    fn test_command() {
+        assert_eq!(size_of::<Command>(), 24);
+    }
+}

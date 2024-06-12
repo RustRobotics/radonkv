@@ -15,12 +15,8 @@ mod rename;
 impl Mem {
     pub fn handle_generic_command(&mut self, command: GenericCommand) -> ReplyFrame {
         match command {
-            GenericCommand::Delete(key, extra_keys) => {
-                delete::delete(&mut self.db, &key, extra_keys)
-            }
-            GenericCommand::Exists(key, extra_keys) => {
-                exists::exists(&mut self.db, &key, extra_keys)
-            }
+            GenericCommand::Delete(keys) => delete::delete(&mut self.db, &keys),
+            GenericCommand::Exists(keys) => exists::exists(&mut self.db, &keys),
             GenericCommand::RandomKey(random_index) => {
                 random_key::random_key(&self.db, random_index)
             }

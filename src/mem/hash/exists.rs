@@ -38,9 +38,7 @@ mod tests {
         let reply = set(
             &mut db,
             key.clone(),
-            "field1".to_owned(),
-            b"foo".to_vec(),
-            None,
+            vec![("field1".to_owned(), b"foo".to_vec())],
         );
         assert_eq!(reply, ReplyFrame::one());
         let reply = exists(&mut db, &key, "field1");

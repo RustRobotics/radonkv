@@ -31,19 +31,12 @@ mod tests {
         let reply = set(
             &mut db,
             key.clone(),
-            "field1".to_owned(),
-            b"Hello".to_vec(),
-            None,
+            vec![
+                ("field1".to_owned(), b"Hello".to_vec()),
+                ("field2".to_owned(), b"World".to_vec()),
+            ],
         );
-        assert_eq!(reply, ReplyFrame::Usize(1));
-        let reply = set(
-            &mut db,
-            key.clone(),
-            "field2".to_owned(),
-            b"World".to_vec(),
-            None,
-        );
-        assert_eq!(reply, ReplyFrame::Usize(1));
+        assert_eq!(reply, ReplyFrame::Usize(2));
         let reply = len(&db, &key);
         assert_eq!(reply, ReplyFrame::Usize(2));
     }

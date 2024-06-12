@@ -124,3 +124,15 @@ impl ListCommand {
         Ok(Some(Command::List(list_cmd)))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::mem::size_of;
+
+    use crate::cmd::list::ListCommand;
+
+    #[test]
+    fn test_list_command() {
+        assert_eq!(size_of::<ListCommand>(), 80);
+    }
+}
