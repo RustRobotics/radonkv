@@ -9,6 +9,7 @@ use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::Mem;
 
 mod get;
+mod get_all;
 mod len;
 mod set;
 
@@ -18,6 +19,7 @@ impl Mem {
     pub fn handle_hash_command(&mut self, command: HashCommand) -> ReplyFrame {
         match command {
             HashCommand::Get(key, field) => get::get(&self.db, &key, &field),
+            HashCommand::GetAll(key) => get_all::get_all(&self.db, &key),
             HashCommand::Len(key) => len::len(&self.db, &key),
             HashCommand::Set(key, field, value, extra_values) => {
                 set::set(&mut self.db, key, field, value, extra_values)
