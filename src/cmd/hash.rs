@@ -11,6 +11,7 @@ pub type ExtraValues = Option<Vec<(String, Vec<u8>)>>;
 pub enum HashCommand {
     Get(String, String),
     GetAll(String),
+    Keys(String),
     Len(String),
     Set(String, String, Vec<u8>, ExtraValues),
 }
@@ -29,6 +30,10 @@ impl HashCommand {
             "hgetall" => {
                 let key = parser.next_string()?;
                 Self::GetAll(key)
+            }
+            "lkeys" => {
+                let key = parser.next_string()?;
+                Self::Keys(key)
             }
             "hlen" => {
                 let key = parser.next_string()?;

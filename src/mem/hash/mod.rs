@@ -10,6 +10,7 @@ use crate::mem::Mem;
 
 mod get;
 mod get_all;
+mod keys;
 mod len;
 mod set;
 
@@ -20,6 +21,7 @@ impl Mem {
         match command {
             HashCommand::Get(key, field) => get::get(&self.db, &key, &field),
             HashCommand::GetAll(key) => get_all::get_all(&self.db, &key),
+            HashCommand::Keys(key) => keys::keys(&self.db, &key),
             HashCommand::Len(key) => len::len(&self.db, &key),
             HashCommand::Set(key, field, value, extra_values) => {
                 set::set(&mut self.db, key, field, value, extra_values)

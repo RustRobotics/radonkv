@@ -6,7 +6,7 @@ use std::io::{Cursor, Write};
 
 use bytes::{BufMut, Bytes, BytesMut};
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub enum ReplyFrame {
     // status values
     Status(String),
