@@ -2,6 +2,7 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
+use std::cmp::Ordering;
 use std::io::{Cursor, Write};
 
 use bytes::{BufMut, Bytes, BytesMut};
@@ -159,6 +160,18 @@ impl ReplyFrame {
         let pos = usize::try_from(cursor.position()).unwrap();
         bytes.put(&cursor.get_ref()[0..pos]);
         bytes.put_slice(b"\r\n");
+    }
+
+    #[allow(dead_code)]
+    fn sort_array(&mut self) {
+        match self {
+            Self::Array(array) => array.sort_unstable_by(|a, b| match (a, b) {
+                (Self::Bulk(a), Self::Bulk(b)) => a.cmp(b),
+                (Self::Status(a), Self::Status(b)) => a.cmp(b),
+                _ => Ordering::Equal,
+            }),
+            _ => (),
+        }
     }
 }
 

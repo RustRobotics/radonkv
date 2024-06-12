@@ -12,12 +12,14 @@ use crate::mem::db::{Db, MemObject};
 pub fn values(db: &Db, key: &str) -> ReplyFrame {
     match db.get(key) {
         Some(MemObject::Hash(old_hash)) => {
-            let mut values: Vec<_> = old_hash.values().collect();
-            values.sort_unstable();
-            let array: Vec<ReplyFrame> = values
-                .into_iter()
-                .map(|key| ReplyFrame::Bulk(key.to_vec()))
-                .collect();
+            let mut keys: Vec<&String> = old_hash.keys().collect();
+            keys.sort_unstable();
+            let mut array = Vec::new();
+            for field in keys {
+                if let Some(value) = old_hash.get(field) {
+                    array.push(ReplyFrame::Bulk(value.to_vec()));
+                }
+            }
             ReplyFrame::Array(array)
         }
         Some(_) => ReplyFrame::wrong_type_err(),

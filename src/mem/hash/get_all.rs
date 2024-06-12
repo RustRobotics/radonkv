@@ -16,10 +16,15 @@ use crate::mem::db::{Db, MemObject};
 pub fn get_all(db: &Db, key: &str) -> ReplyFrame {
     match db.get(key) {
         Some(MemObject::Hash(old_hash)) => {
+            let mut keys: Vec<_> = old_hash.keys().collect();
+            keys.sort_unstable();
+
             let mut array = Vec::new();
-            for (field, value) in old_hash {
-                array.push(ReplyFrame::Bulk(field.as_bytes().to_vec()));
-                array.push(ReplyFrame::Bulk(value.clone()));
+            for field in keys {
+                if let Some(value) = old_hash.get(field) {
+                    array.push(ReplyFrame::Bulk(field.as_bytes().to_vec()));
+                    array.push(ReplyFrame::Bulk(value.to_vec()));
+                }
             }
             ReplyFrame::Array(array)
         }
