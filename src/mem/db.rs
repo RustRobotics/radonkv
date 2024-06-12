@@ -34,9 +34,9 @@ impl Mem {
 impl MemObject {
     pub fn to_reply_frame(&self) -> ReplyFrame {
         match self {
-            MemObject::Str(s) => s.to_bulk(),
-            MemObject::List(list_obj) => list::to_reply_frame(list_obj),
-            MemObject::Hash(hash_obj) => hash::to_reply_frame(hash_obj),
+            Self::Str(s) => s.to_bulk(),
+            Self::List(list_obj) => list::to_reply_frame(list_obj),
+            Self::Hash(hash_obj) => hash::to_reply_frame(hash_obj),
         }
     }
 }

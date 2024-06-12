@@ -14,13 +14,9 @@ use crate::mem::db::{Db, MemObject};
 ///   or zero when the field isn't present in the hash or the key doesn't exist at all.
 pub fn str_len(db: &Db, key: &str, field: &str) -> ReplyFrame {
     match db.get(key) {
-        Some(MemObject::Hash(old_hash)) => {
-            if let Some(value) = old_hash.get(field) {
-                ReplyFrame::Usize(value.len())
-            } else {
-                ReplyFrame::zero()
-            }
-        }
+        Some(MemObject::Hash(old_hash)) => old_hash
+            .get(field)
+            .map_or_else(ReplyFrame::zero, |value| ReplyFrame::Usize(value.len())),
         Some(_) => ReplyFrame::wrong_type_err(),
         None => ReplyFrame::zero(),
     }

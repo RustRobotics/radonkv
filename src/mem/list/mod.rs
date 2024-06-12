@@ -32,7 +32,7 @@ impl Mem {
             ListCommand::Insert(key, position, mut pair) => {
                 debug_assert!(pair.len() == 2);
                 if let (Some(element), Some(pivot)) = (pair.pop(), pair.pop()) {
-                    insert::insert(&mut self.db, key, position, pivot, element)
+                    insert::insert(&mut self.db, &key, position, &pivot, element)
                 } else {
                     ReplyFrame::invalid_command()
                 }
@@ -52,7 +52,7 @@ impl Mem {
             ListCommand::PopFront(key, count) => pop_front::pop_front(&mut self.db, &key, count),
             ListCommand::Range(key, start, end) => range::range(&self.db, &key, start, end),
             ListCommand::Remove(key, count, element) => {
-                remove::remove(&mut self.db, &key, count, element)
+                remove::remove(&mut self.db, &key, count, &element)
             }
             ListCommand::Set(key, index, value) => set::set(&mut self.db, &key, index, value),
         }
@@ -61,7 +61,7 @@ impl Mem {
 
 pub fn to_reply_frame(list: &ListObject) -> ReplyFrame {
     let mut sub_list = Vec::new();
-    for item in list.iter() {
+    for item in list {
         sub_list.push(ReplyFrame::Bulk(item.clone()));
     }
     ReplyFrame::Array(sub_list)

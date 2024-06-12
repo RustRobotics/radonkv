@@ -21,7 +21,7 @@ use crate::mem::util::prune_index;
 pub fn set(db: &mut Db, key: &str, index: isize, value: Vec<u8>) -> ReplyFrame {
     match db.get_mut(key) {
         Some(MemObject::List(old_list)) => {
-            if let Some(index) = prune_index(old_list.len(), index) {
+            prune_index(old_list.len(), index).map_or_else(ReplyFrame::out_of_range_err, |index| {
                 // TODO(Shaohua): Simplify
                 for (i, old_value) in old_list.iter_mut().enumerate() {
                     if i == index {
@@ -31,9 +31,7 @@ pub fn set(db: &mut Db, key: &str, index: isize, value: Vec<u8>) -> ReplyFrame {
                     }
                 }
                 ReplyFrame::ok()
-            } else {
-                ReplyFrame::out_of_range_err()
-            }
+            })
         }
         Some(_other) => ReplyFrame::wrong_type_err(),
         None => ReplyFrame::no_such_key(),

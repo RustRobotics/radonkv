@@ -80,7 +80,7 @@ impl Parser {
 
     pub fn remaining(&mut self) -> Result<Vec<Vec<u8>>, ParseCommandError> {
         let mut list = Vec::new();
-        while let Some(frame) = self.iter.next() {
+        for frame in self.iter.as_ref() {
             match frame {
                 Frame::Bulk(frame) => list.push(frame.to_vec()),
                 frame => {
@@ -98,7 +98,7 @@ impl Parser {
 
     pub fn remaining_strings(&mut self) -> Result<Vec<String>, ParseCommandError> {
         let mut list = Vec::new();
-        while let Some(frame) = self.iter.next() {
+        for frame in self.iter.as_ref() {
             match frame {
                 Frame::Bulk(bytes) => {
                     let s = std::str::from_utf8(&bytes[..])

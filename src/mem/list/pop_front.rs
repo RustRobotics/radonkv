@@ -32,11 +32,9 @@ pub fn pop_front(db: &mut Db, key: &str, count: Option<usize>) -> ReplyFrame {
                 ReplyFrame::Array(array)
             } else {
                 // Returns the first front node.
-                if let Some(value) = old_list.pop_front() {
-                    ReplyFrame::Bulk(value)
-                } else {
-                    ReplyFrame::Null
-                }
+                old_list
+                    .pop_front()
+                    .map_or_else(ReplyFrame::null, ReplyFrame::bulk)
             }
         }
         Some(_) => ReplyFrame::wrong_type_err(),

@@ -12,13 +12,10 @@ use crate::mem::db::{Db, MemObject};
 /// - Null reply: If the field is not present in the hash or key does not exist.
 pub fn get(db: &Db, key: &str, field: &str) -> ReplyFrame {
     match db.get(key) {
-        Some(MemObject::Hash(old_hash)) => {
-            if let Some(value) = old_hash.get(field) {
-                ReplyFrame::Bulk(value.clone())
-            } else {
-                ReplyFrame::Null
-            }
-        }
+        Some(MemObject::Hash(old_hash)) => old_hash
+            .get(field)
+            .cloned()
+            .map_or_else(ReplyFrame::null, ReplyFrame::bulk),
         Some(_) => ReplyFrame::wrong_type_err(),
         None => ReplyFrame::Null,
     }

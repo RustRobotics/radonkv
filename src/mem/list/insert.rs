@@ -18,27 +18,28 @@ use crate::mem::db::{Db, MemObject};
 /// - Integer reply: -1 when the pivot wasn't found.
 pub fn insert(
     db: &mut Db,
-    key: String,
+    key: &str,
     position: RelativePosition,
-    pivot: Vec<u8>,
+    pivot: &[u8],
     element: Vec<u8>,
 ) -> ReplyFrame {
-    match db.get_mut(&key) {
+    match db.get_mut(key) {
         Some(MemObject::List(old_list)) => {
-            if let Some(index) = old_list.iter().position(|value| value == &pivot) {
-                // TODO(Shaohua): Simplify
-                let index = if position == RelativePosition::Before {
-                    index
-                } else {
-                    index + 1
-                };
-                let mut tail_list = old_list.split_off(index);
-                old_list.push_back(element);
-                old_list.append(&mut tail_list);
-                ReplyFrame::Usize(old_list.len())
-            } else {
-                return ReplyFrame::minus_one();
-            }
+            old_list
+                .iter()
+                .position(|value| value == pivot)
+                .map_or_else(ReplyFrame::minus_one, |index| {
+                    // TODO(Shaohua): Simplify
+                    let index = if position == RelativePosition::Before {
+                        index
+                    } else {
+                        index + 1
+                    };
+                    let mut tail_list = old_list.split_off(index);
+                    old_list.push_back(element);
+                    old_list.append(&mut tail_list);
+                    ReplyFrame::Usize(old_list.len())
+                })
         }
         Some(_) => ReplyFrame::wrong_type_err(),
         None => ReplyFrame::zero(),

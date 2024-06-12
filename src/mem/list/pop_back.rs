@@ -30,11 +30,9 @@ pub fn pop_back(db: &mut Db, key: &str, count: Option<usize>) -> ReplyFrame {
                 }
                 ReplyFrame::Array(array)
             } else {
-                if let Some(value) = old_list.pop_back() {
-                    ReplyFrame::Bulk(value)
-                } else {
-                    ReplyFrame::Null
-                }
+                old_list
+                    .pop_back()
+                    .map_or_else(ReplyFrame::null, ReplyFrame::bulk)
             }
         }
         Some(_) => ReplyFrame::wrong_type_err(),

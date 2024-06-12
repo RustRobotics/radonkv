@@ -20,7 +20,7 @@ pub fn set(db: &mut Db, key: String, pairs: Vec<(String, Vec<u8>)>) -> ReplyFram
         Entry::Occupied(mut occupied) => match occupied.get_mut() {
             MemObject::Hash(old_hash) => {
                 let mut count = 0;
-                for (field, value) in pairs.into_iter() {
+                for (field, value) in pairs {
                     if old_hash.insert(field, value).is_none() {
                         count += 1;
                     }
@@ -32,7 +32,7 @@ pub fn set(db: &mut Db, key: String, pairs: Vec<(String, Vec<u8>)>) -> ReplyFram
         Entry::Vacant(vacant) => {
             let mut new_hash = HashObject::new();
             let mut count = 0;
-            for (field, value) in pairs.into_iter() {
+            for (field, value) in pairs {
                 if new_hash.insert(field, value).is_none() {
                     count += 1;
                 }

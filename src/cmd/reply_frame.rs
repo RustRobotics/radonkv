@@ -39,6 +39,7 @@ pub enum ReplyFrame {
 }
 
 impl ReplyFrame {
+    #[must_use]
     pub fn into_bytes(self) -> Bytes {
         match self {
             Self::Status(s) => {
@@ -126,7 +127,7 @@ impl ReplyFrame {
             Self::I32(num) => {
                 let mut bytes = BytesMut::new();
                 bytes.put_u8(b':');
-                Self::write_i64(&mut bytes, num as i64);
+                Self::write_i64(&mut bytes, i64::from(num));
                 bytes.freeze()
             }
             Self::Usize(num) => {
@@ -163,6 +164,7 @@ impl ReplyFrame {
     }
 
     #[allow(dead_code)]
+    #[allow(clippy::single_match)]
     fn sort_array(&mut self) {
         match self {
             Self::Array(array) => array.sort_unstable_by(|a, b| match (a, b) {
@@ -176,6 +178,18 @@ impl ReplyFrame {
 }
 
 impl ReplyFrame {
+    #[must_use]
+    #[inline]
+    pub const fn null() -> Self {
+        Self::Null
+    }
+
+    #[must_use]
+    #[inline]
+    pub const fn bulk(value: Vec<u8>) -> Self {
+        Self::Bulk(value)
+    }
+
     #[must_use]
     #[inline]
     pub const fn zero() -> Self {

@@ -2,6 +2,7 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
+use std::cmp::Ordering;
 use std::collections::LinkedList;
 
 use crate::cmd::reply_frame::ReplyFrame;
@@ -21,38 +22,44 @@ use crate::mem::db::{Db, MemObject};
 ///
 /// Reply:
 /// - Integer reply: the number of removed elements.
-pub fn remove(db: &mut Db, key: &str, count: isize, element: Vec<u8>) -> ReplyFrame {
+#[allow(clippy::cast_sign_loss)]
+pub fn remove(db: &mut Db, key: &str, count: isize, element: &[u8]) -> ReplyFrame {
     match db.get_mut(key) {
         Some(MemObject::List(old_list)) => {
             // TODO(Shaohua): Simplify operation.
             let mut new_list = LinkedList::new();
             let mut num_removed = 0;
-            if count == 0 {
-                while let Some(value) = old_list.pop_front() {
-                    if value == element {
-                        num_removed += 1;
-                    } else {
-                        new_list.push_back(value);
+            match count.cmp(&0) {
+                Ordering::Equal => {
+                    while let Some(value) = old_list.pop_front() {
+                        if value == element {
+                            num_removed += 1;
+                        } else {
+                            new_list.push_back(value);
+                        }
                     }
                 }
-            } else if count > 0 {
-                let mut count = count as usize;
-                while let Some(value) = old_list.pop_front() {
-                    if value == element && count > 0 {
-                        num_removed += 1;
-                        count -= 1;
-                    } else {
-                        new_list.push_back(value);
+                Ordering::Greater => {
+                    let mut count = count as usize;
+                    while let Some(value) = old_list.pop_front() {
+                        if value == element && count > 0 {
+                            num_removed += 1;
+                            count -= 1;
+                        } else {
+                            new_list.push_back(value);
+                        }
                     }
                 }
-            } else {
-                let mut count = (-count) as usize;
-                while let Some(value) = old_list.pop_back() {
-                    if value == element && count > 0 {
-                        count -= 1;
-                        num_removed += 1;
-                    } else {
-                        new_list.push_front(value);
+
+                Ordering::Less => {
+                    let mut count = (-count) as usize;
+                    while let Some(value) = old_list.pop_back() {
+                        if value == element && count > 0 {
+                            count -= 1;
+                            num_removed += 1;
+                        } else {
+                            new_list.push_front(value);
+                        }
                     }
                 }
             }

@@ -17,10 +17,12 @@ use crate::mem::util::check_string_length;
 /// the string is padded with zero-bytes to make offset fit.
 /// Non-existing keys are considered as empty strings, so this command will make sure
 /// it holds a string large enough to be able to set value at offset.
+#[allow(clippy::cast_sign_loss)]
 pub fn set_range(db: &mut Db, key: String, offset: isize, value: Vec<u8>) -> ReplyFrame {
     if offset < 0 {
         return ReplyFrame::ConstError("offset is out of range");
     }
+    // TODO(Shaohua): Replace with util::prune_index
     let offset_usize = offset as usize;
 
     if let Some(old_value) = db.get_mut(&key) {
@@ -31,16 +33,15 @@ pub fn set_range(db: &mut Db, key: String, offset: isize, value: Vec<u8>) -> Rep
             },
             _ => return ReplyFrame::wrong_type_err(),
         };
-        return if value.is_empty() {
+        if value.is_empty() {
             ReplyFrame::Usize(old_value.len())
+        } else if !check_string_length(offset_usize, value.len()) {
+            ReplyFrame::ConstErrorWithErr(STRING_TOO_LONG_ERR)
         } else {
-            if !check_string_length(offset_usize, value.len()) {
-                return ReplyFrame::ConstErrorWithErr(STRING_TOO_LONG_ERR);
-            }
             // FIXME(Shaohua): merge two parts of vector
             old_value.put_slice(&value);
             ReplyFrame::Usize(old_value.len())
-        };
+        }
     } else {
         if value.is_empty() {
             return ReplyFrame::zero();

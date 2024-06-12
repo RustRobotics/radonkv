@@ -17,7 +17,7 @@ pub fn values(db: &Db, key: &str) -> ReplyFrame {
             let mut array = Vec::new();
             for field in keys {
                 if let Some(value) = old_hash.get(field) {
-                    array.push(ReplyFrame::Bulk(value.to_vec()));
+                    array.push(ReplyFrame::Bulk(value.clone()));
                 }
             }
             ReplyFrame::Array(array)

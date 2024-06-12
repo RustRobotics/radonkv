@@ -3,7 +3,7 @@
 // that can be found in the LICENSE file.
 
 #[must_use]
-pub(super) fn check_string_length(size: usize, append: usize) -> bool {
+pub(super) const fn check_string_length(size: usize, append: usize) -> bool {
     // TODO(Shaohua): Limit string length to 512MB
     size.checked_add(append).is_some()
 }
@@ -33,7 +33,9 @@ pub fn prune_range(len: usize, mut start: isize, mut end: isize) -> Option<(usiz
     Some((start_usize, end_usize))
 }
 
-pub fn prune_index(len: usize, mut index: isize) -> Option<usize> {
+#[allow(clippy::cast_possible_wrap)]
+#[allow(clippy::cast_sign_loss)]
+pub const fn prune_index(len: usize, mut index: isize) -> Option<usize> {
     let len_isize = len as isize;
     if index < 0 {
         index += len_isize;

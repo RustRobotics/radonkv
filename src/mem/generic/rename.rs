@@ -15,11 +15,10 @@ use crate::mem::db::Db;
 //
 // In Cluster mode, both key and `new_key` must be in the same hash slot,
 // meaning that in practice only keys that have the same hashtag can be reliably renamed in cluster.
-pub fn rename(db: &mut Db, key: String, new_key: String) -> ReplyFrame {
-    if let Some(value) = db.remove(&key) {
-        db.insert(new_key, value);
-        ReplyFrame::ok()
-    } else {
-        ReplyFrame::no_such_key()
-    }
+pub fn rename(db: &mut Db, key: &str, new_key: String) -> ReplyFrame {
+    db.remove(key)
+        .map_or_else(ReplyFrame::no_such_key, |value| {
+            db.insert(new_key, value);
+            ReplyFrame::ok()
+        })
 }
