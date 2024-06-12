@@ -9,6 +9,7 @@ use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::Mem;
 
 mod delete;
+mod exists;
 mod get;
 mod get_all;
 mod keys;
@@ -25,6 +26,7 @@ impl Mem {
             HashCommand::Del(key, field, extra_fields) => {
                 delete::delete(&mut self.db, &key, &field, extra_fields)
             }
+            HashCommand::Exists(key, field) => exists::exists(&self.db, &key, &field),
             HashCommand::Get(key, field) => get::get(&self.db, &key, &field),
             HashCommand::GetAll(key) => get_all::get_all(&self.db, &key),
             HashCommand::Keys(key) => keys::keys(&self.db, &key),

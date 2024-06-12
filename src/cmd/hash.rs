@@ -10,6 +10,7 @@ pub type ExtraValues = Option<Vec<(String, Vec<u8>)>>;
 #[derive(Debug, Clone)]
 pub enum HashCommand {
     Del(String, String, Option<Vec<String>>),
+    Exists(String, String),
     Get(String, String),
     GetAll(String),
     Keys(String),
@@ -30,6 +31,11 @@ impl HashCommand {
                 let field = parser.next_string()?;
                 let extra_fields = parser.remaining_strings()?;
                 Self::Del(key, field, extra_fields)
+            }
+            "hexists" => {
+                let key = parser.next_string()?;
+                let field = parser.next_string()?;
+                Self::Exists(key, field)
             }
             "hget" => {
                 let key = parser.next_string()?;
