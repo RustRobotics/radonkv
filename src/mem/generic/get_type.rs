@@ -18,6 +18,7 @@ pub fn get_type(db: &Db, key: &str) -> ReplyFrame {
     let obj_type = match db.get(key) {
         Some(MemObject::Str(_)) => "string",
         Some(MemObject::List(_)) => "list",
+        Some(MemObject::Hash(_)) => "hash",
         None => "none",
     };
     ReplyFrame::ConstStatus(obj_type)

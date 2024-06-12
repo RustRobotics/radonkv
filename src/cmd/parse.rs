@@ -8,6 +8,7 @@ use std::vec::IntoIter;
 use crate::cmd::Command;
 use crate::cmd::frame::Frame;
 use crate::cmd::generic::GenericCommand;
+use crate::cmd::hash::HashCommand;
 use crate::cmd::list::ListCommand;
 use crate::cmd::string::StringCommand;
 
@@ -52,6 +53,9 @@ impl TryFrom<Frame> for Command {
         let mut command: Option<Self> = StringCommand::parse(&cmd_name, &mut parser)?;
         if command.is_none() {
             command = ListCommand::parse(&cmd_name, &mut parser)?;
+        }
+        if command.is_none() {
+            command = HashCommand::parse(&cmd_name, &mut parser)?;
         }
         if command.is_none() {
             command = GenericCommand::parse(&cmd_name, &mut parser)?;

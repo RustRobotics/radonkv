@@ -6,7 +6,8 @@ use std::collections::HashMap;
 
 use crate::cmd::Command;
 use crate::cmd::reply_frame::ReplyFrame;
-use crate::mem::{list, Mem};
+use crate::mem::{hash, list, Mem};
+use crate::mem::hash::HashObject;
 use crate::mem::list::ListObject;
 use crate::mem::string::StrObject;
 
@@ -16,6 +17,7 @@ pub type Db = HashMap<String, MemObject>;
 pub enum MemObject {
     Str(StrObject),
     List(ListObject),
+    Hash(HashObject),
 }
 
 impl Mem {
@@ -23,6 +25,7 @@ impl Mem {
         match command {
             Command::Str(command) => self.handle_string_command(command),
             Command::List(command) => self.handle_list_command(command),
+            Command::Hash(command) => self.handle_hash_command(command),
             Command::Generic(command) => self.handle_generic_command(command),
         }
     }
@@ -33,6 +36,7 @@ impl MemObject {
         match self {
             MemObject::Str(s) => s.to_bulk(),
             MemObject::List(list_obj) => list::to_reply_frame(list_obj),
+            MemObject::Hash(hash_obj) => hash::to_reply_frame(hash_obj),
         }
     }
 }

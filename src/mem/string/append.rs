@@ -22,10 +22,8 @@ pub fn append(db: &mut Db, key: String, value: Vec<u8>) -> ReplyFrame {
                 old_str.append(value);
                 ReplyFrame::Usize(old_str.len())
             }
-            MemObject::List(_) => {
-                ReplyFrame::wrong_type_err()
-            }
-        }
+            _ => ReplyFrame::wrong_type_err(),
+        },
         Entry::Vacant(vacant) => {
             let len = value.len();
             vacant.insert(StrObject::from_bytes(value));

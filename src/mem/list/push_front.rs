@@ -31,7 +31,6 @@ pub fn push_front(
 ) -> ReplyFrame {
     match db.entry(key) {
         Entry::Occupied(mut occupied) => match occupied.get_mut() {
-            MemObject::Str(_) => ReplyFrame::wrong_type_err(),
             MemObject::List(old_list) => {
                 old_list.push_front(value);
                 if let Some(extra_values) = extra_values {
@@ -41,6 +40,7 @@ pub fn push_front(
                 }
                 ReplyFrame::Usize(old_list.len())
             }
+            _ => ReplyFrame::wrong_type_err(),
         },
         Entry::Vacant(vacant) => {
             // NOTE(Shaohua): Reverse order of items in values.

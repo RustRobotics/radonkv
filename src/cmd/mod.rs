@@ -3,20 +3,23 @@
 // that can be found in the LICENSE file.
 
 use crate::cmd::generic::GenericCommand;
+use crate::cmd::hash::HashCommand;
 use crate::cmd::list::ListCommand;
 use crate::cmd::string::StringCommand;
 
 pub mod frame;
+pub mod generic;
+pub mod hash;
 pub mod list;
 mod parse;
-pub mod string;
 pub mod reply_frame;
-pub mod generic;
+pub mod string;
 
 #[derive(Debug, Clone)]
 pub enum Command {
     Str(StringCommand),
     List(ListCommand),
+    Hash(HashCommand),
     Generic(GenericCommand),
 }
 
@@ -33,7 +36,7 @@ impl Command {
     #[must_use]
     pub const fn category(&self) -> CommandCategory {
         match self {
-            Self::Str(_) | Self::List(_) | Self::Generic(_) => CommandCategory::Mem,
+            Self::Str(_) | Self::List(_) | Self::Generic(_) | Self::Hash(_) => CommandCategory::Mem,
         }
     }
 

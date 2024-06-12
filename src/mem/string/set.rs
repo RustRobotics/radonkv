@@ -15,8 +15,8 @@ pub fn set(db: &mut Db, key: String, value: Vec<u8>) -> ReplyFrame {
                 *str = StrObject::Vec(value);
                 ReplyFrame::ok()
             }
-            MemObject::List(_) => ReplyFrame::wrong_type_err(),
-        }
+            _ => ReplyFrame::wrong_type_err(),
+        },
         Entry::Vacant(vacant) => {
             vacant.insert(StrObject::from_bytes(value));
             ReplyFrame::ok()
