@@ -14,6 +14,7 @@ pub enum HashCommand {
     Keys(String),
     Len(String),
     Set(String, String, Vec<u8>, ExtraValues),
+    Values(String),
 }
 
 impl HashCommand {
@@ -31,7 +32,7 @@ impl HashCommand {
                 let key = parser.next_string()?;
                 Self::GetAll(key)
             }
-            "lkeys" => {
+            "hkeys" => {
                 let key = parser.next_string()?;
                 Self::Keys(key)
             }
@@ -45,6 +46,10 @@ impl HashCommand {
                 let value = parser.next_bytes()?;
                 let extra_values = parser.remaining_pairs()?;
                 Self::Set(key, field, value, extra_values)
+            }
+            "hvals" => {
+                let key = parser.next_string()?;
+                Self::Values(key)
             }
             _ => return Ok(None),
         };
