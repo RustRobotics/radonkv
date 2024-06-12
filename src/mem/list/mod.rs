@@ -10,6 +10,7 @@ use crate::mem::Mem;
 use crate::mem::util::prune_range;
 
 mod index;
+mod insert;
 mod len;
 mod pop_back;
 mod pop_front;
@@ -28,6 +29,9 @@ impl Mem {
     pub fn handle_list_command(&mut self, command: ListCommand) -> ReplyFrame {
         match command {
             ListCommand::Index(key, index) => index::index(&self.db, &key, index),
+            ListCommand::Insert(key, position, pivot, element) => {
+                insert::insert(&mut self.db, key, position, pivot, element)
+            }
             ListCommand::Len(key) => len::len(&self.db, &key),
             ListCommand::PushBack(key, value, extra_values) => {
                 push_back::push_back(&mut self.db, key, value, extra_values)

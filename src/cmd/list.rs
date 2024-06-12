@@ -7,9 +7,31 @@ use crate::cmd::parse::{ParseCommandError, Parser};
 
 pub type ExtraValues = Option<Vec<Vec<u8>>>;
 
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
+pub enum RelativePosition {
+    Before,
+    After,
+}
+
+impl TryFrom<String> for RelativePosition {
+    type Error = ParseCommandError;
+
+    fn try_from(mut value: String) -> Result<Self, Self::Error> {
+        value.make_ascii_lowercase();
+        if value == "before" {
+            Ok(Self::Before)
+        } else if value == "after" {
+            Ok(Self::After)
+        } else {
+            Err(ParseCommandError::InvalidParameter)
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub enum ListCommand {
     Index(String, isize),
+    Insert(String, RelativePosition, Vec<u8>, Vec<u8>),
     Len(String),
     PushBack(String, Vec<u8>, ExtraValues),
     PushBackExist(String, Vec<u8>, ExtraValues),
@@ -32,6 +54,14 @@ impl ListCommand {
                 let key = parser.next_string()?;
                 let index = parser.next_isize()?;
                 Self::Index(key, index)
+            }
+            "linsert" => {
+                let key = parser.next_string()?;
+                let pos_str = parser.next_string()?;
+                let position = RelativePosition::try_from(pos_str)?;
+                let pivot = parser.next_bytes()?;
+                let element = parser.next_bytes()?;
+                Self::Insert(key, position, pivot, element)
             }
             "llen" => {
                 let key = parser.next_string()?;

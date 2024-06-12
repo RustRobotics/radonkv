@@ -177,6 +177,12 @@ impl ReplyFrame {
 
     #[must_use]
     #[inline]
+    pub const fn minus_one() -> Self {
+        Self::I32(-1)
+    }
+
+    #[must_use]
+    #[inline]
     pub const fn ok() -> Self {
         Self::ConstStatus(OK)
     }
