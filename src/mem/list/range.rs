@@ -35,11 +35,11 @@ mod tests {
     fn test_range() {
         let mut db = Db::new();
         let key = "mylist".to_owned();
-        let reply = push_back(&mut db, key.clone(), b"one".to_vec(), None);
+        let reply = push_back(&mut db, key.clone(), vec![b"one".to_vec()]);
         assert_eq!(reply, ReplyFrame::Usize(1));
-        let reply = push_back(&mut db, key.clone(), b"two".to_vec(), None);
+        let reply = push_back(&mut db, key.clone(), vec![b"two".to_vec()]);
         assert_eq!(reply, ReplyFrame::Usize(2));
-        let reply = push_back(&mut db, key.clone(), b"three".to_vec(), None);
+        let reply = push_back(&mut db, key.clone(), vec![b"three".to_vec()]);
         assert_eq!(reply, ReplyFrame::Usize(3));
 
         let reply = range(&db, &key, 0, 0);

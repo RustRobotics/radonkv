@@ -2,7 +2,6 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
-use crate::cmd::list::ExtraValues;
 use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::db::{Db, MemObject};
 
@@ -13,19 +12,11 @@ use crate::mem::db::{Db, MemObject};
 ///
 /// Reply:
 /// - Integer reply: the length of the list after the push operation.
-pub fn push_back_exist(
-    db: &mut Db,
-    key: &str,
-    value: Vec<u8>,
-    extra_values: ExtraValues,
-) -> ReplyFrame {
+pub fn push_back_exist(db: &mut Db, key: &str, values: Vec<Vec<u8>>) -> ReplyFrame {
     match db.get_mut(key) {
         Some(MemObject::List(old_list)) => {
-            old_list.push_back(value);
-            if let Some(extra_values) = extra_values {
-                for extra_value in extra_values {
-                    old_list.push_back(extra_value);
-                }
+            for value in values {
+                old_list.push_back(value);
             }
             ReplyFrame::Usize(old_list.len())
         }
@@ -46,12 +37,12 @@ mod tests {
     fn test_push_back_exist() {
         let mut db = Db::new();
         let key = "mylist".to_owned();
-        let reply = push_back(&mut db, key.clone(), b"Hello".to_vec(), None);
+        let reply = push_back(&mut db, key.clone(), vec![b"Hello".to_vec()]);
         assert_eq!(reply, ReplyFrame::Usize(1));
 
-        let reply = push_back_exist(&mut db, &key, b"World".to_vec(), None);
+        let reply = push_back_exist(&mut db, &key, vec![b"World".to_vec()]);
         assert_eq!(reply, ReplyFrame::Usize(2));
-        let reply = push_back_exist(&mut db, "myotherlist", b"World".to_vec(), None);
+        let reply = push_back_exist(&mut db, "myotherlist", vec![b"World".to_vec()]);
         assert_eq!(reply, ReplyFrame::Usize(0));
 
         let reply = range(&mut db, &key, 0, -1);

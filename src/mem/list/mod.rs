@@ -33,17 +33,15 @@ impl Mem {
                 insert::insert(&mut self.db, key, position, pivot, element)
             }
             ListCommand::Len(key) => len::len(&self.db, &key),
-            ListCommand::PushBack(key, value, extra_values) => {
-                push_back::push_back(&mut self.db, key, value, extra_values)
+            ListCommand::PushBack(key, values) => push_back::push_back(&mut self.db, key, values),
+            ListCommand::PushBackExist(key, values) => {
+                push_back_exist::push_back_exist(&mut self.db, &key, values)
             }
-            ListCommand::PushBackExist(key, value, extra_values) => {
-                push_back_exist::push_back_exist(&mut self.db, &key, value, extra_values)
+            ListCommand::PushFront(key, values) => {
+                push_front::push_front(&mut self.db, key, values)
             }
-            ListCommand::PushFront(key, value, extra_values) => {
-                push_front::push_front(&mut self.db, key, value, extra_values)
-            }
-            ListCommand::PushFrontExist(key, value, extra_values) => {
-                push_front_exist::push_front_exist(&mut self.db, &key, value, extra_values)
+            ListCommand::PushFrontExist(key, values) => {
+                push_front_exist::push_front_exist(&mut self.db, &key, values)
             }
             ListCommand::PopBack(key, count) => pop_back::pop_back(&mut self.db, &key, count),
             ListCommand::PopFront(key, count) => pop_front::pop_front(&mut self.db, &key, count),

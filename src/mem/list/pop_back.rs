@@ -57,13 +57,13 @@ mod tests {
         let reply = push_back(
             &mut db,
             key.clone(),
-            b"one".to_vec(),
-            Some(vec![
+            vec![
+                b"one".to_vec(),
                 b"two".to_vec(),
                 b"three".to_vec(),
                 b"four".to_vec(),
                 b"five".to_vec(),
-            ]),
+            ],
         );
         assert_eq!(reply, ReplyFrame::Usize(5));
 

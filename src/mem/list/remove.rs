@@ -77,13 +77,13 @@ mod tests {
     fn test_remove() {
         let mut db = Db::new();
         let key = "mylist".to_owned();
-        let reply = push_back(&mut db, key.clone(), b"hello".to_vec(), None);
+        let reply = push_back(&mut db, key.clone(), vec![b"hello".to_vec()]);
         assert_eq!(reply, ReplyFrame::Usize(1));
-        let reply = push_back(&mut db, key.clone(), b"hello".to_vec(), None);
+        let reply = push_back(&mut db, key.clone(), vec![b"hello".to_vec()]);
         assert_eq!(reply, ReplyFrame::Usize(2));
-        let reply = push_back(&mut db, key.clone(), b"foo".to_vec(), None);
+        let reply = push_back(&mut db, key.clone(), vec![b"foo".to_vec()]);
         assert_eq!(reply, ReplyFrame::Usize(3));
-        let reply = push_back(&mut db, key.clone(), b"hello".to_vec(), None);
+        let reply = push_back(&mut db, key.clone(), vec![b"hello".to_vec()]);
         assert_eq!(reply, ReplyFrame::Usize(4));
 
         let reply = remove(&mut db, &key, -2, b"hello".to_vec());

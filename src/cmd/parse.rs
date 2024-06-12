@@ -78,7 +78,7 @@ impl Parser {
         self.iter.next().ok_or(ParseCommandError::InvalidParameter)
     }
 
-    pub fn remaining(&mut self) -> Result<Option<Vec<Vec<u8>>>, ParseCommandError> {
+    pub fn remaining(&mut self) -> Result<Vec<Vec<u8>>, ParseCommandError> {
         let mut list = Vec::new();
         while let Some(frame) = self.iter.next() {
             match frame {
@@ -90,9 +90,9 @@ impl Parser {
             }
         }
         if list.is_empty() {
-            Ok(None)
+            Err(ParseCommandError::InvalidParameter)
         } else {
-            Ok(Some(list))
+            Ok(list)
         }
     }
 
@@ -123,27 +123,22 @@ impl Parser {
     }
 
     pub fn remaining_pairs(&mut self) -> Result<Vec<(String, Vec<u8>)>, ParseCommandError> {
-        if let Some(remains) = self.remaining()? {
-            log::debug!("{} remains: {remains:?}", function_name!());
-            let mut list: Vec<(String, Vec<u8>)> = Vec::new();
-            if remains.len() % 2 != 0 {
-                return Err(ParseCommandError::InvalidParameter);
-            }
-            for i in (0..remains.len()).step_by(2) {
-                let s = std::str::from_utf8(&remains[i])
-                    .map(ToString::to_string)
-                    .map_err(|err| {
-                        log::warn!("Failed to parse string, got err: {err:?}");
-                        ParseCommandError::InvalidParameter
-                    })?;
-                list.push((s, remains[i + 1].clone()));
-            }
-            if !list.is_empty() {
-                return Ok(list);
-            }
+        let remains = self.remaining()?;
+        log::debug!("{} remains: {remains:?}", function_name!());
+        let mut list: Vec<(String, Vec<u8>)> = Vec::with_capacity(remains.len());
+        if remains.len() % 2 != 0 {
+            return Err(ParseCommandError::InvalidParameter);
         }
-
-        Err(ParseCommandError::InvalidParameter)
+        for i in (0..remains.len()).step_by(2) {
+            let s = std::str::from_utf8(&remains[i])
+                .map(ToString::to_string)
+                .map_err(|err| {
+                    log::warn!("Failed to parse string, got err: {err:?}");
+                    ParseCommandError::InvalidParameter
+                })?;
+            list.push((s, remains[i + 1].clone()));
+        }
+        Ok(list)
     }
 
     pub fn next_string(&mut self) -> Result<String, ParseCommandError> {
