@@ -29,8 +29,13 @@ impl Mem {
     pub fn handle_list_command(&mut self, command: ListCommand) -> ReplyFrame {
         match command {
             ListCommand::Index(key, index) => index::index(&self.db, &key, index),
-            ListCommand::Insert(key, position, pivot, element) => {
-                insert::insert(&mut self.db, key, position, pivot, element)
+            ListCommand::Insert(key, position, mut pair) => {
+                debug_assert!(pair.len() == 2);
+                if let (Some(element), Some(pivot)) = (pair.pop(), pair.pop()) {
+                    insert::insert(&mut self.db, key, position, pivot, element)
+                } else {
+                    ReplyFrame::invalid_command()
+                }
             }
             ListCommand::Len(key) => len::len(&self.db, &key),
             ListCommand::PushBack(key, values) => push_back::push_back(&mut self.db, key, values),

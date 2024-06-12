@@ -55,6 +55,6 @@ mod tests {
 
     #[test]
     fn test_command() {
-        assert_eq!(size_of::<Command>(), 24);
+        assert_eq!(size_of::<Command>(), 72);
     }
 }

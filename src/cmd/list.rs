@@ -29,7 +29,7 @@ impl TryFrom<String> for RelativePosition {
 #[derive(Debug, Clone)]
 pub enum ListCommand {
     Index(String, isize),
-    Insert(String, RelativePosition, Vec<u8>, Vec<u8>),
+    Insert(String, RelativePosition, Vec<Vec<u8>>),
     Len(String),
     PushBack(String, Vec<Vec<u8>>),
     PushBackExist(String, Vec<Vec<u8>>),
@@ -59,7 +59,8 @@ impl ListCommand {
                 let position = RelativePosition::try_from(pos_str)?;
                 let pivot = parser.next_bytes()?;
                 let element = parser.next_bytes()?;
-                Self::Insert(key, position, pivot, element)
+                let pair = vec![pivot, element];
+                Self::Insert(key, position, pair)
             }
             "llen" => {
                 let key = parser.next_string()?;
@@ -127,6 +128,6 @@ mod tests {
 
     #[test]
     fn test_list_command() {
-        assert_eq!(size_of::<ListCommand>(), 80);
+        assert_eq!(size_of::<ListCommand>(), 64);
     }
 }

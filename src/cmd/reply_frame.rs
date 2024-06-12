@@ -232,8 +232,8 @@ impl ReplyFrame {
 
     #[must_use]
     #[inline]
-    pub const fn index_out_of_range() -> Self {
-        Self::ConstError(INDEX_OUT_OF_RANGE)
+    pub const fn out_of_range_err() -> Self {
+        Self::ConstError(OUT_OF_RANGE_ERR)
     }
 }
 
@@ -246,7 +246,6 @@ pub const WRONG_TYPE_ERR: &str =
     "WRONGTYPE Operation against a key holding the wrong kind of value";
 pub const ERR: &str = "ERR";
 pub const INVALID_COMMAND: &str = "ERR invalid command";
-pub const INDEX_OUT_OF_RANGE: &str = "ERR index out of range";
 pub const NO_KEY_ERR: &str = "ERR no such key";
 pub const SYNTAX_ERR: &str = "ERR syntax error";
 pub const SAME_OBJECT_ERR: &str = "ERR source and destination objects are the same";

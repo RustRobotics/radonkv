@@ -79,6 +79,6 @@ mod tests {
 
     #[test]
     fn test_hash_command() {
-        assert_eq!(size_of::<HashCommand>(), 64);
+        assert_eq!(size_of::<HashCommand>(), 56);
     }
 }

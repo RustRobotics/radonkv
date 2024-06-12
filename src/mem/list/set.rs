@@ -32,7 +32,7 @@ pub fn set(db: &mut Db, key: &str, index: isize, value: Vec<u8>) -> ReplyFrame {
                 }
                 ReplyFrame::ok()
             } else {
-                ReplyFrame::index_out_of_range()
+                ReplyFrame::out_of_range_err()
             }
         }
         Some(_other) => ReplyFrame::wrong_type_err(),
