@@ -44,6 +44,7 @@ pub fn set(
 mod tests {
     use crate::cmd::reply_frame::ReplyFrame;
     use crate::mem::db::Db;
+    use crate::mem::hash::get::get;
     use crate::mem::hash::set::set;
 
     #[test]

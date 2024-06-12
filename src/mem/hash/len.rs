@@ -22,16 +22,29 @@ mod tests {
     use crate::cmd::reply_frame::ReplyFrame;
     use crate::mem::db::Db;
     use crate::mem::hash::len::len;
+    use crate::mem::hash::set::set;
 
     #[test]
     fn test_len() {
         let mut db = Db::new();
-        let key = "myhash";
-        let reply = set(&mut db, key, "field1".to_owned(), b"Hello".to_vec());
+        let key = "myhash".to_owned();
+        let reply = set(
+            &mut db,
+            key.clone(),
+            "field1".to_owned(),
+            b"Hello".to_vec(),
+            None,
+        );
         assert_eq!(reply, ReplyFrame::Usize(1));
-        let reply = set(&mut db, key, "field2".to_owned(), b"World".to_vec());
+        let reply = set(
+            &mut db,
+            key.clone(),
+            "field2".to_owned(),
+            b"World".to_vec(),
+            None,
+        );
         assert_eq!(reply, ReplyFrame::Usize(2));
-        let reply = len(&db, key);
+        let reply = len(&db, &key);
         assert_eq!(reply, ReplyFrame::Usize(2));
     }
 }

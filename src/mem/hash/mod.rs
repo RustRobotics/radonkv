@@ -8,6 +8,7 @@ use crate::cmd::hash::{ExtraValues, HashCommand};
 use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::Mem;
 
+mod get;
 mod len;
 mod set;
 
@@ -16,6 +17,7 @@ pub type HashObject = HashMap<String, Vec<u8>>;
 impl Mem {
     pub fn handle_hash_command(&mut self, command: HashCommand) -> ReplyFrame {
         match command {
+            HashCommand::Get(key, field) => get::get(&self.db, &key, &field),
             HashCommand::Len(key) => len::len(&self.db, &key),
             HashCommand::Set(key, field, value, extra_values) => {
                 set::set(&mut self.db, key, field, value, extra_values)

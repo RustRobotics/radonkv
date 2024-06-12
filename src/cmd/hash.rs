@@ -9,6 +9,7 @@ pub type ExtraValues = Option<Vec<(String, Vec<u8>)>>;
 
 #[derive(Debug, Clone)]
 pub enum HashCommand {
+    Get(String, String),
     Len(String),
     Set(String, String, Vec<u8>, ExtraValues),
 }
@@ -19,6 +20,11 @@ impl HashCommand {
         parser: &mut Parser,
     ) -> Result<Option<Command>, ParseCommandError> {
         let list_cmd = match cmd_name {
+            "hget" => {
+                let key = parser.next_string()?;
+                let field = parser.next_string()?;
+                Self::Get(key, field)
+            }
             "hlen" => {
                 let key = parser.next_string()?;
                 Self::Len(key)
