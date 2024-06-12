@@ -23,7 +23,10 @@ impl Mem {
             session_group,
             reply_frame,
         };
-        log::debug!("{} send cmd to dispatcher, cmd: {reply_cmd:?}", function_name!());
-        Ok(self.dispatcher_sender.send(reply_cmd).await?)
+        log::debug!(
+            "{} send cmd to dispatcher, cmd: {reply_cmd:?}",
+            function_name!()
+        );
+        Ok(self.dispatcher_sender.send(reply_cmd)?)
     }
 }

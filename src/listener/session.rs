@@ -20,8 +20,11 @@ impl Listener {
                 // Pass cmd to dispatcher
                 let session_group = SessionGroup::new(self.id, session_id);
                 let cmd = ListenerToDispatcherCmd::Cmd(session_group, command);
-                log::debug!("{} proxy cmd from session to dispatcher, cmd: {cmd:?}", function_name!());
-                self.dispatcher_sender.send(cmd).await?;
+                log::debug!(
+                    "{} proxy cmd from session to dispatcher, cmd: {cmd:?}",
+                    function_name!()
+                );
+                self.dispatcher_sender.send(cmd)?;
                 Ok(())
             }
             SessionToListenerCmd::Disconnect(session_id) => {

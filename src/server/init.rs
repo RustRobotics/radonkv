@@ -8,8 +8,8 @@ use tokio::sync::mpsc;
 
 use crate::dispatcher::Dispatcher;
 use crate::error::Error;
-use crate::listener::types::ListenerId;
 use crate::listener::Listener;
+use crate::listener::types::ListenerId;
 use crate::mem::Mem;
 use crate::server::Server;
 use crate::storage::Storage;
@@ -21,7 +21,7 @@ impl Server {
         log::info!("{}", function_name!());
 
         let (listeners_to_dispatcher_sender, listeners_to_dispatcher_receiver) =
-            mpsc::channel(CHANNEL_CAPACITY);
+            mpsc::unbounded_channel();
         let mut dispatcher_to_listener_senders = Vec::new();
         let mut listeners_info = Vec::new();
 
@@ -31,7 +31,7 @@ impl Server {
             let listener_id = ListenerId::try_from(listener_id).unwrap();
             listeners_info.push((listener_id, listener_config.address().to_owned()));
             let (dispatcher_to_listener_sender, dispatcher_to_listener_receiver) =
-                mpsc::channel(CHANNEL_CAPACITY);
+                mpsc::unbounded_channel();
             dispatcher_to_listener_senders.push((listener_id, dispatcher_to_listener_sender));
 
             let listener = Listener::bind(
@@ -53,10 +53,8 @@ impl Server {
         }
 
         // Mem module
-        let (mem_to_dispatcher_sender, mem_to_dispatcher_receiver) =
-            mpsc::channel(CHANNEL_CAPACITY);
-        let (dispatcher_to_mem_sender, dispatcher_to_mem_receiver) =
-            mpsc::channel(CHANNEL_CAPACITY);
+        let (mem_to_dispatcher_sender, mem_to_dispatcher_receiver) = mpsc::unbounded_channel();
+        let (dispatcher_to_mem_sender, dispatcher_to_mem_receiver) = mpsc::unbounded_channel();
         let mut mem = Mem::new(mem_to_dispatcher_sender, dispatcher_to_mem_receiver);
         let _mem_handle = runtime.spawn(async move {
             mem.run_loop().await;

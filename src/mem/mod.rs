@@ -4,7 +4,7 @@
 
 use std::collections::HashMap;
 
-use tokio::sync::mpsc::{Receiver, Sender};
+use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
 
 use crate::commands::{DispatcherToMemCmd, MemToDispatcherCmd};
 use crate::mem::db::Db;
@@ -16,6 +16,7 @@ mod count_min_sketch;
 mod cuckoo_filter;
 mod db;
 mod dispatcher;
+mod generic;
 mod geo;
 mod hash;
 mod hyperloglog;
@@ -28,24 +29,23 @@ mod stream;
 mod string;
 mod time_series;
 mod top_k;
-mod zset;
 mod util;
-mod generic;
+mod zset;
 
 #[derive(Debug)]
 pub struct Mem {
     db: Db,
 
-    dispatcher_sender: Sender<MemToDispatcherCmd>,
-    dispatcher_receiver: Receiver<DispatcherToMemCmd>,
+    dispatcher_sender: UnboundedSender<MemToDispatcherCmd>,
+    dispatcher_receiver: UnboundedReceiver<DispatcherToMemCmd>,
 }
 
 impl Mem {
     #[must_use]
     #[inline]
     pub fn new(
-        dispatcher_sender: Sender<MemToDispatcherCmd>,
-        dispatcher_receiver: Receiver<DispatcherToMemCmd>,
+        dispatcher_sender: UnboundedSender<MemToDispatcherCmd>,
+        dispatcher_receiver: UnboundedReceiver<DispatcherToMemCmd>,
     ) -> Self {
         Self {
             db: HashMap::new(),

@@ -4,7 +4,7 @@
 
 use std::collections::HashMap;
 
-use tokio::sync::mpsc::{Receiver, Sender};
+use tokio::sync::mpsc::{Receiver, Sender, UnboundedReceiver, UnboundedSender};
 
 use crate::commands::{
     DispatcherToListenerCmd, DispatcherToMemCmd, DispatcherToStorageCmd, ListenerToDispatcherCmd,
@@ -19,11 +19,11 @@ mod storage;
 
 #[derive(Debug)]
 pub struct Dispatcher {
-    listener_senders: HashMap<ListenerId, Sender<DispatcherToListenerCmd>>,
-    listener_receiver: Receiver<ListenerToDispatcherCmd>,
+    listener_senders: HashMap<ListenerId, UnboundedSender<DispatcherToListenerCmd>>,
+    listener_receiver: UnboundedReceiver<ListenerToDispatcherCmd>,
 
-    mem_sender: Sender<DispatcherToMemCmd>,
-    mem_receiver: Receiver<MemToDispatcherCmd>,
+    mem_sender: UnboundedSender<DispatcherToMemCmd>,
+    mem_receiver: UnboundedReceiver<MemToDispatcherCmd>,
 
     storage_sender: Sender<DispatcherToStorageCmd>,
     storage_receiver: Receiver<StorageToDispatcherCmd>,
@@ -32,10 +32,10 @@ pub struct Dispatcher {
 impl Dispatcher {
     #[must_use]
     pub fn new(
-        listener_senders: Vec<(ListenerId, Sender<DispatcherToListenerCmd>)>,
-        listener_receiver: Receiver<ListenerToDispatcherCmd>,
-        mem_sender: Sender<DispatcherToMemCmd>,
-        mem_receiver: Receiver<MemToDispatcherCmd>,
+        listener_senders: Vec<(ListenerId, UnboundedSender<DispatcherToListenerCmd>)>,
+        listener_receiver: UnboundedReceiver<ListenerToDispatcherCmd>,
+        mem_sender: UnboundedSender<DispatcherToMemCmd>,
+        mem_receiver: UnboundedReceiver<MemToDispatcherCmd>,
         storage_sender: Sender<DispatcherToStorageCmd>,
         storage_receiver: Receiver<StorageToDispatcherCmd>,
     ) -> Self {

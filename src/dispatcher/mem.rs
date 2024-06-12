@@ -11,11 +11,14 @@ use crate::error::{Error, ErrorKind};
 impl Dispatcher {
     pub(super) async fn handle_mem_cmd(&mut self, cmd: MemToDispatcherCmd) -> Result<(), Error> {
         // Send command to listener.
-        log::debug!("{}, proxy cmd from mem to listener, cmd: {cmd:?}", function_name!());
+        log::debug!(
+            "{}, proxy cmd from mem to listener, cmd: {cmd:?}",
+            function_name!()
+        );
         let listener_id = cmd.session_group.listener_id();
         if let Some(listener_sender) = self.listener_senders.get(&listener_id) {
             let cmd = DispatcherToListenerCmd::Reply(cmd.session_group, cmd.reply_frame);
-            Ok(listener_sender.send(cmd).await?)
+            Ok(listener_sender.send(cmd)?)
         } else {
             Err(Error::from_string(
                 ErrorKind::ChannelError,

@@ -6,7 +6,7 @@ use std::collections::HashMap;
 
 use stdext::function_name;
 use tokio::sync::mpsc;
-use tokio::sync::mpsc::{Receiver, Sender};
+use tokio::sync::mpsc::{Receiver, Sender, UnboundedReceiver, UnboundedSender};
 
 use crate::commands::{
     DispatcherToListenerCmd, ListenerToDispatcherCmd, ListenerToSessionCmd, SessionToListenerCmd,
@@ -40,8 +40,8 @@ pub struct Listener {
     session_sender: Sender<SessionToListenerCmd>,
     session_receiver: Option<Receiver<SessionToListenerCmd>>,
 
-    dispatcher_sender: Sender<ListenerToDispatcherCmd>,
-    dispatcher_receiver: Option<Receiver<DispatcherToListenerCmd>>,
+    dispatcher_sender: UnboundedSender<ListenerToDispatcherCmd>,
+    dispatcher_receiver: Option<UnboundedReceiver<DispatcherToListenerCmd>>,
 }
 
 const CHANNEL_CAPACITY: usize = 1024 * 8;
@@ -77,8 +77,8 @@ impl Listener {
     pub(super) async fn bind(
         id: ListenerId,
         listener_config: config::Listener,
-        dispatcher_sender: Sender<ListenerToDispatcherCmd>,
-        dispatcher_receiver: Receiver<DispatcherToListenerCmd>,
+        dispatcher_sender: UnboundedSender<ListenerToDispatcherCmd>,
+        dispatcher_receiver: UnboundedReceiver<DispatcherToListenerCmd>,
     ) -> Result<Self, Error> {
         let device = listener_config.bind_device().to_owned();
         let address = listener_config.address().to_owned();

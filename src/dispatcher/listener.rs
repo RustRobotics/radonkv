@@ -23,8 +23,11 @@ impl Dispatcher {
                         session_group,
                         command,
                     };
-                    log::debug!("{} proxy cmd from listener to mem, cmd: {cmd:?}", function_name!());
-                    Ok(self.mem_sender.send(cmd).await?)
+                    log::debug!(
+                        "{} proxy cmd from listener to mem, cmd: {cmd:?}",
+                        function_name!()
+                    );
+                    Ok(self.mem_sender.send(cmd)?)
                 }
                 CommandCategory::System => {
                     // Dispatch to system module
