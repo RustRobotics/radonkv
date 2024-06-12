@@ -13,6 +13,7 @@ mod get_all;
 mod keys;
 mod len;
 mod set;
+mod str_len;
 mod values;
 
 pub type HashObject = HashMap<String, Vec<u8>>;
@@ -27,6 +28,7 @@ impl Mem {
             HashCommand::Set(key, field, value, extra_values) => {
                 set::set(&mut self.db, key, field, value, extra_values)
             }
+            HashCommand::StrLen(key, field) => str_len::str_len(&self.db, &key, &field),
             HashCommand::Values(key) => values::values(&self.db, &key),
         }
     }

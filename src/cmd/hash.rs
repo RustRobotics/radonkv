@@ -14,6 +14,7 @@ pub enum HashCommand {
     Keys(String),
     Len(String),
     Set(String, String, Vec<u8>, ExtraValues),
+    StrLen(String, String),
     Values(String),
 }
 
@@ -46,6 +47,11 @@ impl HashCommand {
                 let value = parser.next_bytes()?;
                 let extra_values = parser.remaining_pairs()?;
                 Self::Set(key, field, value, extra_values)
+            }
+            "hstrlen" => {
+                let key = parser.next_string()?;
+                let field = parser.next_string()?;
+                Self::StrLen(key, field)
             }
             "hvals" => {
                 let key = parser.next_string()?;
