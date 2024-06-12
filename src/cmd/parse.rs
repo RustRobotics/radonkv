@@ -116,6 +116,27 @@ impl Parser {
         Ok(list)
     }
 
+    pub fn remaining_pairs(&mut self) -> Result<Option<Vec<(String, Vec<u8>)>>, ParseCommandError> {
+        if let Some(remains) = self.remaining()? {
+            let mut list: Vec<(String, Vec<u8>)> = Vec::new();
+            if remains.len() % 2 != 0 {
+                return Err(ParseCommandError::InvalidParameter);
+            }
+            for i in (0..list.len()).step_by(2) {
+                let s = std::str::from_utf8(&remains[i])
+                    .map(ToString::to_string)
+                    .map_err(|err| {
+                        log::warn!("Failed to parse string, got err: {err:?}");
+                        ParseCommandError::InvalidParameter
+                    })?;
+                list.push((s, remains[i + 1].clone()));
+            }
+            Ok(Some(list))
+        } else {
+            Ok(None)
+        }
+    }
+
     pub fn next_string(&mut self) -> Result<String, ParseCommandError> {
         match self.next()? {
             Frame::Simple(s) => Ok(s),
