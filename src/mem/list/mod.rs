@@ -33,19 +33,19 @@ impl Mem {
                 push_back::push_back(&mut self.db, key, value, extra_values)
             }
             ListCommand::PushBackExist(key, value, extra_values) => {
-                push_back_exist::push_back_exist(&mut self.db, key, value, extra_values)
+                push_back_exist::push_back_exist(&mut self.db, &key, value, extra_values)
             }
             ListCommand::PushFront(key, value, extra_values) => {
                 push_front::push_front(&mut self.db, key, value, extra_values)
             }
             ListCommand::PushFrontExist(key, value, extra_values) => {
-                push_front_exist::push_front_exist(&mut self.db, key, value, extra_values)
+                push_front_exist::push_front_exist(&mut self.db, &key, value, extra_values)
             }
             ListCommand::PopBack(key, count) => pop_back::pop_back(&mut self.db, &key, count),
-            ListCommand::PopFront(key, count) => pop_front::pop_front(&mut self.db, key, count),
+            ListCommand::PopFront(key, count) => pop_front::pop_front(&mut self.db, &key, count),
             ListCommand::Range(key, start, end) => range::range(&self.db, &key, start, end),
             ListCommand::Remove(key, count, element) => {
-                remove::remove(&mut self.db, key, count, element)
+                remove::remove(&mut self.db, &key, count, element)
             }
             ListCommand::Set(key, index, value) => set::set(&mut self.db, &key, index, value),
         }

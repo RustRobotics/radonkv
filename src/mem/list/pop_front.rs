@@ -2,8 +2,6 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
-use std::collections::hash_map::Entry;
-
 use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::db::{Db, MemObject};
 
@@ -18,33 +16,31 @@ use crate::mem::db::{Db, MemObject};
 /// - Nil reply: if the key does not exist.
 /// - Bulk string reply: when called without the count argument, the value of the last element.
 /// - Array reply: when called with the count argument, a list of popped elements.
-pub fn pop_front(db: &mut Db, key: String, count: Option<usize>) -> ReplyFrame {
-    match db.entry(key) {
-        Entry::Occupied(mut occupied) => match occupied.get_mut() {
-            MemObject::Str(_) => ReplyFrame::wrong_type_err(),
-            MemObject::List(old_list) => {
-                if let Some(count) = count {
-                    let real_count: usize = count.min(old_list.len());
-                    let mut array = Vec::new();
-                    for _i in 0..real_count {
-                        if let Some(item) = old_list.pop_front() {
-                            array.push(ReplyFrame::Bulk(item));
-                        } else {
-                            break;
-                        };
-                    }
-                    ReplyFrame::Array(array)
-                } else {
-                    // Returns the first front node.
-                    if let Some(value) = old_list.pop_front() {
-                        ReplyFrame::Bulk(value)
+pub fn pop_front(db: &mut Db, key: &str, count: Option<usize>) -> ReplyFrame {
+    match db.get_mut(key) {
+        Some(MemObject::List(old_list)) => {
+            if let Some(count) = count {
+                let real_count: usize = count.min(old_list.len());
+                let mut array = Vec::new();
+                for _i in 0..real_count {
+                    if let Some(item) = old_list.pop_front() {
+                        array.push(ReplyFrame::Bulk(item));
                     } else {
-                        ReplyFrame::Null
-                    }
+                        break;
+                    };
+                }
+                ReplyFrame::Array(array)
+            } else {
+                // Returns the first front node.
+                if let Some(value) = old_list.pop_front() {
+                    ReplyFrame::Bulk(value)
+                } else {
+                    ReplyFrame::Null
                 }
             }
-        },
-        Entry::Vacant(_) => ReplyFrame::Null,
+        }
+        Some(_) => ReplyFrame::wrong_type_err(),
+        None => ReplyFrame::Null,
     }
 }
 
@@ -73,9 +69,9 @@ mod tests {
         );
         assert_eq!(reply, ReplyFrame::Usize(5));
 
-        let reply = pop_front(&mut db, key.clone(), None);
+        let reply = pop_front(&mut db, &key, None);
         assert_eq!(reply, ReplyFrame::Bulk(b"one".to_vec()));
-        let reply = pop_front(&mut db, key.clone(), Some(2));
+        let reply = pop_front(&mut db, &key, Some(2));
         assert_eq!(
             reply,
             ReplyFrame::Array(vec![
