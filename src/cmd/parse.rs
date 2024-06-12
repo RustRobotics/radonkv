@@ -5,6 +5,8 @@
 use std::num::{ParseFloatError, ParseIntError};
 use std::vec::IntoIter;
 
+use stdext::function_name;
+
 use crate::cmd::Command;
 use crate::cmd::frame::Frame;
 use crate::cmd::generic::GenericCommand;
@@ -122,11 +124,12 @@ impl Parser {
 
     pub fn remaining_pairs(&mut self) -> Result<Vec<(String, Vec<u8>)>, ParseCommandError> {
         if let Some(remains) = self.remaining()? {
+            log::debug!("{} remains: {remains:?}", function_name!());
             let mut list: Vec<(String, Vec<u8>)> = Vec::new();
             if remains.len() % 2 != 0 {
                 return Err(ParseCommandError::InvalidParameter);
             }
-            for i in (0..list.len()).step_by(2) {
+            for i in (0..remains.len()).step_by(2) {
                 let s = std::str::from_utf8(&remains[i])
                     .map(ToString::to_string)
                     .map_err(|err| {
@@ -135,10 +138,12 @@ impl Parser {
                     })?;
                 list.push((s, remains[i + 1].clone()));
             }
-            Ok(list)
-        } else {
-            return Err(ParseCommandError::InvalidParameter);
+            if !list.is_empty() {
+                return Ok(list);
+            }
         }
+
+        Err(ParseCommandError::InvalidParameter)
     }
 
     pub fn next_string(&mut self) -> Result<String, ParseCommandError> {
