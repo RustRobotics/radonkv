@@ -2,11 +2,13 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
+use crate::cmd::conn::ConnectManagementCommand;
 use crate::cmd::generic::GenericCommand;
 use crate::cmd::hash::HashCommand;
 use crate::cmd::list::ListCommand;
 use crate::cmd::string::StringCommand;
 
+pub mod conn;
 pub mod frame;
 pub mod generic;
 pub mod hash;
@@ -21,6 +23,7 @@ pub enum Command {
     List(ListCommand),
     Hash(HashCommand),
     Generic(GenericCommand),
+    ConnManagement(ConnectManagementCommand),
 }
 
 #[derive(Debug, Default, Clone, Copy, Eq, PartialEq)]
@@ -30,6 +33,8 @@ pub enum CommandCategory {
     System,
     Cluster,
     Storage,
+    // Handle commands in session module.
+    Session,
 }
 
 impl Command {
@@ -37,6 +42,7 @@ impl Command {
     pub const fn category(&self) -> CommandCategory {
         match self {
             Self::Str(_) | Self::List(_) | Self::Generic(_) | Self::Hash(_) => CommandCategory::Mem,
+            Self::ConnManagement(_) => CommandCategory::Session,
         }
     }
 

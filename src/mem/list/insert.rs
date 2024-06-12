@@ -65,9 +65,9 @@ mod tests {
         assert_eq!(reply, ReplyFrame::Usize(2));
         let reply = insert(
             &mut db,
-            key.clone(),
+            &key,
             RelativePosition::Before,
-            b"World".to_vec(),
+            b"World",
             b"Three".to_vec(),
         );
         assert_eq!(reply, ReplyFrame::Usize(3));

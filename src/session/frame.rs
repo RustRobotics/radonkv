@@ -7,7 +7,7 @@ use std::io::Cursor;
 use bytes::{Buf, Bytes};
 use stdext::function_name;
 
-use crate::cmd::Command;
+use crate::cmd::{Command, CommandCategory};
 use crate::cmd::frame::{Frame, ParseFrameError};
 use crate::cmd::reply_frame::ReplyFrame;
 use crate::commands::SessionToListenerCmd;
@@ -37,12 +37,20 @@ impl Session {
 
             match self.stream.read_buf(&mut self.buffer).await {
                 Ok(0) => {
-                    log::info!("{} Empty packet received, disconnect client, {}", function_name!(), self.id);
+                    log::info!(
+                        "{} Empty packet received, disconnect client, {}",
+                        function_name!(),
+                        self.id
+                    );
                     self.status = Status::Disconnected;
                     return None;
                 }
                 Err(err) => {
-                    log::warn!("{} Failed to read from socket with id: {}, err: {err:?}", function_name!(), self.id);
+                    log::warn!(
+                        "{} Failed to read from socket with id: {}, err: {err:?}",
+                        function_name!(),
+                        self.id
+                    );
                     self.status = Status::Disconnected;
                     return None;
                 }
@@ -61,9 +69,13 @@ impl Session {
         // 3.2. else send error to client.
         match Command::try_from(frame) {
             Ok(command) => {
-                let cmd = SessionToListenerCmd::Cmd(self.id, command);
-                log::debug!("{} send cmd to listener, cmd: {cmd:?}", function_name!());
-                Ok(self.listener_sender.send(cmd).await?)
+                if command.category() == CommandCategory::Session {
+                    self.handle_client_command(command).await
+                } else {
+                    let cmd = SessionToListenerCmd::Cmd(self.id, command);
+                    log::debug!("{} send cmd to listener, cmd: {cmd:?}", function_name!());
+                    Ok(self.listener_sender.send(cmd).await?)
+                }
             }
             Err(err) => {
                 log::warn!("Invalid command, err: {err:?}");
@@ -73,7 +85,10 @@ impl Session {
         }
     }
 
-    pub(super) async fn send_frame_to_client(&mut self, reply_frame: ReplyFrame) -> Result<(), Error> {
+    pub(super) async fn send_frame_to_client(
+        &mut self,
+        reply_frame: ReplyFrame,
+    ) -> Result<(), Error> {
         log::debug!("{} reply_frame: {reply_frame:?}", function_name!());
         // TODO(Shaohua): Call io::Write trait, do not convert to Bytes object.
         let bytes: Bytes = reply_frame.into_bytes();

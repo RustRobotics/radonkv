@@ -8,6 +8,7 @@ use std::vec::IntoIter;
 use stdext::function_name;
 
 use crate::cmd::Command;
+use crate::cmd::conn::ConnectManagementCommand;
 use crate::cmd::frame::Frame;
 use crate::cmd::generic::GenericCommand;
 use crate::cmd::hash::HashCommand;
@@ -61,6 +62,9 @@ impl TryFrom<Frame> for Command {
         }
         if command.is_none() {
             command = GenericCommand::parse(&cmd_name, &mut parser)?;
+        }
+        if command.is_none() {
+            command = ConnectManagementCommand::parse(&cmd_name, &mut parser)?;
         }
         if command.is_none() {
             log::warn!("Command not found: {cmd_name}");
@@ -142,18 +146,33 @@ impl Parser {
     }
 
     pub fn next_string(&mut self) -> Result<String, ParseCommandError> {
-        match self.next()? {
-            Frame::Simple(s) => Ok(s),
-            Frame::Bulk(bytes) => std::str::from_utf8(&bytes[..])
-                .map(std::string::ToString::to_string)
-                .map_err(|err| {
-                    log::warn!("Failed to parse string, got err: {err:?}");
-                    ParseCommandError::InvalidParameter
-                }),
-            frame => {
-                log::warn!("Protocol error, expected simple or bulk frame, got: {frame:?}");
-                Err(ParseCommandError::ProtocolError)
+        if let Some(s) = self.try_next_string()? {
+            Ok(s)
+        } else {
+            Err(ParseCommandError::InvalidParameter)
+        }
+    }
+
+    pub fn try_next_string(&mut self) -> Result<Option<String>, ParseCommandError> {
+        if let Some(frame) = self.iter.next() {
+            match frame {
+                Frame::Simple(s) => Ok(Some(s)),
+                Frame::Bulk(bytes) => {
+                    let s = std::str::from_utf8(&bytes[..])
+                        .map(ToString::to_string)
+                        .map_err(|err| {
+                            log::warn!("Failed to parse string, got err: {err:?}");
+                            ParseCommandError::InvalidParameter
+                        })?;
+                    Ok(Some(s))
+                }
+                frame => {
+                    log::warn!("Protocol error, expected simple or bulk frame, got: {frame:?}");
+                    Err(ParseCommandError::ProtocolError)
+                }
             }
+        } else {
+            Ok(None)
         }
     }
 

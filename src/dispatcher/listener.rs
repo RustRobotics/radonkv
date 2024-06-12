@@ -41,6 +41,7 @@ impl Dispatcher {
                     // Dispatch to storage module
                     todo!()
                 }
+                _ => todo!(),
             },
         }
     }

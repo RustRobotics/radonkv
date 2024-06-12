@@ -93,7 +93,7 @@ mod tests {
         let reply = push_back(&mut db, key.clone(), vec![b"hello".to_vec()]);
         assert_eq!(reply, ReplyFrame::Usize(4));
 
-        let reply = remove(&mut db, &key, -2, b"hello".to_vec());
+        let reply = remove(&mut db, &key, -2, b"hello");
         assert_eq!(reply, ReplyFrame::Usize(2));
         let reply = range(&mut db, &key, 0, -1);
         assert_eq!(
