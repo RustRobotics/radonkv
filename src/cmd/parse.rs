@@ -94,7 +94,7 @@ impl Parser {
         }
     }
 
-    pub fn remaining_strings(&mut self) -> Result<Vec<String>, ParseCommandError> {
+    pub fn remaining_strings(&mut self) -> Result<Option<Vec<String>>, ParseCommandError> {
         let mut list = Vec::new();
         while let Some(frame) = self.iter.next() {
             match frame {
@@ -113,7 +113,11 @@ impl Parser {
                 }
             }
         }
-        Ok(list)
+        if list.is_empty() {
+            Ok(None)
+        } else {
+            Ok(Some(list))
+        }
     }
 
     pub fn remaining_pairs(&mut self) -> Result<Option<Vec<(String, Vec<u8>)>>, ParseCommandError> {

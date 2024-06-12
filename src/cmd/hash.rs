@@ -9,6 +9,7 @@ pub type ExtraValues = Option<Vec<(String, Vec<u8>)>>;
 
 #[derive(Debug, Clone)]
 pub enum HashCommand {
+    Del(String, String, Option<Vec<String>>),
     Get(String, String),
     GetAll(String),
     Keys(String),
@@ -24,6 +25,12 @@ impl HashCommand {
         parser: &mut Parser,
     ) -> Result<Option<Command>, ParseCommandError> {
         let list_cmd = match cmd_name {
+            "hdel" => {
+                let key = parser.next_string()?;
+                let field = parser.next_string()?;
+                let extra_fields = parser.remaining_strings()?;
+                Self::Del(key, field, extra_fields)
+            }
             "hget" => {
                 let key = parser.next_string()?;
                 let field = parser.next_string()?;

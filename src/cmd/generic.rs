@@ -9,8 +9,8 @@ use crate::cmd::parse::{ParseCommandError, Parser};
 
 #[derive(Debug, Clone)]
 pub enum GenericCommand {
-    Delete(Vec<String>),
-    Exists(Vec<String>),
+    Delete(String, Option<Vec<String>>),
+    Exists(String, Option<Vec<String>>),
     RandomKey(usize),
     Rename(String, String),
     Type(String),
@@ -23,12 +23,14 @@ impl GenericCommand {
     ) -> Result<Option<Command>, ParseCommandError> {
         let generic_cmd = match cmd_name {
             "del" => {
-                let keys = parser.remaining_strings()?;
-                Self::Delete(keys)
+                let key = parser.next_string()?;
+                let extra_keys = parser.remaining_strings()?;
+                Self::Delete(key, extra_keys)
             }
             "exists" => {
-                let keys = parser.remaining_strings()?;
-                Self::Exists(keys)
+                let key = parser.next_string()?;
+                let extra_keys = parser.remaining_strings()?;
+                Self::Exists(key, extra_keys)
             }
             "randomkey" => {
                 let mut rng = rand::thread_rng();

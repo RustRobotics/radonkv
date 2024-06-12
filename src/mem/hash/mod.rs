@@ -8,6 +8,7 @@ use crate::cmd::hash::{ExtraValues, HashCommand};
 use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::Mem;
 
+mod delete;
 mod get;
 mod get_all;
 mod keys;
@@ -21,6 +22,9 @@ pub type HashObject = HashMap<String, Vec<u8>>;
 impl Mem {
     pub fn handle_hash_command(&mut self, command: HashCommand) -> ReplyFrame {
         match command {
+            HashCommand::Del(key, field, extra_fields) => {
+                delete::delete(&mut self.db, &key, &field, extra_fields)
+            }
             HashCommand::Get(key, field) => get::get(&self.db, &key, &field),
             HashCommand::GetAll(key) => get_all::get_all(&self.db, &key),
             HashCommand::Keys(key) => keys::keys(&self.db, &key),
