@@ -61,7 +61,7 @@ mod tests {
         );
         assert_eq!(reply, ReplyFrame::Usize(1));
 
-        let reply = get(&db, &key, "field");
+        let reply = get(&db, &key, "field1");
         assert_eq!(reply, ReplyFrame::Bulk(b"Hello".to_vec()));
 
         let reply = set(
@@ -82,7 +82,7 @@ mod tests {
         assert_eq!(
             reply,
             ReplyFrame::Array(vec![
-                ReplyFrame::Bulk(b"field".to_vec()),
+                ReplyFrame::Bulk(b"field1".to_vec()),
                 ReplyFrame::Bulk(b"Hello".to_vec()),
                 ReplyFrame::Bulk(b"field2".to_vec()),
                 ReplyFrame::Bulk(b"Hi".to_vec()),

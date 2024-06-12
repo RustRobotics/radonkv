@@ -43,7 +43,7 @@ mod tests {
             b"World".to_vec(),
             None,
         );
-        assert_eq!(reply, ReplyFrame::Usize(2));
+        assert_eq!(reply, ReplyFrame::Usize(1));
         let reply = len(&db, &key);
         assert_eq!(reply, ReplyFrame::Usize(2));
     }
