@@ -4,8 +4,10 @@
 
 use std::time::Instant;
 
-use crate::session::Session;
+use stdext::function_name;
+
 use crate::session::status::Status;
+use crate::session::Session;
 
 impl Session {
     pub async fn run_loop(mut self) {
@@ -15,9 +17,13 @@ impl Session {
 
         while self.status != Status::Disconnected {
             tokio::select! {
-                Some(frame) = self.read_frame() => {
-                    if let Err(err) = self.handle_client_frame(frame).await {
-                        log::warn!("fuck err: {err:?}");
+                Some(frames) = self.read_frames() => {
+                    self.frames_read.push_back(frames.len());
+                    log::debug!("{} frames read: {}", function_name!(), frames.len());
+                    for frame in frames {
+                        if let Err(err) = self.handle_client_frame(frame).await {
+                            log::warn!("fuck err: {err:?}");
+                        }
                     }
                 }
                 Some(cmd) = listener_receiver.recv() => {
@@ -26,8 +32,7 @@ impl Session {
                     }
                     continue;
                 },
-            }
-            ;
+            };
         }
         if let Err(err) = self.send_disconnect_to_listener().await {
             log::warn!("Failed to send disconnect info to listener, err: {err:?}");

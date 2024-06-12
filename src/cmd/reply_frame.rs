@@ -5,7 +5,7 @@
 use std::cmp::Ordering;
 use std::io::{Cursor, Write};
 
-use bytes::{BufMut, Bytes, BytesMut};
+use bytes::{BufMut, BytesMut};
 
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub enum ReplyFrame {
@@ -39,58 +39,44 @@ pub enum ReplyFrame {
 }
 
 impl ReplyFrame {
-    #[must_use]
-    pub fn into_bytes(self) -> Bytes {
+    pub fn to_bytes(&self, bytes: &mut BytesMut) {
         match self {
             Self::Status(s) => {
-                let mut bytes = BytesMut::new();
                 bytes.put_u8(b'+');
                 bytes.put(s.as_bytes());
                 bytes.put_slice(b"\r\n");
-                bytes.freeze()
             }
             Self::ConstStatus(s) => {
-                let mut bytes = BytesMut::new();
                 bytes.put_u8(b'+');
                 bytes.put(s.as_bytes());
                 bytes.put_slice(b"\r\n");
-                bytes.freeze()
             }
             Self::Error(err) => {
-                let mut bytes = BytesMut::new();
-                bytes.put_u8(b'-');
-                bytes.put(Bytes::from(err));
-                bytes.put_slice(b"\r\n");
-                bytes.freeze()
-            }
-            Self::ConstError(err) => {
-                let mut bytes = BytesMut::new();
                 bytes.put_u8(b'-');
                 bytes.put(err.as_bytes());
                 bytes.put_slice(b"\r\n");
-                bytes.freeze()
+            }
+            Self::ConstError(err) => {
+                bytes.put_u8(b'-');
+                bytes.put(err.as_bytes());
+                bytes.put_slice(b"\r\n");
             }
             Self::ConstErrorWithErr(err) => {
-                let mut bytes = BytesMut::new();
                 bytes.put_u8(b'-');
                 bytes.put(ERR.as_bytes());
                 bytes.put(err.as_bytes());
                 bytes.put_slice(b"\r\n");
-                bytes.freeze()
             }
 
             Self::Array(arr) => {
-                let mut bytes = BytesMut::new();
                 bytes.put_u8(b'*');
                 let len = arr.len();
                 #[allow(clippy::cast_possible_wrap)]
-                Self::write_usize(&mut bytes, len);
+                Self::write_usize(bytes, len);
 
                 for frame in arr {
-                    bytes.put(frame.into_bytes());
+                    frame.to_bytes(bytes);
                 }
-
-                bytes.freeze()
             }
 
             Self::EmptyArray => {
@@ -99,42 +85,34 @@ impl ReplyFrame {
 
             Self::Bulk(val) => {
                 let len = val.len();
-                let mut bytes = BytesMut::new();
                 bytes.put_u8(b'$');
                 #[allow(clippy::cast_possible_wrap)]
-                Self::write_usize(&mut bytes, len);
+                Self::write_usize(bytes, len);
                 bytes.put_slice(&val);
                 bytes.put_slice(b"\r\n");
-                bytes.freeze()
             }
             Self::EmptyBulk => {
                 let len: i64 = 0;
-                let mut bytes = BytesMut::new();
                 bytes.put_u8(b'$');
                 #[allow(clippy::cast_possible_wrap)]
-                Self::write_i64(&mut bytes, len);
+                Self::write_i64(bytes, len);
                 bytes.put_slice(b"\r\n");
-                bytes.freeze()
             }
-            Self::Null => Bytes::from("$-1\r\n"),
+            Self::Null => {
+                bytes.put_slice(b"$-1\r\n");
+            }
 
             Self::I64(num) => {
-                let mut bytes = BytesMut::new();
                 bytes.put_u8(b':');
-                Self::write_i64(&mut bytes, num);
-                bytes.freeze()
+                Self::write_i64(bytes, *num);
             }
             Self::I32(num) => {
-                let mut bytes = BytesMut::new();
                 bytes.put_u8(b':');
-                Self::write_i64(&mut bytes, i64::from(num));
-                bytes.freeze()
+                Self::write_i64(bytes, i64::from(*num));
             }
             Self::Usize(num) => {
-                let mut bytes = BytesMut::new();
                 bytes.put_u8(b':');
-                Self::write_usize(&mut bytes, num);
-                bytes.freeze()
+                Self::write_usize(bytes, *num);
             }
             Self::Double(_num) => {
                 // TODO(Shaohua): Convert as bulk reply

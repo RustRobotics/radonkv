@@ -4,7 +4,7 @@
 
 use std::io::Cursor;
 
-use bytes::{Buf, Bytes};
+use bytes::{Buf, BytesMut};
 use stdext::function_name;
 
 use crate::cmd::{Command, CommandCategory};
@@ -16,23 +16,33 @@ use crate::session::Session;
 use crate::session::status::Status;
 
 impl Session {
-    pub(super) async fn read_frame(&mut self) -> Option<Frame> {
+    pub(super) async fn read_frames(&mut self) -> Option<Vec<Frame>> {
         loop {
             // Try parsing frame from buffer.
-            match self.parse_frame() {
-                Ok(Some(frame)) => {
-                    return Some(frame);
-                }
-                Ok(None) => (),
-                Err(err) => {
-                    log::warn!("Invalid frame, err: {err:?}");
-                    let reply_frame = ReplyFrame::ConstError("Invalid frame");
-                    if let Err(err) = self.send_frame_to_client(reply_frame).await {
-                        log::warn!("Failed to send error frame to client, err: {err:?}");
+            let mut frames = Vec::new();
+            while !self.buffer.is_empty() {
+                log::debug!("Will call parse_frame()");
+                match self.parse_frame() {
+                    Ok(Some(frame)) => {
+                        log::debug!("Got new frame: {frame:?}");
+                        frames.push(frame);
                     }
-                    // TODO(Shaohua): Close socket.
-                    return None;
+                    Ok(None) => break,
+                    Err(err) => {
+                        log::warn!("Invalid frame, err: {err:?}");
+                        let reply_frame = ReplyFrame::ConstError("Invalid frame");
+                        if let Err(err) = self.send_frame_to_client(reply_frame).await {
+                            log::warn!("Failed to send error frame to client, err: {err:?}");
+                        }
+                        // TODO(Shaohua): Close socket.
+                        return None;
+                    }
                 }
+            }
+
+            if !frames.is_empty() {
+                log::debug!("Got frames: {frames:?}");
+                return Some(frames);
             }
 
             match self.stream.read_buf(&mut self.buffer).await {
@@ -45,6 +55,7 @@ impl Session {
                     self.status = Status::Disconnected;
                     return None;
                 }
+                Ok(_n) => (),
                 Err(err) => {
                     log::warn!(
                         "{} Failed to read from socket with id: {}, err: {err:?}",
@@ -54,7 +65,6 @@ impl Session {
                     self.status = Status::Disconnected;
                     return None;
                 }
-                _ => (),
             }
         }
     }
@@ -90,11 +100,19 @@ impl Session {
         reply_frame: ReplyFrame,
     ) -> Result<(), Error> {
         log::debug!("{} reply_frame: {reply_frame:?}", function_name!());
-        // TODO(Shaohua): Call io::Write trait, do not convert to Bytes object.
-        let bytes: Bytes = reply_frame.into_bytes();
-        self.stream.write(&bytes).await?;
-        // TODO(Shaohua): flush stream with pipeline
-        //self.stream.flush().await
+        self.pending_frames.push(reply_frame);
+        if Some(self.pending_frames.len()) == self.frames_read.front().copied() {
+            // TODO(Shaohua): Call io::Write trait, do not convert to Bytes object.
+            let mut bytes = BytesMut::new();
+            for frame in &self.pending_frames {
+                frame.to_bytes(&mut bytes);
+            }
+            self.stream.write(&bytes.freeze()).await?;
+            self.pending_frames.clear();
+            self.frames_read.pop_front();
+            self.stream.flush().await?;
+        }
+
         Ok(())
     }
 
