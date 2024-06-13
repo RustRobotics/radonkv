@@ -10,6 +10,7 @@ use crate::mem::Mem;
 
 mod add;
 mod len;
+mod members;
 
 pub type SetObject = HashSet<Vec<u8>>;
 
@@ -18,6 +19,7 @@ impl Mem {
         match command {
             SetCommand::Add(key, members) => add::add(&mut self.db, key, members),
             SetCommand::Len(key) => len::len(&self.db, &key),
+            SetCommand::Members(key) => members::members(&self.db, &key),
         }
     }
 }

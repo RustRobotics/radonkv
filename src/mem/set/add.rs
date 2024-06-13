@@ -22,10 +22,10 @@ pub fn add(db: &mut Db, key: String, members: Vec<Vec<u8>>) -> ReplyFrame {
     match db.entry(key) {
         Entry::Occupied(mut occupied) => match occupied.get_mut() {
             MemObject::Set(old_set) => {
-                let count: usize = members
-                    .into_iter()
-                    .map(|member| old_set.insert(member))
-                    .count();
+                let mut count = 0;
+                for member in members {
+                    count += old_set.insert(member) as usize;
+                }
                 ReplyFrame::Usize(count)
             }
             _ => ReplyFrame::wrong_type_err(),
@@ -44,6 +44,7 @@ mod tests {
     use crate::cmd::reply_frame::ReplyFrame;
     use crate::mem::db::Db;
     use crate::mem::set::add::add;
+    use crate::mem::set::members::members;
 
     #[test]
     fn test_add() {
@@ -55,5 +56,13 @@ mod tests {
         assert_eq!(reply, ReplyFrame::one());
         let reply = add(&mut db, key.clone(), vec![b"World".to_vec()]);
         assert_eq!(reply, ReplyFrame::zero());
+        let reply = members(&db, &key);
+        assert_eq!(
+            reply,
+            ReplyFrame::Array(vec![
+                ReplyFrame::Bulk(b"Hello".to_vec()),
+                ReplyFrame::Bulk(b"World".to_vec()),
+            ])
+        )
     }
 }

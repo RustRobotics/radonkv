@@ -9,6 +9,7 @@ use crate::cmd::parse::{ParseCommandError, Parser};
 pub enum SetCommand {
     Add(String, Vec<Vec<u8>>),
     Len(String),
+    Members(String),
 }
 
 impl SetCommand {
@@ -25,6 +26,10 @@ impl SetCommand {
             "slen" | "scard" => {
                 let key = parser.next_string()?;
                 Self::Len(key)
+            }
+            "smembers" => {
+                let key = parser.next_string()?;
+                Self::Members(key)
             }
             _ => return Ok(None),
         };
