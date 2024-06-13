@@ -146,11 +146,8 @@ impl Parser {
     }
 
     pub fn next_string(&mut self) -> Result<String, ParseCommandError> {
-        if let Some(s) = self.try_next_string()? {
-            Ok(s)
-        } else {
-            Err(ParseCommandError::InvalidParameter)
-        }
+        self.try_next_string()?
+            .ok_or(ParseCommandError::InvalidParameter)
     }
 
     pub fn try_next_string(&mut self) -> Result<Option<String>, ParseCommandError> {

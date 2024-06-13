@@ -9,12 +9,12 @@ impl Dispatcher {
         loop {
             tokio::select! {
                 Some(cmd) = self.listener_receiver.recv() => {
-                    if let Err(err) = self.handle_listener_cmd(cmd).await {
+                    if let Err(err) = self.handle_listener_cmd(cmd) {
                         log::warn!("[dispatcher] Failed to handle listener cmd, got err: {err:?}");
                     }
                 }
                 Some(cmd) = self.mem_receiver.recv() => {
-                    if let Err(err) = self.handle_mem_cmd(cmd).await {
+                    if let Err(err) = self.handle_mem_cmd(cmd) {
                         log::warn!("[dispatcher] Failed to handle mem cmd, got err: {err:?}");
                     }
                 }

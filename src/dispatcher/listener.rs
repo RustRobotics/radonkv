@@ -10,7 +10,7 @@ use crate::dispatcher::Dispatcher;
 use crate::error::Error;
 
 impl Dispatcher {
-    pub(super) async fn handle_listener_cmd(
+    pub(super) fn handle_listener_cmd(
         &mut self,
         cmd: ListenerToDispatcherCmd,
     ) -> Result<(), Error> {
@@ -28,18 +28,6 @@ impl Dispatcher {
                         function_name!()
                     );
                     Ok(self.mem_sender.send(cmd)?)
-                }
-                CommandCategory::System => {
-                    // Dispatch to system module
-                    todo!()
-                }
-                CommandCategory::Cluster => {
-                    // Dispatch to cluster module
-                    todo!()
-                }
-                CommandCategory::Storage => {
-                    // Dispatch to storage module
-                    todo!()
                 }
                 _ => todo!(),
             },

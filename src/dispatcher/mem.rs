@@ -9,7 +9,7 @@ use crate::dispatcher::Dispatcher;
 use crate::error::{Error, ErrorKind};
 
 impl Dispatcher {
-    pub(super) async fn handle_mem_cmd(&mut self, cmd: MemToDispatcherCmd) -> Result<(), Error> {
+    pub(super) fn handle_mem_cmd(&mut self, cmd: MemToDispatcherCmd) -> Result<(), Error> {
         // Send command to listener.
         log::debug!(
             "{}, proxy cmd from mem to listener, cmd: {cmd:?}",

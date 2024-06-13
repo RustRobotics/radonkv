@@ -27,7 +27,7 @@ impl Mem {
             Command::List(command) => self.handle_list_command(command),
             Command::Hash(command) => self.handle_hash_command(command),
             Command::Generic(command) => self.handle_generic_command(command),
-            _ => unreachable!(),
+            Command::ConnManagement(_) => unreachable!(),
         }
     }
 }

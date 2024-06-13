@@ -16,7 +16,7 @@ impl Session {
                 ConnectManagementCommand::GetId() => Self::get_id_command(self.id),
                 ConnectManagementCommand::Echo(message) => Self::echo_command(message),
                 ConnectManagementCommand::Ping(message) => Self::ping_command(message),
-                ConnectManagementCommand::GetName() => Self::get_name_command(&self.name),
+                ConnectManagementCommand::GetName() => Self::get_name_command(self.name.as_ref()),
                 ConnectManagementCommand::SetName(new_name) => self.set_name_command(new_name),
             };
             self.send_frame_to_client(reply_frame).await
@@ -35,12 +35,10 @@ impl Session {
     /// - Bulk string reply: the connection name of the current connection.
     /// - Null reply: the connection name was not set.
 
-    pub fn get_name_command(old_name: &Option<String>) -> ReplyFrame {
-        if let Some(name) = old_name {
+    pub fn get_name_command(old_name: Option<&String>) -> ReplyFrame {
+        old_name.map_or(ReplyFrame::Null, |name| {
             ReplyFrame::Bulk(name.as_bytes().to_vec())
-        } else {
-            ReplyFrame::Null
-        }
+        })
     }
 
     /// The `CLIENT SETNAME` command assigns a name to the current connection.
@@ -58,7 +56,7 @@ impl Session {
     /// - Integer reply: the ID of the client.
     #[must_use]
     #[inline]
-    pub fn get_id_command(id: SessionId) -> ReplyFrame {
+    pub const fn get_id_command(id: SessionId) -> ReplyFrame {
         ReplyFrame::I64(id)
     }
 
@@ -77,11 +75,9 @@ impl Session {
     /// - Simple string reply: PONG when no argument is provided.
     /// - Bulk string reply: the provided argument.
     pub fn ping_command(message: Option<String>) -> ReplyFrame {
-        if let Some(message) = message {
+        message.map_or_else(ReplyFrame::pong, |message| {
             ReplyFrame::Bulk(message.into_bytes())
-        } else {
-            ReplyFrame::pong()
-        }
+        })
     }
 
     /// Returns message.

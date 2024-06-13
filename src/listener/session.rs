@@ -10,10 +10,7 @@ use crate::listener::Listener;
 use crate::listener::types::SessionGroup;
 
 impl Listener {
-    pub(super) async fn handle_session_cmd(
-        &mut self,
-        cmd: SessionToListenerCmd,
-    ) -> Result<(), Error> {
+    pub(super) fn handle_session_cmd(&mut self, cmd: SessionToListenerCmd) -> Result<(), Error> {
         log::debug!("{}", function_name!());
         match cmd {
             SessionToListenerCmd::Cmd(session_id, command) => {

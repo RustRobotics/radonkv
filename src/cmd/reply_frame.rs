@@ -88,7 +88,7 @@ impl ReplyFrame {
                 bytes.put_u8(b'$');
                 #[allow(clippy::cast_possible_wrap)]
                 Self::write_usize(bytes, len);
-                bytes.put_slice(&val);
+                bytes.put_slice(val);
                 bytes.put_slice(b"\r\n");
             }
             Self::EmptyBulk => {

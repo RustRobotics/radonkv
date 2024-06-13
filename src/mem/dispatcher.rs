@@ -9,10 +9,7 @@ use crate::error::Error;
 use crate::mem::Mem;
 
 impl Mem {
-    pub(super) async fn handle_dispatcher_cmd(
-        &mut self,
-        cmd: DispatcherToMemCmd,
-    ) -> Result<(), Error> {
+    pub(super) fn handle_dispatcher_cmd(&mut self, cmd: DispatcherToMemCmd) -> Result<(), Error> {
         log::debug!("{}, cmd: {cmd:?}", function_name!());
         let DispatcherToMemCmd {
             session_group,
