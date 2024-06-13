@@ -10,6 +10,7 @@ pub enum BloomFilterCommand {
     Add(String, String),
     MultiAdd(String, Vec<String>),
     Exists(String, String),
+    MultiExists(String, Vec<String>),
     Len(String),
 }
 
@@ -33,6 +34,11 @@ impl BloomFilterCommand {
                 let key = parser.next_string()?;
                 let item = parser.next_string()?;
                 Self::Exists(key, item)
+            }
+            "BF.MEXISTS" => {
+                let key = parser.next_string()?;
+                let items = parser.remaining_strings()?;
+                Self::MultiExists(key, items)
             }
             "bf.card" => {
                 let key = parser.next_string()?;

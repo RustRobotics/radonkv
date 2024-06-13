@@ -12,6 +12,7 @@ mod add;
 mod exists;
 mod len;
 mod multi_add;
+mod multi_exists;
 
 #[derive(Debug, Clone)]
 pub struct BloomFilterObject {
@@ -28,6 +29,9 @@ impl Mem {
             }
             BloomFilterCommand::Len(key) => len::len(&self.db, &key),
             BloomFilterCommand::Exists(key, item) => exists::exists(&self.db, &key, &item),
+            BloomFilterCommand::MultiExists(key, items) => {
+                multi_exists::multi_exists(&self.db, &key, &items)
+            }
         }
     }
 }

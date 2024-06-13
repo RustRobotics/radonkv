@@ -14,8 +14,8 @@ use crate::mem::db::{Db, MemObject};
 /// - Integer reply - where "1" means that the item has been added successfully,
 ///   and "0" means that such item was already added to the filter (which could be wrong)
 /// - [] on error (invalid arguments, wrong key type, etc.) and also when the filter is full
-
 pub fn add(db: &mut Db, key: String, item: &String) -> ReplyFrame {
+    // TODO(Shaohua): Replace `&String` with `&str` type.
     match db.entry(key) {
         Entry::Occupied(mut occupied) => match occupied.get_mut() {
             MemObject::BloomFilter(old_filter) => {
