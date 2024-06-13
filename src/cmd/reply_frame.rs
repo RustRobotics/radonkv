@@ -227,6 +227,12 @@ impl ReplyFrame {
     pub const fn out_of_range_err() -> Self {
         Self::ConstError(OUT_OF_RANGE_ERR)
     }
+
+    #[must_use]
+    #[inline]
+    pub const fn internal_err() -> Self {
+        Self::ConstError(INTERNAL_ERR)
+    }
 }
 
 pub const OK: &str = "Ok";
@@ -238,6 +244,7 @@ pub const WRONG_TYPE_ERR: &str =
     "WRONGTYPE Operation against a key holding the wrong kind of value";
 pub const ERR: &str = "ERR";
 pub const INVALID_COMMAND: &str = "ERR invalid command";
+pub const INTERNAL_ERR: &str = "ERR Unexpected server internal error";
 pub const NO_KEY_ERR: &str = "ERR no such key";
 pub const SYNTAX_ERR: &str = "ERR syntax error";
 pub const SAME_OBJECT_ERR: &str = "ERR source and destination objects are the same";

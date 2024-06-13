@@ -10,17 +10,19 @@ use crate::cmd::hyper::HyperLogLogCommand;
 use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::Mem;
 
+mod add;
 mod count;
 
-pub type HyperObject = HyperLogLogPlus<u64, RandomState>;
+pub type HyperObject = HyperLogLogPlus<String, RandomState>;
 
 impl Mem {
     #[allow(clippy::needless_pass_by_value)]
     pub fn handle_hyper_command(&mut self, command: HyperLogLogCommand) -> ReplyFrame {
         match command {
-            HyperLogLogCommand::Count(primary_key, extra_keys) => {
-                count::count(&mut self.db, &primary_key, &extra_keys)
+            HyperLogLogCommand::Count(key, extra_keys) => {
+                count::count(&mut self.db, &key, &extra_keys)
             }
+            HyperLogLogCommand::Add(key, elements) => add::add(&mut self.db, key, &elements),
         }
     }
 }
