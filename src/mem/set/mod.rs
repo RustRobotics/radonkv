@@ -2,20 +2,23 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
-use std::collections::HashSet;
+use std::collections::BTreeSet;
 
 use crate::cmd::reply_frame::ReplyFrame;
 use crate::cmd::set::SetCommand;
 use crate::mem::Mem;
 
 mod add;
+mod diff;
+mod intersect;
 mod is_member;
 mod len;
 mod members;
 mod random_member;
 mod remove;
+mod union;
 
-pub type SetObject = HashSet<Vec<u8>>;
+pub type SetObject = BTreeSet<Vec<u8>>;
 
 impl Mem {
     pub fn handle_set_command(&mut self, command: SetCommand) -> ReplyFrame {
@@ -28,6 +31,9 @@ impl Mem {
             SetCommand::RandomMember(key, count) => {
                 random_member::random_member(&self.db, &key, count)
             }
+            SetCommand::Intersect(keys) => intersect::intersect(&self.db, &keys),
+            SetCommand::Union(keys) => union::union(&self.db, &keys),
+            SetCommand::Diff(keys) => diff::diff(&self.db, &keys),
         }
     }
 }

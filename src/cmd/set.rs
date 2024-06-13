@@ -13,6 +13,9 @@ pub enum SetCommand {
     IsMember(String, Vec<u8>),
     RandomMember(String, Option<isize>),
     Remove(String, Vec<Vec<u8>>),
+    Intersect(Vec<String>),
+    Union(Vec<String>),
+    Diff(Vec<String>),
 }
 
 impl SetCommand {
@@ -48,6 +51,18 @@ impl SetCommand {
                 let key = parser.next_string()?;
                 let members = parser.remaining()?;
                 Self::Remove(key, members)
+            }
+            "sinter" => {
+                let keys = parser.remaining_strings()?;
+                Self::Intersect(keys)
+            }
+            "sunion" => {
+                let keys = parser.remaining_strings()?;
+                Self::Union(keys)
+            }
+            "sdiff" => {
+                let keys = parser.remaining_strings()?;
+                Self::Diff(keys)
             }
             _ => return Ok(None),
         };
