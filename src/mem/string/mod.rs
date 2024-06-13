@@ -18,7 +18,7 @@ mod set;
 mod set_range;
 mod sub_str;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct StrObject {
     pub(crate) vec: Vec<u8>,
 }

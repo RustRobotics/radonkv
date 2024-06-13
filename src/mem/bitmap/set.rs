@@ -32,7 +32,7 @@ pub fn set(db: &mut Db, key: String, offset: usize, value: bool) -> ReplyFrame {
             _ => ReplyFrame::wrong_type_err(),
         },
         Entry::Vacant(vacant) => {
-            let mut new_bitmap = StrObject::from_bits(offset + 1, false);
+            let mut new_bitmap = StrObject::from_bits(offset, false);
             new_bitmap.set_bit(offset, value);
             vacant.insert(MemObject::Str(new_bitmap));
             ReplyFrame::zero()

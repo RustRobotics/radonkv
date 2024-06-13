@@ -25,7 +25,7 @@ impl StrObject {
     #[inline]
     pub fn from_bits(offset: usize, value: bool) -> Self {
         let byte_len = Self::byte_len(offset);
-        let bit: u8 = value.into();
+        let bit: u8 = if value { 0xff } else { 0x00 };
         Self {
             vec: vec![bit; byte_len],
         }
@@ -46,7 +46,7 @@ impl StrObject {
     #[must_use]
     #[inline]
     pub fn get_bit(&self, offset: usize) -> Option<bool> {
-        if self.bit_len() > offset {
+        if self.bit_len() <= offset {
             None
         } else {
             let byte_index = offset / 8;
@@ -79,5 +79,37 @@ impl StrObject {
         if let Some(byte) = self.vec.get_mut(byte_index) {
             *byte = if value { *byte | flag } else { *byte & !flag };
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::mem::string::StrObject;
+
+    #[test]
+    fn test_byte_len() {
+        assert_eq!(StrObject::byte_len(1), 1);
+        assert_eq!(StrObject::byte_len(7), 1);
+        assert_eq!(StrObject::byte_len(8), 2);
+    }
+
+    #[test]
+    fn test_from_bits() {
+        let s = StrObject::from_bits(7, true);
+        assert_eq!(s.vec, vec![0xff]);
+    }
+
+    #[test]
+    fn test_get_bit() {
+        let mut s = StrObject::from_bits(7, false);
+        s.set_bit(7, true);
+        assert_eq!(s.get_bit(7), Some(true));
+    }
+
+    #[test]
+    fn test_set_bit() {
+        let mut s = StrObject::from_bits(7, false);
+        s.set_bit(7, true);
+        assert_eq!(s.vec, vec![0b1000_0000]);
     }
 }
