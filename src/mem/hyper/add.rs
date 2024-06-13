@@ -44,7 +44,7 @@ pub fn add(db: &mut Db, key: String, elements: &[String]) -> ReplyFrame {
             }
             _ => ReplyFrame::wrong_type_err(),
         },
-        Entry::Vacant(vacant) => match HyperLogLogPlus::new(16, RandomState::new()) {
+        Entry::Vacant(vacant) => match HyperLogLogPlus::new(18, RandomState::new()) {
             Ok(mut new_hyper) => {
                 for element in elements {
                     new_hyper.insert(element);
