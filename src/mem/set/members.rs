@@ -17,10 +17,7 @@ pub fn members(db: &Db, key: &str) -> ReplyFrame {
             // NOTE(Shaohua): Sort members.
             let mut vec: Vec<Vec<u8>> = old_set.iter().cloned().collect();
             vec.sort_unstable();
-            let vec: Vec<_> = vec
-                .into_iter()
-                .map(|member| ReplyFrame::bulk(member))
-                .collect();
+            let vec: Vec<_> = vec.into_iter().map(ReplyFrame::bulk).collect();
             ReplyFrame::Array(vec)
         }
         Some(_) => ReplyFrame::wrong_type_err(),

@@ -20,7 +20,7 @@ pub fn get(db: &Db, key: &str, offset: usize) -> ReplyFrame {
     match db.get(key) {
         Some(MemObject::Str(old_str)) => {
             let is_set = old_str.get_bit(offset).unwrap_or(false);
-            ReplyFrame::Usize(is_set as usize)
+            ReplyFrame::from_bool(is_set)
         }
         Some(_) => ReplyFrame::wrong_type_err(),
         None => ReplyFrame::zero(),

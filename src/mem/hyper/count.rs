@@ -48,7 +48,7 @@ pub fn count(db: &mut Db, key: &str, extra_keys: &[String]) -> ReplyFrame {
             }
 
             let merged_count: i64 = merged_hyper.count().trunc() as i64;
-            return ReplyFrame::I64(merged_count);
+            ReplyFrame::I64(merged_count)
         }
         Some(_) => ReplyFrame::wrong_type_err(),
         None => ReplyFrame::I64(0),

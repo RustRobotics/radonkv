@@ -15,7 +15,7 @@ pub fn is_member(db: &Db, key: &str, member: &[u8]) -> ReplyFrame {
     match db.get(key) {
         Some(MemObject::Set(old_set)) => {
             let present = old_set.contains(member);
-            ReplyFrame::Usize(if present { 1 } else { 0 })
+            ReplyFrame::from_bool(present)
         }
         Some(_) => ReplyFrame::wrong_type_err(),
         None => ReplyFrame::zero(),

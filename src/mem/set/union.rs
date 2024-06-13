@@ -21,10 +21,7 @@ pub fn union(db: &Db, keys: &[String]) -> ReplyFrame {
             None => continue,
         }
     }
-    let vec = new_set
-        .into_iter()
-        .map(|member| ReplyFrame::Bulk(member))
-        .collect();
+    let vec = new_set.into_iter().map(ReplyFrame::bulk).collect();
     ReplyFrame::Array(vec)
 }
 

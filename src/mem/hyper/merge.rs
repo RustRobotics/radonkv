@@ -32,10 +32,10 @@ pub(super) fn merge_hyper_objects(
     Ok(())
 }
 
-/// Merge multiple HyperLogLog values into a unique value that will approximate
+/// Merge multiple `HyperLogLog` values into a unique value that will approximate
 /// the cardinality of the union of the observed Sets of the source `HyperLogLog` structures.
 ///
-/// The computed merged HyperLogLog is set to the destination variable, which is created
+/// The computed merged `HyperLogLog` is set to the destination variable, which is created
 /// if it does not exist (defaulting to an empty `HyperLogLog`).
 ///
 /// If the destination variable exists, it is treated as one of the source sets and
@@ -55,7 +55,7 @@ pub fn merge(db: &mut Db, dest_key: String, source_keys: &[String]) -> ReplyFram
                 ReplyFrame::ok()
             }
         }
-        Some(_) => return ReplyFrame::wrong_type_err(),
+        Some(_) => ReplyFrame::wrong_type_err(),
         None => match new_hyper_object() {
             Ok(mut new_hyper) => {
                 if let Err(reply_frame) = merge_hyper_objects(db, &mut new_hyper, source_keys) {
@@ -69,7 +69,7 @@ pub fn merge(db: &mut Db, dest_key: String, source_keys: &[String]) -> ReplyFram
                     "{}, Failed to create new hyper object, err: {err:?}",
                     function_name!()
                 );
-                return ReplyFrame::internal_err();
+                ReplyFrame::internal_err()
             }
         },
     }

@@ -42,7 +42,7 @@ impl StrObject {
 
     #[must_use]
     #[inline]
-    fn byte_len(bit_offset: usize) -> usize {
+    const fn byte_len(bit_offset: usize) -> usize {
         (bit_offset + 1).div_ceil(8)
     }
 

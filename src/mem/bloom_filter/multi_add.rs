@@ -21,8 +21,8 @@ pub fn multi_add(db: &mut Db, key: String, items: &[String]) -> ReplyFrame {
             MemObject::BloomFilter(old_filter) => {
                 let mut vec = Vec::new();
                 for item in items {
-                    let is_set = old_filter.check_and_set(item);
-                    vec.push(ReplyFrame::Usize(if is_set { 0 } else { 1 }));
+                    let already_set = old_filter.check_and_set(item);
+                    vec.push(ReplyFrame::from_bool(!already_set));
                 }
                 ReplyFrame::Array(vec)
             }
@@ -32,8 +32,8 @@ pub fn multi_add(db: &mut Db, key: String, items: &[String]) -> ReplyFrame {
             let mut new_filter = BloomFilterObject::new();
             let mut vec = Vec::new();
             for item in items {
-                let is_set = new_filter.check_and_set(item);
-                vec.push(ReplyFrame::Usize(if is_set { 0 } else { 1 }));
+                let already_set = new_filter.check_and_set(item);
+                vec.push(ReplyFrame::from_bool(!already_set));
             }
             vacant.insert(MemObject::BloomFilter(new_filter));
             ReplyFrame::Array(vec)
