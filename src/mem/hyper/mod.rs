@@ -4,7 +4,7 @@
 
 use std::hash::RandomState;
 
-use hyperloglogplus::HyperLogLogPlus;
+use hyperloglogplus::{HyperLogLogError, HyperLogLogPlus};
 
 use crate::cmd::hyper::HyperLogLogCommand;
 use crate::cmd::reply_frame::ReplyFrame;
@@ -12,15 +12,24 @@ use crate::mem::Mem;
 
 mod add;
 mod count;
+mod merge;
 
 pub type HyperObject = HyperLogLogPlus<String, RandomState>;
+
+#[inline]
+fn new_hyper_object() -> Result<HyperObject, HyperLogLogError> {
+    HyperLogLogPlus::new(18, RandomState::new())
+}
 
 impl Mem {
     #[allow(clippy::needless_pass_by_value)]
     pub fn handle_hyper_command(&mut self, command: HyperLogLogCommand) -> ReplyFrame {
         match command {
-            HyperLogLogCommand::Count(keys) => count::count(&mut self.db, &keys[0], &keys[1..]),
             HyperLogLogCommand::Add(key, elements) => add::add(&mut self.db, key, &elements),
+            HyperLogLogCommand::Count(keys) => count::count(&mut self.db, &keys[0], &keys[1..]),
+            HyperLogLogCommand::Merge(dest_key, source_keys) => {
+                merge::merge(&mut self.db, dest_key, &source_keys)
+            }
         }
     }
 }

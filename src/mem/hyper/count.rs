@@ -3,10 +3,10 @@
 // that can be found in the LICENSE file.
 
 use hyperloglogplus::HyperLogLog;
-use stdext::function_name;
 
 use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::db::{Db, MemObject};
+use crate::mem::hyper::merge::merge_hyper_objects;
 
 /// When called with a single key, returns the approximated cardinality
 /// computed by the `HyperLogLog` data structure stored at the specified variable,
@@ -42,22 +42,9 @@ pub fn count(db: &mut Db, key: &str, extra_keys: &[String]) -> ReplyFrame {
                 return ReplyFrame::I64(count);
             }
 
-            // FIXME(Shaohua): merge() does not work as expected.
             let mut merged_hyper = old_hyper.clone();
-            for extra_key in extra_keys {
-                match db.get_mut(extra_key) {
-                    Some(MemObject::Hyper(extra_hyper)) => {
-                        if let Err(err) = merged_hyper.merge(extra_hyper) {
-                            log::warn!(
-                                "{} Failed to merge hyper logs, err: {err:?}",
-                                function_name!()
-                            );
-                            return ReplyFrame::internal_err();
-                        }
-                    }
-                    Some(_) => return ReplyFrame::wrong_type_err(),
-                    None => continue,
-                }
+            if let Err(reply_frame) = merge_hyper_objects(db, &mut merged_hyper, extra_keys) {
+                return reply_frame;
             }
 
             let merged_count: i64 = merged_hyper.count().trunc() as i64;
@@ -87,15 +74,11 @@ mod tests {
         assert_eq!(reply, ReplyFrame::I64(1));
         let reply = add(
             &mut db,
-            key.to_owned(),
+            key.clone(),
             &["zap".to_owned(), "zap".to_owned(), "zap".to_owned()],
         );
         assert_eq!(reply, ReplyFrame::I64(0));
-        let reply = add(
-            &mut db,
-            key.to_owned(),
-            &["foo".to_owned(), "bar".to_owned()],
-        );
+        let reply = add(&mut db, key.clone(), &["foo".to_owned(), "bar".to_owned()]);
         assert_eq!(reply, ReplyFrame::I64(0));
         let reply = count(&mut db, &key, &[]);
         assert_eq!(reply, ReplyFrame::I64(3));
@@ -103,7 +86,7 @@ mod tests {
         let other_key = "some-other-hll".to_owned();
         let reply = add(
             &mut db,
-            other_key.to_owned(),
+            other_key.clone(),
             &[
                 "1".to_owned(),
                 "2".to_owned(),

@@ -9,6 +9,7 @@ use crate::cmd::parse::{ParseCommandError, Parser};
 pub enum HyperLogLogCommand {
     Add(String, Vec<String>),
     Count(Vec<String>),
+    Merge(String, Vec<String>),
 }
 
 impl HyperLogLogCommand {
@@ -25,6 +26,11 @@ impl HyperLogLogCommand {
             "pfcount" => {
                 let keys = parser.remaining_strings()?;
                 Self::Count(keys)
+            }
+            "pfmerge" => {
+                let dest_key = parser.next_string()?;
+                let source_keys = parser.remaining_strings()?;
+                Self::Merge(dest_key, source_keys)
             }
             _ => return Ok(None),
         };

@@ -3,13 +3,13 @@
 // that can be found in the LICENSE file.
 
 use std::collections::hash_map::Entry;
-use std::hash::RandomState;
 
-use hyperloglogplus::{HyperLogLog, HyperLogLogPlus};
+use hyperloglogplus::HyperLogLog;
 use stdext::function_name;
 
 use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::db::{Db, MemObject};
+use crate::mem::hyper::new_hyper_object;
 
 /// Adds all the element arguments to the `HyperLogLog` data structure stored
 /// at the variable name specified as first argument.
@@ -44,7 +44,7 @@ pub fn add(db: &mut Db, key: String, elements: &[String]) -> ReplyFrame {
             }
             _ => ReplyFrame::wrong_type_err(),
         },
-        Entry::Vacant(vacant) => match HyperLogLogPlus::new(18, RandomState::new()) {
+        Entry::Vacant(vacant) => match new_hyper_object() {
             Ok(mut new_hyper) => {
                 for element in elements {
                     new_hyper.insert(element);
