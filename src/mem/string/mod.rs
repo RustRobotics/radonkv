@@ -14,7 +14,7 @@ mod get_del;
 mod get_range;
 mod get_set;
 mod len;
-mod set;
+pub mod set;
 mod set_range;
 mod sub_str;
 

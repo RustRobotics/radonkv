@@ -6,7 +6,9 @@ use crate::cmd::bitmap::BitmapCommand;
 use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::Mem;
 use crate::mem::string::StrObject;
+use crate::mem::util::prune_range;
 
+mod count;
 mod get;
 mod set;
 
@@ -16,6 +18,7 @@ impl Mem {
         match command {
             BitmapCommand::Get(key, offset) => get::get(&self.db, &key, offset),
             BitmapCommand::Set(key, offset, value) => set::set(&mut self.db, key, offset, value),
+            BitmapCommand::Count(key, range) => count::count(&self.db, &key, range),
         }
     }
 }
@@ -79,6 +82,21 @@ impl StrObject {
         if let Some(byte) = self.vec.get_mut(byte_index) {
             *byte = if value { *byte | flag } else { *byte & !flag };
         }
+    }
+
+    #[must_use]
+    pub fn count_bits(&self, range: Option<(isize, isize)>, _based_on_byte: bool) -> usize {
+        // TODO(Shaohua): Support index by bits
+        let slice = if let Some(range) = range {
+            if let Some((start, end)) = prune_range(self.len(), range.0, range.1) {
+                &self.vec[start..=end]
+            } else {
+                &self.vec[0..0]
+            }
+        } else {
+            &self.vec[..]
+        };
+        slice.iter().map(|byte| byte.count_ones() as usize).sum()
     }
 }
 

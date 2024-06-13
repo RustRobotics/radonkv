@@ -154,23 +154,31 @@ impl Parser {
         }
     }
 
-    pub fn next_isize(&mut self) -> Result<isize, ParseCommandError> {
-        match self.next()? {
-            Frame::Simple(s) => Ok(s.parse::<isize>()?),
-            Frame::Bulk(bytes) => {
+    pub fn try_next_isize(&mut self) -> Result<Option<isize>, ParseCommandError> {
+        match self.iter.next() {
+            Some(Frame::Simple(s)) => Ok(Some(s.parse::<isize>()?)),
+            Some(Frame::Bulk(bytes)) => {
                 let s = std::str::from_utf8(&bytes[..]).map_err(|err| {
                     log::warn!("Failed to parse string, got err: {err:?}");
                     ParseCommandError::InvalidParameter
                 })?;
-                Ok(s.parse::<isize>()?)
+                Ok(Some(s.parse::<isize>()?))
             }
-            frame => {
+            Some(frame) => {
                 log::warn!("Protocol error, expected simple or bulk frame, got: {frame:?}");
                 Err(ParseCommandError::ProtocolError)
             }
+            None => Ok(None),
         }
     }
 
+    #[inline]
+    pub fn next_isize(&mut self) -> Result<isize, ParseCommandError> {
+        self.try_next_isize()?
+            .ok_or(ParseCommandError::InvalidParameter)
+    }
+
+    #[inline]
     pub fn next_usize(&mut self) -> Result<usize, ParseCommandError> {
         self.try_next_usize()?
             .ok_or(ParseCommandError::InvalidParameter)

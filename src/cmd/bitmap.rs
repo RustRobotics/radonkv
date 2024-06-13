@@ -9,6 +9,7 @@ use crate::cmd::parse::{ParseCommandError, Parser};
 pub enum BitmapCommand {
     Get(String, usize),
     Set(String, usize, bool),
+    Count(String, Option<(isize, isize)>),
 }
 
 impl BitmapCommand {
@@ -27,6 +28,16 @@ impl BitmapCommand {
                 let offset = parser.next_usize()?;
                 let value = parser.next_i32()? != 0;
                 Self::Set(key, offset, value)
+            }
+            "bitcount" => {
+                let key = parser.next_string()?;
+                let start = parser.try_next_isize()?;
+                let end = parser.try_next_isize()?;
+                match (start, end) {
+                    (Some(start), Some(end)) => Self::Count(key, Some((start, end))),
+                    (None, None) => Self::Count(key, None),
+                    _ => return Err(ParseCommandError::InvalidParameter),
+                }
             }
             _ => return Ok(None),
         };
