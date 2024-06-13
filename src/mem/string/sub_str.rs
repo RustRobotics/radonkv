@@ -4,7 +4,6 @@
 
 use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::db::{Db, MemObject};
-use crate::mem::string::StrObject;
 use crate::mem::util::prune_range;
 
 /// Returns the substring of the string value stored at key,
@@ -16,14 +15,11 @@ use crate::mem::util::prune_range;
 /// The function handles out of range requests by limiting the resulting range to the actual length of the string.
 pub fn sub_str(db: &Db, key: &str, start: isize, end: isize) -> ReplyFrame {
     match db.get(key) {
-        Some(MemObject::Str(value)) => match value {
-            StrObject::Integer(_) => todo!(),
-            StrObject::Vec(vec) => {
-                if let Some((start, end)) = prune_range(vec.len(), start, end) {
-                    ReplyFrame::Bulk(vec[start..=end].to_vec())
-                } else {
-                    ReplyFrame::EmptyBulk
-                }
+        Some(MemObject::Str(old_str)) => {
+            if let Some((start, end)) = prune_range(old_str.len(), start, end) {
+                ReplyFrame::Bulk(old_str.vec[start..=end].to_vec())
+            } else {
+                ReplyFrame::EmptyBulk
             }
         }
         Some(_other) => ReplyFrame::wrong_type_err(),

@@ -5,8 +5,8 @@
 use std::collections::hash_map::Entry;
 
 use crate::cmd::reply_frame::ReplyFrame;
-use crate::mem::bitmap::BitmapObject;
 use crate::mem::db::{Db, MemObject};
+use crate::mem::string::StrObject;
 
 /// Sets or clears the bit at offset in the string value stored at key.
 ///
@@ -23,20 +23,18 @@ use crate::mem::db::{Db, MemObject};
 pub fn set(db: &mut Db, key: String, offset: usize, value: bool) -> ReplyFrame {
     match db.entry(key) {
         Entry::Occupied(mut occupied) => match occupied.get_mut() {
-            MemObject::Bitmap(old_bitmap) => {
-                if old_bitmap.len() + 1 < offset {
-                    old_bitmap.grow(offset - old_bitmap.len() + 1, false);
-                }
-                let old_value = old_bitmap[offset];
-                old_bitmap.set(offset, value);
+            MemObject::Str(old_bitmap) => {
+                old_bitmap.grow_to_fit_bits(offset, false);
+                let old_value = old_bitmap.get_bit(offset).unwrap_or(false);
+                old_bitmap.set_bit(offset, value);
                 ReplyFrame::Usize(old_value.into())
             }
             _ => ReplyFrame::wrong_type_err(),
         },
         Entry::Vacant(vacant) => {
-            let mut new_bitmap = BitmapObject::from_elem(offset + 1, false);
-            new_bitmap.set(offset, value);
-            vacant.insert(MemObject::Bitmap(new_bitmap));
+            let mut new_bitmap = StrObject::from_bits(offset + 1, false);
+            new_bitmap.set_bit(offset, value);
+            vacant.insert(MemObject::Str(new_bitmap));
             ReplyFrame::zero()
         }
     }

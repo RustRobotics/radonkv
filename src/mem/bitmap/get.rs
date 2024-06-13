@@ -18,8 +18,8 @@ use crate::mem::db::{Db, MemObject};
 /// - Integer reply: 1.
 pub fn get(db: &Db, key: &str, offset: usize) -> ReplyFrame {
     match db.get(key) {
-        Some(MemObject::Bitmap(old_bitmap)) => {
-            let is_set = old_bitmap.get(offset).unwrap_or(false);
+        Some(MemObject::Str(old_str)) => {
+            let is_set = old_str.get_bit(offset).unwrap_or(false);
             ReplyFrame::Usize(is_set as usize)
         }
         Some(_) => ReplyFrame::wrong_type_err(),

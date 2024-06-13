@@ -6,8 +6,7 @@ use std::collections::HashMap;
 
 use crate::cmd::Command;
 use crate::cmd::reply_frame::ReplyFrame;
-use crate::mem::{bitmap, hash, list, Mem};
-use crate::mem::bitmap::BitmapObject;
+use crate::mem::{hash, list, Mem};
 use crate::mem::hash::HashObject;
 use crate::mem::hyper;
 use crate::mem::hyper::HyperObject;
@@ -21,7 +20,6 @@ pub enum MemObject {
     Str(StrObject),
     List(ListObject),
     Hash(HashObject),
-    Bitmap(BitmapObject),
     Hyper(HyperObject),
 }
 
@@ -45,7 +43,6 @@ impl MemObject {
             Self::Str(s) => s.to_bulk(),
             Self::List(list_obj) => list::to_reply_frame(list_obj),
             Self::Hash(hash_obj) => hash::to_reply_frame(hash_obj),
-            Self::Bitmap(bitmap_obj) => bitmap::to_reply_frame(bitmap_obj),
             Self::Hyper(hyper_obj) => hyper::to_reply_frame(hyper_obj),
         }
     }

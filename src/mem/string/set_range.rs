@@ -27,10 +27,7 @@ pub fn set_range(db: &mut Db, key: String, offset: isize, value: Vec<u8>) -> Rep
 
     if let Some(old_value) = db.get_mut(&key) {
         let old_value = match old_value {
-            MemObject::Str(s) => match s {
-                StrObject::Integer(_int) => todo!(),
-                StrObject::Vec(vec) => vec,
-            },
+            MemObject::Str(s) => &mut s.vec,
             _ => return ReplyFrame::wrong_type_err(),
         };
         if value.is_empty() {
