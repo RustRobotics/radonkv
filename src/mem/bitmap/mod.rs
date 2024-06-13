@@ -8,6 +8,7 @@ use crate::cmd::bitmap::BitmapCommand;
 use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::Mem;
 
+mod from_bytes;
 mod get;
 mod set;
 
@@ -20,6 +21,9 @@ impl Mem {
         match command {
             BitmapCommand::Get(key, offset) => get::get(&self.db, &key, offset),
             BitmapCommand::Set(key, offset, value) => set::set(&mut self.db, key, offset, value),
+            BitmapCommand::FromBytes(key, value) => {
+                from_bytes::from_bytes(&mut self.db, key, &value)
+            }
         }
     }
 }

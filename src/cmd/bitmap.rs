@@ -9,6 +9,7 @@ use crate::cmd::parse::{ParseCommandError, Parser};
 pub enum BitmapCommand {
     Get(String, usize),
     Set(String, usize, bool),
+    FromBytes(String, Vec<u8>),
 }
 
 impl BitmapCommand {
@@ -27,6 +28,11 @@ impl BitmapCommand {
                 let offset = parser.next_usize()?;
                 let value = parser.next_i32()? != 0;
                 Self::Set(key, offset, value)
+            }
+            "bitfromstr" => {
+                let key = parser.next_string()?;
+                let value = parser.next_bytes()?;
+                Self::FromBytes(key, value)
             }
             _ => return Ok(None),
         };
