@@ -171,6 +171,11 @@ impl Parser {
         }
     }
 
+    pub fn next_usize(&mut self) -> Result<usize, ParseCommandError> {
+        self.try_next_usize()?
+            .ok_or(ParseCommandError::InvalidParameter)
+    }
+
     pub fn try_next_usize(&mut self) -> Result<Option<usize>, ParseCommandError> {
         match self.iter.next() {
             None => Ok(None),

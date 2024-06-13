@@ -2,6 +2,7 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
+use crate::cmd::bitmap::BitmapCommand;
 use crate::cmd::conn::ConnectManagementCommand;
 use crate::cmd::frame::Frame;
 use crate::cmd::generic::GenericCommand;
@@ -11,6 +12,7 @@ use crate::cmd::list::ListCommand;
 use crate::cmd::parse::{ParseCommandError, Parser};
 use crate::cmd::string::StringCommand;
 
+pub mod bitmap;
 pub mod conn;
 pub mod frame;
 pub mod generic;
@@ -26,6 +28,7 @@ pub enum Command {
     Str(StringCommand),
     List(ListCommand),
     Hash(HashCommand),
+    Bitmap(BitmapCommand),
     HyperLogLog(HyperLogLogCommand),
     Generic(GenericCommand),
     ConnManagement(ConnectManagementCommand),
@@ -50,6 +53,7 @@ impl Command {
             | Self::List(_)
             | Self::Generic(_)
             | Self::Hash(_)
+            | Self::Bitmap(_)
             | Self::HyperLogLog(_) => CommandCategory::Mem,
             Self::ConnManagement(_) => CommandCategory::Session,
         }
@@ -83,6 +87,9 @@ impl TryFrom<Frame> for Command {
         }
         if command.is_none() {
             command = HashCommand::parse(&cmd_name, &mut parser)?;
+        }
+        if command.is_none() {
+            command = BitmapCommand::parse(&cmd_name, &mut parser)?;
         }
         if command.is_none() {
             command = HyperLogLogCommand::parse(&cmd_name, &mut parser)?;
