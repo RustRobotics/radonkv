@@ -19,6 +19,8 @@ pub fn get_type(db: &Db, key: &str) -> ReplyFrame {
         Some(MemObject::Str(_)) => "string",
         Some(MemObject::List(_)) => "list",
         Some(MemObject::Hash(_)) => "hash",
+        // TODO(Shaohua): Returns "string" instead of "hyper"
+        Some(MemObject::Hyper(_)) => "hyper",
         None => "none",
     };
     ReplyFrame::ConstStatus(obj_type)

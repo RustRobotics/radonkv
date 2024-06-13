@@ -8,6 +8,8 @@ use crate::cmd::Command;
 use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::{hash, list, Mem};
 use crate::mem::hash::HashObject;
+use crate::mem::hyper_log_log;
+use crate::mem::hyper_log_log::HyperLogLogObject;
 use crate::mem::list::ListObject;
 use crate::mem::string::StrObject;
 
@@ -18,6 +20,7 @@ pub enum MemObject {
     Str(StrObject),
     List(ListObject),
     Hash(HashObject),
+    Hyper(HyperLogLogObject),
 }
 
 impl Mem {
@@ -26,6 +29,7 @@ impl Mem {
             Command::Str(command) => self.handle_string_command(command),
             Command::List(command) => self.handle_list_command(command),
             Command::Hash(command) => self.handle_hash_command(command),
+            Command::HyperLogLog(command) => self.handle_hyper_log_log_command(command),
             Command::Generic(command) => self.handle_generic_command(command),
             Command::ConnManagement(_) => unreachable!(),
         }
@@ -38,6 +42,7 @@ impl MemObject {
             Self::Str(s) => s.to_bulk(),
             Self::List(list_obj) => list::to_reply_frame(list_obj),
             Self::Hash(hash_obj) => hash::to_reply_frame(hash_obj),
+            Self::Hyper(hyper_obj) => hyper_log_log::to_reply_frame(hyper_obj),
         }
     }
 }

@@ -19,7 +19,7 @@ mod dispatcher;
 mod generic;
 mod geo;
 mod hash;
-mod hyperloglog;
+mod hyper_log_log;
 mod json;
 mod list;
 mod pub_sub;

@@ -7,13 +7,7 @@ use std::vec::IntoIter;
 
 use stdext::function_name;
 
-use crate::cmd::Command;
-use crate::cmd::conn::ConnectManagementCommand;
 use crate::cmd::frame::Frame;
-use crate::cmd::generic::GenericCommand;
-use crate::cmd::hash::HashCommand;
-use crate::cmd::list::ListCommand;
-use crate::cmd::string::StringCommand;
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub enum ParseCommandError {
@@ -36,48 +30,17 @@ impl From<ParseFloatError> for ParseCommandError {
     }
 }
 
-impl TryFrom<Frame> for Command {
-    type Error = ParseCommandError;
-
-    fn try_from(frame: Frame) -> Result<Self, Self::Error> {
-        let arr: Vec<Frame> = match frame {
-            Frame::Array(arr) => arr,
-            frame => {
-                log::warn!("Invalid frame, expected array, got: {frame:?}");
-                return Err(ParseCommandError::ProtocolError);
-            }
-        };
-
-        let mut parser = Parser {
-            iter: arr.into_iter(),
-        };
-        let cmd_name = parser.next_string()?.to_ascii_lowercase();
-        // TODO(Shaohua): Add a command hash map.
-        let mut command: Option<Self> = StringCommand::parse(&cmd_name, &mut parser)?;
-        if command.is_none() {
-            command = ListCommand::parse(&cmd_name, &mut parser)?;
-        }
-        if command.is_none() {
-            command = HashCommand::parse(&cmd_name, &mut parser)?;
-        }
-        if command.is_none() {
-            command = GenericCommand::parse(&cmd_name, &mut parser)?;
-        }
-        if command.is_none() {
-            command = ConnectManagementCommand::parse(&cmd_name, &mut parser)?;
-        }
-        if command.is_none() {
-            log::warn!("Command not found: {cmd_name}");
-        }
-        command.ok_or(ParseCommandError::CommandNotFound)
-    }
-}
-
 pub struct Parser {
     iter: IntoIter<Frame>,
 }
 
 impl Parser {
+    #[must_use]
+    #[inline]
+    pub fn new(iter: IntoIter<Frame>) -> Self {
+        Self { iter }
+    }
+
     pub fn next(&mut self) -> Result<Frame, ParseCommandError> {
         self.iter.next().ok_or(ParseCommandError::InvalidParameter)
     }
