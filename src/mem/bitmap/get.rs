@@ -31,13 +31,14 @@ pub fn get(db: &Db, key: &str, offset: usize) -> ReplyFrame {
 mod tests {
     use crate::cmd::reply_frame::ReplyFrame;
     use crate::mem::bitmap::get::get;
+    use crate::mem::bitmap::set::set;
     use crate::mem::db::Db;
 
     #[test]
     fn test_get() {
         let mut db = Db::new();
         let key = "mykey".to_owned();
-        let reply = set(&mut db, key.clone(), 7, 1);
+        let reply = set(&mut db, key.clone(), 7, true);
         assert_eq!(reply, ReplyFrame::zero());
         let reply = get(&mut db, &key, 0);
         assert_eq!(reply, ReplyFrame::zero());

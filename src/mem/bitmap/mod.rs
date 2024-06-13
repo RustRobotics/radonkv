@@ -9,7 +9,9 @@ use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::Mem;
 
 mod get;
+mod set;
 
+// TODO(Shaohua): Convert Vec<u8> as BitVec.
 pub type BitmapObject = BitVec;
 
 impl Mem {
@@ -17,6 +19,7 @@ impl Mem {
     pub fn handle_bitmap_command(&mut self, command: BitmapCommand) -> ReplyFrame {
         match command {
             BitmapCommand::Get(key, offset) => get::get(&self.db, &key, offset),
+            BitmapCommand::Set(key, offset, value) => set::set(&mut self.db, key, offset, value),
         }
     }
 }
