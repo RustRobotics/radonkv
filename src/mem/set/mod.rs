@@ -9,6 +9,7 @@ use crate::cmd::set::SetCommand;
 use crate::mem::Mem;
 
 mod add;
+mod is_member;
 mod len;
 mod members;
 
@@ -20,6 +21,7 @@ impl Mem {
             SetCommand::Add(key, members) => add::add(&mut self.db, key, members),
             SetCommand::Len(key) => len::len(&self.db, &key),
             SetCommand::Members(key) => members::members(&self.db, &key),
+            SetCommand::IsMember(key, member) => is_member::is_member(&self.db, &key, &member),
         }
     }
 }

@@ -10,6 +10,7 @@ pub enum SetCommand {
     Add(String, Vec<Vec<u8>>),
     Len(String),
     Members(String),
+    IsMember(String, Vec<u8>),
 }
 
 impl SetCommand {
@@ -30,6 +31,11 @@ impl SetCommand {
             "smembers" => {
                 let key = parser.next_string()?;
                 Self::Members(key)
+            }
+            "SISMEMBER" => {
+                let key = parser.next_string()?;
+                let member = parser.next_bytes()?;
+                Self::IsMember(key, member)
             }
             _ => return Ok(None),
         };
