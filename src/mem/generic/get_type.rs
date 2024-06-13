@@ -16,12 +16,17 @@ use crate::mem::db::{Db, MemObject};
 /// - stream
 pub fn get_type(db: &Db, key: &str) -> ReplyFrame {
     let obj_type = match db.get(key) {
+        // Core objects
         Some(MemObject::Str(_)) => "string",
         Some(MemObject::List(_)) => "list",
         Some(MemObject::Hash(_)) => "hash",
         Some(MemObject::Set(_)) => "set",
         // TODO(Shaohua): Returns "string" instead of "hyper"
         Some(MemObject::Hyper(_)) => "hyper",
+
+        // Stack objects
+        Some(MemObject::BloomFilter(_)) => "bloom",
+
         None => "none",
     };
     ReplyFrame::ConstStatus(obj_type)

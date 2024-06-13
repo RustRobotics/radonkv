@@ -24,6 +24,7 @@ publish = false
 [dependencies]
 atoi = "2.0.0"
 bit-vec = "0.6.3"
+bloomfilter = "1.0.13"
 bytes = "1.6.0"
 clap = { version = "4.5.4", features = ["derive"] }
 hyperloglogplus = "0.4.1"

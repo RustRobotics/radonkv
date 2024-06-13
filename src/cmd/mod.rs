@@ -3,6 +3,7 @@
 // that can be found in the LICENSE file.
 
 use crate::cmd::bitmap::BitmapCommand;
+use crate::cmd::bloom_filter::BloomFilterCommand;
 use crate::cmd::conn::ConnectManagementCommand;
 use crate::cmd::frame::Frame;
 use crate::cmd::generic::GenericCommand;
@@ -14,6 +15,7 @@ use crate::cmd::set::SetCommand;
 use crate::cmd::string::StringCommand;
 
 pub mod bitmap;
+pub mod bloom_filter;
 pub mod conn;
 pub mod frame;
 pub mod generic;
@@ -27,6 +29,7 @@ pub mod string;
 
 #[derive(Debug, Clone)]
 pub enum Command {
+    // Core commands
     Str(StringCommand),
     List(ListCommand),
     Hash(HashCommand),
@@ -35,6 +38,8 @@ pub enum Command {
     HyperLogLog(HyperLogLogCommand),
     Generic(GenericCommand),
     ConnManagement(ConnectManagementCommand),
+    // Stack commands
+    BloomFilter(BloomFilterCommand),
 }
 
 #[derive(Debug, Default, Clone, Copy, Eq, PartialEq)]
@@ -58,7 +63,8 @@ impl Command {
             | Self::Set(_)
             | Self::Generic(_)
             | Self::Bitmap(_)
-            | Self::HyperLogLog(_) => CommandCategory::Mem,
+            | Self::HyperLogLog(_)
+            | Self::BloomFilter(_) => CommandCategory::Mem,
             Self::ConnManagement(_) => CommandCategory::Session,
         }
     }
@@ -107,6 +113,12 @@ impl TryFrom<Frame> for Command {
         if command.is_none() {
             command = ConnectManagementCommand::parse(&cmd_name, &mut parser)?;
         }
+
+        // Parse stack commands.
+        if command.is_none() {
+            command = BloomFilterCommand::parse(&cmd_name, &mut parser)?;
+        }
+
         if command.is_none() {
             log::warn!("Command not found: {cmd_name}");
         }
