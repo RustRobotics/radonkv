@@ -50,7 +50,7 @@ pub fn add(db: &mut Db, key: String, elements: &[String]) -> ReplyFrame {
                     new_hyper.insert(element);
                 }
                 vacant.insert(MemObject::Hyper(new_hyper));
-                ReplyFrame::one()
+                ReplyFrame::I64(1)
             }
             Err(err) => {
                 log::warn!(
@@ -60,5 +60,35 @@ pub fn add(db: &mut Db, key: String, elements: &[String]) -> ReplyFrame {
                 ReplyFrame::internal_err()
             }
         },
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::cmd::reply_frame::ReplyFrame;
+    use crate::mem::db::Db;
+    use crate::mem::hyper::add::add;
+    use crate::mem::hyper::count::count;
+
+    #[test]
+    fn test_add() {
+        let mut db = Db::new();
+        let key = "hll".to_owned();
+        let reply = add(
+            &mut db,
+            key.to_owned(),
+            &[
+                "a".to_owned(),
+                "b".to_owned(),
+                "c".to_owned(),
+                "d".to_owned(),
+                "e".to_owned(),
+                "f".to_owned(),
+                "g".to_owned(),
+            ],
+        );
+        assert_eq!(reply, ReplyFrame::I64(1));
+        let reply = count(&mut db, &key, &[]);
+        assert_eq!(reply, ReplyFrame::I64(7));
     }
 }

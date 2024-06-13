@@ -19,9 +19,7 @@ impl Mem {
     #[allow(clippy::needless_pass_by_value)]
     pub fn handle_hyper_command(&mut self, command: HyperLogLogCommand) -> ReplyFrame {
         match command {
-            HyperLogLogCommand::Count(key, extra_keys) => {
-                count::count(&mut self.db, &key, &extra_keys)
-            }
+            HyperLogLogCommand::Count(keys) => count::count(&mut self.db, &keys[0], &keys[1..]),
             HyperLogLogCommand::Add(key, elements) => add::add(&mut self.db, key, &elements),
         }
     }

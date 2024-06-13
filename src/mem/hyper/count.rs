@@ -44,3 +44,48 @@ pub fn count(db: &mut Db, key: &str, _extra_keys: &[String]) -> ReplyFrame {
         None => ReplyFrame::no_such_key(),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::cmd::reply_frame::ReplyFrame;
+    use crate::mem::db::Db;
+    use crate::mem::hyper::add::add;
+    use crate::mem::hyper::count::count;
+
+    #[test]
+    fn test_add() {
+        let mut db = Db::new();
+        let key = "hll".to_owned();
+        let reply = add(
+            &mut db,
+            key.to_owned(),
+            &["foo".to_owned(), "bar".to_owned(), "zap".to_owned()],
+        );
+        assert_eq!(reply, ReplyFrame::I64(1));
+        let reply = add(
+            &mut db,
+            key.to_owned(),
+            &["zap".to_owned(), "zap".to_owned(), "zap".to_owned()],
+        );
+        assert_eq!(reply, ReplyFrame::I64(0));
+        let reply = add(
+            &mut db,
+            key.to_owned(),
+            &["foo".to_owned(), "bar".to_owned()],
+        );
+        assert_eq!(reply, ReplyFrame::I64(0));
+        let reply = count(&mut db, &key, &[]);
+        assert_eq!(reply, ReplyFrame::I64(3));
+
+        let other_key = "some-other-hll".to_owned();
+        let reply = add(
+            &mut db,
+            other_key.to_owned(),
+            &["1".to_owned(), "2".to_owned(), "3".to_owned()],
+        );
+        assert_eq!(reply, ReplyFrame::I64(1));
+
+        let reply = count(&mut db, &key, &[other_key]);
+        assert_eq!(reply, ReplyFrame::I64(6));
+    }
+}
