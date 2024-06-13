@@ -11,6 +11,7 @@ pub enum SetCommand {
     Len(String),
     Members(String),
     IsMember(String, Vec<u8>),
+    Remove(String, Vec<Vec<u8>>),
 }
 
 impl SetCommand {
@@ -32,10 +33,15 @@ impl SetCommand {
                 let key = parser.next_string()?;
                 Self::Members(key)
             }
-            "SISMEMBER" => {
+            "sismember" => {
                 let key = parser.next_string()?;
                 let member = parser.next_bytes()?;
                 Self::IsMember(key, member)
+            }
+            "srem" => {
+                let key = parser.next_string()?;
+                let members = parser.remaining()?;
+                Self::Remove(key, members)
             }
             _ => return Ok(None),
         };

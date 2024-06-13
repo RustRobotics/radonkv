@@ -12,6 +12,7 @@ mod add;
 mod is_member;
 mod len;
 mod members;
+mod remove;
 
 pub type SetObject = HashSet<Vec<u8>>;
 
@@ -22,6 +23,7 @@ impl Mem {
             SetCommand::Len(key) => len::len(&self.db, &key),
             SetCommand::Members(key) => members::members(&self.db, &key),
             SetCommand::IsMember(key, member) => is_member::is_member(&self.db, &key, &member),
+            SetCommand::Remove(key, members) => remove::remove(&mut self.db, &key, &members),
         }
     }
 }
