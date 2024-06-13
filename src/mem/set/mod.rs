@@ -12,6 +12,7 @@ mod add;
 mod is_member;
 mod len;
 mod members;
+mod random_member;
 mod remove;
 
 pub type SetObject = HashSet<Vec<u8>>;
@@ -24,6 +25,9 @@ impl Mem {
             SetCommand::Members(key) => members::members(&self.db, &key),
             SetCommand::IsMember(key, member) => is_member::is_member(&self.db, &key, &member),
             SetCommand::Remove(key, members) => remove::remove(&mut self.db, &key, &members),
+            SetCommand::RandomMember(key, count) => {
+                random_member::random_member(&self.db, &key, count)
+            }
         }
     }
 }

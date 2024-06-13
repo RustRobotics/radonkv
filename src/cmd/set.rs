@@ -11,6 +11,7 @@ pub enum SetCommand {
     Len(String),
     Members(String),
     IsMember(String, Vec<u8>),
+    RandomMember(String, Option<isize>),
     Remove(String, Vec<Vec<u8>>),
 }
 
@@ -37,6 +38,11 @@ impl SetCommand {
                 let key = parser.next_string()?;
                 let member = parser.next_bytes()?;
                 Self::IsMember(key, member)
+            }
+            "srandmember" => {
+                let key = parser.next_string()?;
+                let count = parser.try_next_isize()?;
+                Self::RandomMember(key, count)
             }
             "srem" => {
                 let key = parser.next_string()?;
