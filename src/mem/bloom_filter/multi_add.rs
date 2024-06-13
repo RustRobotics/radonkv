@@ -15,21 +15,28 @@ use crate::mem::db::{Db, MemObject};
 ///   and "0" means that such item was already added to the filter (which could be wrong)
 /// - [] on error (invalid arguments, wrong key type, etc.) and also when the filter is full
 
-pub fn add(db: &mut Db, key: String, item: &String) -> ReplyFrame {
+pub fn multi_add(db: &mut Db, key: String, items: &[String]) -> ReplyFrame {
     match db.entry(key) {
         Entry::Occupied(mut occupied) => match occupied.get_mut() {
             MemObject::BloomFilter(old_filter) => {
-                let already_set = old_filter.check_and_set(item);
-                ReplyFrame::from_bool(!already_set)
+                let mut vec = Vec::new();
+                for item in items {
+                    let is_set = old_filter.check_and_set(item);
+                    vec.push(ReplyFrame::Usize(if is_set { 0 } else { 1 }));
+                }
+                ReplyFrame::Array(vec)
             }
             _ => ReplyFrame::wrong_type_err(),
         },
         Entry::Vacant(vacant) => {
             let mut new_filter = BloomFilterObject::new();
-            let already_set = new_filter.check_and_set(item);
-            debug_assert!(!already_set);
+            let mut vec = Vec::new();
+            for item in items {
+                let is_set = new_filter.check_and_set(item);
+                vec.push(ReplyFrame::Usize(if is_set { 0 } else { 1 }));
+            }
             vacant.insert(MemObject::BloomFilter(new_filter));
-            ReplyFrame::one()
+            ReplyFrame::Array(vec)
         }
     }
 }
@@ -37,16 +44,25 @@ pub fn add(db: &mut Db, key: String, item: &String) -> ReplyFrame {
 #[cfg(test)]
 mod tests {
     use crate::cmd::reply_frame::ReplyFrame;
-    use crate::mem::bloom_filter::add::add;
+    use crate::mem::bloom_filter::multi_add::multi_add;
     use crate::mem::db::Db;
 
     #[test]
     fn test_add() {
         let mut db = Db::new();
         let key = "bf".to_owned();
-        let reply = add(&mut db, key.clone(), &"item1".to_owned());
-        assert_eq!(reply, ReplyFrame::one());
-        let reply = add(&mut db, key, &"item1".to_owned());
-        assert_eq!(reply, ReplyFrame::zero());
+        let reply = multi_add(
+            &mut db,
+            key,
+            &["item1".to_owned(), "item2".to_owned(), "item2".to_owned()],
+        );
+        assert_eq!(
+            reply,
+            ReplyFrame::Array(vec![
+                ReplyFrame::one(),
+                ReplyFrame::one(),
+                ReplyFrame::zero(),
+            ])
+        )
     }
 }

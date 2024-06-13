@@ -34,8 +34,8 @@ mod tests {
     fn test_len() {
         let mut db = Db::new();
         let key = "bf1".to_owned();
-        let reply = add(&mut db, key.clone(), &["item_foo".to_owned()]);
-        assert_eq!(reply, ReplyFrame::Array(vec![ReplyFrame::one()]));
+        let reply = add(&mut db, key.clone(), &"item_foo".to_owned());
+        assert_eq!(reply, ReplyFrame::one());
         let reply = len(&db, &key);
         assert_eq!(reply, ReplyFrame::one());
         let reply = len(&db, "bf-new");

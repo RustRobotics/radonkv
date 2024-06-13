@@ -11,6 +11,7 @@ use crate::mem::Mem;
 mod add;
 mod exists;
 mod len;
+mod multi_add;
 
 #[derive(Debug, Clone)]
 pub struct BloomFilterObject {
@@ -21,7 +22,10 @@ pub struct BloomFilterObject {
 impl Mem {
     pub fn handle_bloom_filter_command(&mut self, command: BloomFilterCommand) -> ReplyFrame {
         match command {
-            BloomFilterCommand::Add(key, items) => add::add(&mut self.db, key, &items),
+            BloomFilterCommand::Add(key, item) => add::add(&mut self.db, key, &item),
+            BloomFilterCommand::MultiAdd(key, items) => {
+                multi_add::multi_add(&mut self.db, key, &items)
+            }
             BloomFilterCommand::Len(key) => len::len(&self.db, &key),
             BloomFilterCommand::Exists(key, item) => exists::exists(&self.db, &key, &item),
         }

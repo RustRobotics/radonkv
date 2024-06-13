@@ -34,8 +34,8 @@ mod tests {
     fn test_exists() {
         let mut db = Db::new();
         let key = "bf1".to_owned();
-        let reply = add(&mut db, key.clone(), &["item1".to_owned()]);
-        assert_eq!(reply, ReplyFrame::Array(vec![ReplyFrame::one()]));
+        let reply = add(&mut db, key.clone(), &"item1".to_owned());
+        assert_eq!(reply, ReplyFrame::one());
         let reply = exists(&db, &key, &"item1".to_owned());
         assert_eq!(reply, ReplyFrame::one());
         let reply = exists(&db, &key, &"item2".to_owned());
