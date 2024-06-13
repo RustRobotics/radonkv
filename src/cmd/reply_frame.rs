@@ -182,6 +182,12 @@ impl ReplyFrame {
 
     #[must_use]
     #[inline]
+    pub const fn from_bool(is_set: bool) -> Self {
+        Self::Usize(if is_set { 1 } else { 0 })
+    }
+
+    #[must_use]
+    #[inline]
     pub const fn minus_one() -> Self {
         Self::I32(-1)
     }

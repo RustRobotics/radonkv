@@ -9,6 +9,7 @@ use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::Mem;
 
 mod add;
+mod exists;
 mod len;
 
 #[derive(Debug, Clone)]
@@ -22,21 +23,32 @@ impl Mem {
         match command {
             BloomFilterCommand::Add(key, items) => add::add(&mut self.db, key, &items),
             BloomFilterCommand::Len(key) => len::len(&self.db, &key),
+            BloomFilterCommand::Exists(key, item) => exists::exists(&self.db, &key, &item),
         }
     }
 }
 
 impl BloomFilterObject {
+    #[must_use]
+    #[inline]
     pub fn new() -> Self {
         // TODO(Shaohua): Check size of bloom filter.
         let bloom = Bloom::new(u32::MAX as usize, u32::MAX as usize / 2);
         Self { len: 0, bloom }
     }
 
+    #[must_use]
+    #[inline]
     pub fn check_and_set(&mut self, item: &String) -> bool {
         let is_set = self.bloom.check_and_set(item);
         self.len += 1;
         is_set
+    }
+
+    #[must_use]
+    #[inline]
+    pub fn check(&self, item: &String) -> bool {
+        self.bloom.check(item)
     }
 
     #[must_use]
