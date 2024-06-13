@@ -5,7 +5,7 @@
 use std::collections::hash_map::Entry;
 
 use crate::cmd::reply_frame::ReplyFrame;
-use crate::mem::bloom_filter::new_bloom_filter;
+use crate::mem::bloom_filter::BloomFilterObject;
 use crate::mem::db::{Db, MemObject};
 
 /// Adds one or more items to a Bloom filter.
@@ -29,7 +29,7 @@ pub fn add(db: &mut Db, key: String, items: &[String]) -> ReplyFrame {
             _ => ReplyFrame::wrong_type_err(),
         },
         Entry::Vacant(vacant) => {
-            let mut new_filter = new_bloom_filter();
+            let mut new_filter = BloomFilterObject::new();
             let mut vec = Vec::new();
             for item in items {
                 let is_set = new_filter.check_and_set(item);

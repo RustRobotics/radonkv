@@ -8,6 +8,7 @@ use crate::cmd::parse::{ParseCommandError, Parser};
 #[derive(Debug, Clone)]
 pub enum BloomFilterCommand {
     Add(String, Vec<String>),
+    Len(String),
 }
 
 impl BloomFilterCommand {
@@ -25,6 +26,10 @@ impl BloomFilterCommand {
                 let key = parser.next_string()?;
                 let items = parser.remaining_strings()?;
                 Self::Add(key, items)
+            }
+            "bf.card" => {
+                let key = parser.next_string()?;
+                Self::Len(key)
             }
             _ => return Ok(None),
         };
