@@ -10,6 +10,7 @@ use crate::cmd::hash::HashCommand;
 use crate::cmd::hyper::HyperLogLogCommand;
 use crate::cmd::list::ListCommand;
 use crate::cmd::parse::{ParseCommandError, Parser};
+use crate::cmd::set::SetCommand;
 use crate::cmd::string::StringCommand;
 
 pub mod bitmap;
@@ -21,6 +22,7 @@ pub mod hyper;
 pub mod list;
 mod parse;
 pub mod reply_frame;
+pub mod set;
 pub mod string;
 
 #[derive(Debug, Clone)]
@@ -28,6 +30,7 @@ pub enum Command {
     Str(StringCommand),
     List(ListCommand),
     Hash(HashCommand),
+    Set(SetCommand),
     Bitmap(BitmapCommand),
     HyperLogLog(HyperLogLogCommand),
     Generic(GenericCommand),
@@ -51,8 +54,9 @@ impl Command {
         match self {
             Self::Str(_)
             | Self::List(_)
-            | Self::Generic(_)
             | Self::Hash(_)
+            | Self::Set(_)
+            | Self::Generic(_)
             | Self::Bitmap(_)
             | Self::HyperLogLog(_) => CommandCategory::Mem,
             Self::ConnManagement(_) => CommandCategory::Session,
@@ -87,6 +91,9 @@ impl TryFrom<Frame> for Command {
         }
         if command.is_none() {
             command = HashCommand::parse(&cmd_name, &mut parser)?;
+        }
+        if command.is_none() {
+            command = SetCommand::parse(&cmd_name, &mut parser)?;
         }
         if command.is_none() {
             command = BitmapCommand::parse(&cmd_name, &mut parser)?;
