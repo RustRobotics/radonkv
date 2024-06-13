@@ -22,11 +22,11 @@ pub fn add(db: &mut Db, key: String, members: Vec<Vec<u8>>) -> ReplyFrame {
     match db.entry(key) {
         Entry::Occupied(mut occupied) => match occupied.get_mut() {
             MemObject::Set(old_set) => {
-                let mut count = 0;
+                let old_len = old_set.len();
                 for member in members {
-                    count += old_set.insert(member) as usize;
+                    old_set.insert(member);
                 }
-                ReplyFrame::Usize(count)
+                ReplyFrame::Usize(old_set.len() - old_len)
             }
             _ => ReplyFrame::wrong_type_err(),
         },

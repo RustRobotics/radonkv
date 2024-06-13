@@ -14,9 +14,12 @@ use crate::mem::db::{Db, MemObject};
 pub fn members(db: &Db, key: &str) -> ReplyFrame {
     match db.get(key) {
         Some(MemObject::Set(old_set)) => {
-            let vec: Vec<_> = old_set
-                .iter()
-                .map(|member| ReplyFrame::bulk(member.clone()))
+            // NOTE(Shaohua): Sort members.
+            let mut vec: Vec<Vec<u8>> = old_set.iter().cloned().collect();
+            vec.sort_unstable();
+            let vec: Vec<_> = vec
+                .into_iter()
+                .map(|member| ReplyFrame::bulk(member))
                 .collect();
             ReplyFrame::Array(vec)
         }
