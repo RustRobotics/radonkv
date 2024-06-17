@@ -15,6 +15,7 @@ pub enum StringCommand {
     MultiGet(Vec<String>),
     Set(String, Vec<u8>),
     SetRange(String, isize, Vec<u8>),
+    MultiSet(Vec<(String, Vec<u8>)>),
     StrLen(String),
     SubStr(String, isize, isize),
 }
@@ -63,6 +64,10 @@ impl StringCommand {
                 let offset = parser.next_isize()?;
                 let value = parser.next_bytes()?;
                 Self::SetRange(key, offset, value)
+            }
+            "mset" => {
+                let pairs = parser.remaining_pairs()?;
+                Self::MultiSet(pairs)
             }
             "strlen" => {
                 let key = parser.next_string()?;
