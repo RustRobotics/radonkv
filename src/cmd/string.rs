@@ -12,6 +12,7 @@ pub enum StringCommand {
     GetDel(String),
     GetRange(String, isize, isize),
     GetSet(String, Vec<u8>),
+    MultiGet(Vec<String>),
     Set(String, Vec<u8>),
     SetRange(String, isize, Vec<u8>),
     StrLen(String),
@@ -47,6 +48,10 @@ impl StringCommand {
                 let key = parser.next_string()?;
                 let value = parser.next_bytes()?;
                 Self::GetSet(key, value)
+            }
+            "MGET" => {
+                let keys = parser.remaining_strings()?;
+                Self::MultiGet(keys)
             }
             "set" => {
                 let key = parser.next_string()?;

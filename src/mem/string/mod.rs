@@ -14,6 +14,7 @@ pub mod get_del;
 pub mod get_range;
 pub mod get_set;
 pub mod len;
+mod multi_get;
 pub mod set;
 pub mod set_range;
 pub mod sub_str;
@@ -81,6 +82,7 @@ impl Mem {
                 get_range::get_range(&self.db, &key, start, end)
             }
             StringCommand::GetSet(key, value) => get_set::get_set(&mut self.db, key, value),
+            StringCommand::MultiGet(keys) => multi_get::multi_get(&self.db, &keys),
             StringCommand::Set(key, value) => set::set(&mut self.db, key, value),
             StringCommand::SetRange(key, offset, value) => {
                 set_range::set_range(&mut self.db, key, offset, value)
