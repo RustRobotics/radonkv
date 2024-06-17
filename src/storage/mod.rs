@@ -6,6 +6,7 @@ use tokio::sync::mpsc::{Receiver, Sender};
 
 use crate::commands::{DispatcherToStorageCmd, StorageToDispatcherCmd};
 
+mod commands;
 mod dispatcher;
 mod run;
 

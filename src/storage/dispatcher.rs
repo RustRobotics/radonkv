@@ -2,10 +2,10 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
-use stdext::function_name;
-
-use crate::commands::DispatcherToStorageCmd;
+use crate::cmd::storage_mgmt::StorageManagementCommand;
+use crate::commands::{DispatcherToStorageCmd, StorageToDispatcherCmd};
 use crate::error::Error;
+use crate::storage::commands::save;
 use crate::storage::Storage;
 
 impl Storage {
@@ -14,7 +14,17 @@ impl Storage {
         &mut self,
         cmd: DispatcherToStorageCmd,
     ) -> Result<(), Error> {
-        log::debug!("{} cmd: {cmd:?}", function_name!());
+        let session_group = cmd.session_group;
+
+        let reply_frame = match cmd.command {
+            StorageManagementCommand::Save => save::save(),
+        };
+
+        let msg = StorageToDispatcherCmd {
+            session_group,
+            reply_frame,
+        };
+        self.dispatcher_sender.send(msg).await?;
         Ok(())
     }
 }

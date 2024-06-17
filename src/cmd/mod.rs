@@ -127,16 +127,24 @@ impl TryFrom<Frame> for Command {
         if command.is_none() {
             command = GenericCommand::parse(&cmd_name, &mut parser)?;
         }
+
+        // Parse stack commands.
+        if command.is_none() {
+            command = BloomFilterCommand::parse(&cmd_name, &mut parser)?;
+        }
+
+        // Parse management commands.
+        if command.is_none() {
+            command = ClusterManagementCommand::parse(&cmd_name, &mut parser)?;
+        }
         if command.is_none() {
             command = ConnectManagementCommand::parse(&cmd_name, &mut parser)?;
         }
         if command.is_none() {
             command = ServerManagementCommand::parse(&cmd_name, &mut parser)?;
         }
-
-        // Parse stack commands.
         if command.is_none() {
-            command = BloomFilterCommand::parse(&cmd_name, &mut parser)?;
+            command = StorageManagementCommand::parse(&cmd_name, &mut parser)?;
         }
 
         if command.is_none() {

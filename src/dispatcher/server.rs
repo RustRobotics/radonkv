@@ -6,7 +6,7 @@ use stdext::function_name;
 
 use crate::commands::{DispatcherToListenerCmd, ServerToDispatcherCmd};
 use crate::dispatcher::Dispatcher;
-use crate::error::{Error, ErrorKind};
+use crate::error::Error;
 
 impl Dispatcher {
     pub(super) fn handle_server_cmd(&mut self, cmd: ServerToDispatcherCmd) -> Result<(), Error> {
@@ -16,14 +16,7 @@ impl Dispatcher {
             function_name!()
         );
         let listener_id = cmd.session_group.listener_id();
-        if let Some(listener_sender) = self.listener_senders.get(&listener_id) {
-            let cmd = DispatcherToListenerCmd::Reply(cmd.session_group, cmd.reply_frame);
-            Ok(listener_sender.send(cmd)?)
-        } else {
-            Err(Error::from_string(
-                ErrorKind::ChannelError,
-                format!("Failed to find listener with id: {listener_id}"),
-            ))
-        }
+        let cmd = DispatcherToListenerCmd::Reply(cmd.session_group, cmd.reply_frame);
+        self.send_cmd_to_listener(listener_id, cmd)
     }
 }

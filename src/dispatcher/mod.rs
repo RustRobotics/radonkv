@@ -13,6 +13,7 @@ use crate::commands::{
 };
 use crate::listener::types::ListenerId;
 
+mod cluster;
 mod listener;
 mod mem;
 mod run;
