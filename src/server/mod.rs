@@ -11,9 +11,11 @@ mod commands;
 mod dispatcher;
 mod init;
 pub mod run;
+mod signals;
 
 pub struct Server {
     pub config: Config,
+    running: bool,
 
     dispatcher_sender: Option<Sender<ServerToDispatcherCmd>>,
     dispatcher_receiver: Option<Receiver<DispatcherToServerCmd>>,
@@ -24,6 +26,7 @@ impl Server {
     pub const fn new(config: Config) -> Self {
         Self {
             config,
+            running: false,
 
             dispatcher_sender: None,
             dispatcher_receiver: None,

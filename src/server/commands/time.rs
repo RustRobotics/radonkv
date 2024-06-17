@@ -33,7 +33,7 @@ pub fn time() -> ReplyFrame {
 #[cfg(test)]
 mod tests {
     use crate::cmd::reply_frame::ReplyFrame;
-    use crate::server::commands::time;
+    use crate::server::commands::time::time;
 
     #[test]
     fn test_time() {

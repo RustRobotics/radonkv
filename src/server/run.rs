@@ -46,6 +46,7 @@ impl Server {
 
     async fn run_inner_loop(&mut self) -> Result<(), Error> {
         log::info!("{}", function_name!());
+        self.running = true;
 
         let mut sig_user1 = signal(SignalKind::user_defined1())?;
         let mut sig_term = signal(SignalKind::terminate())?;
@@ -57,23 +58,23 @@ impl Server {
             .take()
             .expect("dispatcher receiver is not set");
 
-        loop {
+        while self.running {
             tokio::select! {
                 Some(_signum) = sig_user1.recv() => {
                     log::info!("Reload config");
-                    // TODO(Shaohua): Reload config and send messages to other modules.
+                    self.reload_config();
                 }
                 Some(_signum) = sig_term.recv() => {
                     log::info!("Quit with SIGTERM");
-                    break;
+                    self.quit_server();
                 }
                 Some(_signum) = sig_quit.recv() => {
                     log::info!("Quit with SIGQUIT");
-                    break;
+                    self.quit_server();
                 }
                 Some(_signum) = sig_interrupt.recv() => {
                     log::info!("Quit with SIGINT");
-                    break;
+                    self.quit_server()
                 }
 
                 Some(cmd) = dispatcher_receiver.recv() => {

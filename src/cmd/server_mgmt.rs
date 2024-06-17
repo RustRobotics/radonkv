@@ -7,6 +7,7 @@ use crate::cmd::parse::{ParseCommandError, Parser};
 
 #[derive(Debug, Clone)]
 pub enum ServerManagementCommand {
+    Shutdown,
     Time,
 }
 
@@ -16,6 +17,7 @@ impl ServerManagementCommand {
         _parser: &mut Parser,
     ) -> Result<Option<Command>, ParseCommandError> {
         let server_cmd = match cmd_name {
+            "shutdown" => Self::Shutdown,
             "time" => Self::Time,
             _ => return Ok(None),
         };
