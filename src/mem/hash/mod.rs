@@ -8,15 +8,15 @@ use crate::cmd::hash::HashCommand;
 use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::Mem;
 
-mod delete;
-mod exists;
-mod get;
-mod get_all;
-mod keys;
-mod len;
-mod set;
-mod str_len;
-mod values;
+pub mod delete;
+pub mod exists;
+pub mod get;
+pub mod get_all;
+pub mod keys;
+pub mod len;
+pub mod set;
+pub mod str_len;
+pub mod values;
 
 pub type HashObject = HashMap<String, Vec<u8>>;
 

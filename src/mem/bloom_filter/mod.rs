@@ -8,11 +8,11 @@ use crate::cmd::bloom_filter::BloomFilterCommand;
 use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::Mem;
 
-mod add;
-mod exists;
-mod len;
-mod multi_add;
-mod multi_exists;
+pub mod add;
+pub mod exists;
+pub mod len;
+pub mod multi_add;
+pub mod multi_exists;
 
 #[derive(Debug, Clone)]
 pub struct BloomFilterObject {

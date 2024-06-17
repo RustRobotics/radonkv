@@ -9,18 +9,18 @@ use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::Mem;
 use crate::mem::util::prune_range;
 
-mod index;
-mod insert;
-mod len;
-mod pop_back;
-mod pop_front;
-mod push_back;
-mod push_back_exist;
-mod push_front;
-mod push_front_exist;
-mod range;
-mod remove;
-mod set;
+pub mod index;
+pub mod insert;
+pub mod len;
+pub mod pop_back;
+pub mod pop_front;
+pub mod push_back;
+pub mod push_back_exist;
+pub mod push_front;
+pub mod push_front_exist;
+pub mod range;
+pub mod remove;
+pub mod set;
 
 pub type ListObject = LinkedList<Vec<u8>>;
 

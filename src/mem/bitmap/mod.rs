@@ -8,9 +8,9 @@ use crate::mem::Mem;
 use crate::mem::string::StrObject;
 use crate::mem::util::prune_range;
 
-mod count;
-mod get;
-mod set;
+pub mod count;
+pub mod get;
+pub mod set;
 
 impl Mem {
     #[allow(clippy::needless_pass_by_value)]

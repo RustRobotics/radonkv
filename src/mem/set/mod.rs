@@ -8,15 +8,15 @@ use crate::cmd::reply_frame::ReplyFrame;
 use crate::cmd::set::SetCommand;
 use crate::mem::Mem;
 
-mod add;
-mod diff;
-mod intersect;
-mod is_member;
-mod len;
-mod members;
-mod random_member;
-mod remove;
-mod union;
+pub mod add;
+pub mod diff;
+pub mod intersect;
+pub mod is_member;
+pub mod len;
+pub mod members;
+pub mod random_member;
+pub mod remove;
+pub mod union;
 
 pub type SetObject = BTreeSet<Vec<u8>>;
 

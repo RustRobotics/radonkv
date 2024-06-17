@@ -6,11 +6,11 @@ use crate::cmd::generic::GenericCommand;
 use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::Mem;
 
-mod delete;
-mod exists;
-mod get_type;
-mod random_key;
-mod rename;
+pub mod delete;
+pub mod exists;
+pub mod get_type;
+pub mod random_key;
+pub mod rename;
 
 impl Mem {
     pub fn handle_generic_command(&mut self, command: GenericCommand) -> ReplyFrame {

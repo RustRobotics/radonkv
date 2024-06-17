@@ -10,9 +10,9 @@ use crate::cmd::hyper::HyperLogLogCommand;
 use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::Mem;
 
-mod add;
-mod count;
-mod merge;
+pub mod add;
+pub mod count;
+pub mod merge;
 
 pub type HyperObject = HyperLogLogPlus<String, RandomState>;
 
