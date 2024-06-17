@@ -2,15 +2,31 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
-use crate::commands::DispatcherToServerCmd;
-use crate::error::Error;
-use crate::server::Server;
+use crate::cmd::server_mgmt::ServerManagementCommand;
+use crate::commands::{DispatcherToServerCmd, ServerToDispatcherCmd};
+use crate::error::{Error, ErrorKind};
+use crate::server::{commands, Server};
 
 impl Server {
-    pub async fn handle_dispatcher_cmd(
-        &mut self,
-        _command: DispatcherToServerCmd,
-    ) -> Result<(), Error> {
-        todo!()
+    pub async fn handle_dispatcher_cmd(&mut self, cmd: DispatcherToServerCmd) -> Result<(), Error> {
+        let session_group = cmd.session_group;
+
+        let reply_frame = match cmd.command {
+            ServerManagementCommand::Time => commands::time(),
+        };
+
+        if let Some(sender) = &self.dispatcher_sender {
+            let msg = ServerToDispatcherCmd {
+                session_group,
+                reply_frame,
+            };
+            sender.send(msg).await?;
+            Ok(())
+        } else {
+            Err(Error::from_string(
+                ErrorKind::InternalError,
+                "Failed to get dispatcher sender in server module.".to_owned(),
+            ))
+        }
     }
 }

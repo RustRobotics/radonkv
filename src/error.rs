@@ -26,6 +26,7 @@ pub enum ErrorKind {
     KernelError,
     ChannelError,
     SocketError,
+    InternalError,
 
     // Client errors
     FrameError,
