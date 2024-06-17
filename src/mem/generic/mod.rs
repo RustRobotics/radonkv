@@ -4,10 +4,12 @@
 
 use crate::cmd::generic::GenericCommand;
 use crate::cmd::reply_frame::ReplyFrame;
+use crate::mem::generic::flush_db::flush_db;
 use crate::mem::Mem;
 
 pub mod delete;
 pub mod exists;
+mod flush_db;
 pub mod get_type;
 pub mod random_key;
 pub mod rename;
@@ -22,6 +24,7 @@ impl Mem {
             }
             GenericCommand::Rename(key, new_key) => rename::rename(&mut self.db, &key, new_key),
             GenericCommand::Type(key) => get_type::get_type(&self.db, &key),
+            GenericCommand::FlushDb(is_sync) => flush_db(&mut self.db, is_sync),
         }
     }
 }

@@ -14,6 +14,7 @@ pub enum GenericCommand {
     RandomKey(usize),
     Rename(String, String),
     Type(String),
+    FlushDb(bool),
 }
 
 impl GenericCommand {
@@ -43,6 +44,14 @@ impl GenericCommand {
             "type" => {
                 let key = parser.next_string()?;
                 Self::Type(key)
+            }
+            "FLUSHDB" | "FLUSHALL" => {
+                let is_sync: bool = if let Some(sync_option) = parser.try_next_string()? {
+                    sync_option.eq_ignore_ascii_case("sync")
+                } else {
+                    true
+                };
+                Self::FlushDb(is_sync)
             }
             _ => return Ok(None),
         };
