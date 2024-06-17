@@ -7,16 +7,16 @@ use crate::cmd::string::StringCommand;
 use crate::mem::db::MemObject;
 use crate::mem::Mem;
 
-mod append;
-mod consts;
-mod get;
-mod get_del;
-mod get_range;
-mod get_set;
-mod len;
+pub mod append;
+pub mod consts;
+pub mod get;
+pub mod get_del;
+pub mod get_range;
+pub mod get_set;
+pub mod len;
 pub mod set;
-mod set_range;
-mod sub_str;
+pub mod set_range;
+pub mod sub_str;
 
 #[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct StrObject {
