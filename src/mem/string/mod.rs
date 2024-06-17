@@ -8,7 +8,7 @@ use crate::mem::db::MemObject;
 use crate::mem::Mem;
 
 pub mod append;
-pub mod consts;
+mod consts;
 pub mod get;
 pub mod get_del;
 pub mod get_range;

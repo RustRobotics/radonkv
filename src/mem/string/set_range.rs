@@ -17,6 +17,9 @@ use crate::mem::util::check_string_length;
 /// the string is padded with zero-bytes to make offset fit.
 /// Non-existing keys are considered as empty strings, so this command will make sure
 /// it holds a string large enough to be able to set value at offset.
+///
+/// Reply:
+/// - Integer reply: the length of the string after it was modified by the command.
 #[allow(clippy::cast_sign_loss)]
 pub fn set_range(db: &mut Db, key: String, offset: isize, value: Vec<u8>) -> ReplyFrame {
     if offset < 0 {
@@ -53,5 +56,32 @@ pub fn set_range(db: &mut Db, key: String, offset: isize, value: Vec<u8>) -> Rep
         let len = s.len();
         db.insert(key, MemObject::Str(s));
         ReplyFrame::Usize(len)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::cmd::reply_frame::ReplyFrame;
+    use crate::mem::db::Db;
+    use crate::mem::string::get::get;
+    use crate::mem::string::set::set;
+    use crate::mem::string::set_range::set_range;
+
+    #[test]
+    fn test_set_range() {
+        let mut db = Db::new();
+        let key1 = "key1".to_owned();
+        let reply = set(&mut db, key1.clone(), b"Hello World".to_vec());
+        assert_eq!(reply, ReplyFrame::ok());
+        let reply = set_range(&mut db, key1.clone(), 6, b"Redis".to_vec());
+        assert_eq!(reply, ReplyFrame::Usize(11));
+        let reply = get(&db, &key1);
+        assert_eq!(reply, ReplyFrame::Bulk(b"Hello Redis".to_vec()));
+
+        let key2 = "key2".to_owned();
+        let reply = set_range(&mut db, key2.clone(), 6, b"Redis".to_vec());
+        assert_eq!(reply, ReplyFrame::Usize(11));
+        let reply = get(&db, &key2);
+        assert_eq!(reply, ReplyFrame::Bulk(b"Redis".to_vec()));
     }
 }
