@@ -9,44 +9,187 @@ use bytes::{BufMut, BytesMut};
 
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub enum ReplyFrame {
-    // status values
-    Status(String),
-    ConstStatus(&'static str),
+    /// # Simple strings
+    ///
+    /// Simple strings are encoded as a plus (+) character, followed by a string.
+    ///
+    /// status values, simple string
+    /// The string mustn't contain a CR (\r) or LF (\n) character and is terminated by CRLF (i.e., \r\n).
+    ///
+    /// Simple strings transmit short, non-binary strings with minimal overhead.
+    /// For example, many Redis commands reply with just "OK" on success.
+    /// The encoding of this Simple String is the following 5 bytes:
+    /// ```txt
+    /// +OK\r\n
+    /// ```
+    Simple(String),
+    ConstSimple(&'static str),
 
-    // errors
+    /// # Simple errors
+    ///
+    /// RESP has specific data types for errors.
+    /// Simple errors, or simply just errors, are similar to simple strings, but their first character
+    /// is the minus (-) character. The difference between simple strings and errors in RESP is that
+    /// clients should treat errors as exceptions, whereas the string encoded in the error type
+    /// is the error message itself.
+    ///
+    /// The basic format is:
+    /// ```txt
+    /// -Error message\r\n
+    /// ```
     Error(String),
     ConstError(&'static str),
-    // constant values which represents errors, with ERR as prefix string.
+    /// constant values which represents errors, with ERR as prefix string.
     ConstErrorWithErr(&'static str),
 
-    // Array
+    /// # Arrays
+    ///
+    /// Clients send commands to the server as RESP arrays.
+    ///
+    /// Similarly, some commands that return collections of elements use arrays as their replies.
+    /// An example is the `LRANGE` command that returns elements of a list.
+    ///
+    /// RESP Arrays' encoding uses the following format:
+    /// ```txt
+    /// *<number-of-elements>\r\n<element-1>...<element-n>
+    /// ```
+    ///
+    /// Based on the following rules:
+    /// - An asterisk `*` as the first byte.
+    /// - One or more decimal digits (0..9) as the number of elements in the array as an unsigned, base-10 value.
+    /// - The CRLF terminator.
+    /// - An additional RESP type for every element of the array.
+    ///
+    /// So an empty Array is just the following:
+    /// ```txt
+    /// *0\r\n
+    /// ```
+    ///
+    /// Whereas the encoding of an array consisting of the two bulk strings "hello" and "world" is:
+    /// ```txt
+    /// *2\r\n$5\r\nhello\r\n$5\r\nworld\r\n
+    /// ```
+    ///
+    /// Arrays can contain mixed data types. For instance, the following encoding is of a list
+    /// of four integers and a bulk string:
+    /// ```txt
+    /// *5\r\n
+    /// :1\r\n
+    /// :2\r\n
+    /// :3\r\n
+    /// :4\r\n
+    /// $5\r\n
+    /// hello\r\n
+    /// ```
+    ///
+    /// ## Null arrays
+    /// Whereas RESP3 has a dedicated data type for null values, RESP2 has no such type.
+    ///
+    /// Instead, due to historical reasons, the representation of null values in RESP2
+    /// is via predetermined forms of the Bulk Strings and arrays types.
+    ///
+    /// Null arrays exist as an alternative way of representing a null value.
+    /// For instance, when the `BLPOP` command times out, it returns a null array.
+    ///
+    /// The encoding of a null array is that of an array with the length of -1, i.e.:
+    /// ```txt
+    /// *-1\r\n
+    /// ```
+    ///
+    /// ## Null elements in arrays
+    ///
+    /// Single elements of an array may be null bulk string.
+    ///
+    /// This is used in replies to signal that these elements are missing and not empty strings.
+    /// This can happen, for example, with the `SORT` command when used with the `GET` pattern option
+    /// if the specified key is missing.
+    ///
+    /// Here's an example of an array reply containing a null element:
+    /// ```txt
+    /// *3\r\n
+    /// $5\r\n
+    /// hello\r\n
+    /// $-1\r\n
+    /// $5\r\n
+    /// world\r\n
+    /// ```
     Array(Vec<ReplyFrame>),
     EmptyArray,
-
-    // String or bytes
+    // TODO(Shaohua): Add NullArray
+    //NullArray,
+    /// # Bulk strings
+    ///
+    /// A bulk string represents a single binary string.
+    ///
+    /// The string can be of any size, but by default, server limits it to 512 MB
+    /// (see the proto-max-bulk-len configuration directive).
+    ///
+    /// RESP encodes bulk strings in the following way:
+    /// ```txt
+    /// $<length>\r\n<data>\r\n
+    /// ```
+    ///
+    /// Based on these rules:
+    /// - The dollar sign `$` as the first byte.
+    /// - One or more decimal digits (0..9) as the string's length, in bytes, as an unsigned, base-10 value.
+    /// - The CRLF terminator.
+    /// - The data.
+    /// - A final CRLF.
+    ///
+    /// The empty string's encoding is:
+    /// ```txt
+    /// $0\r\n\r\n
+    /// ```
+    ///
+    /// ## Null bulk strings
+    ///
+    /// Whereas RESP3 has a dedicated data type for null values, RESP2 has no such type.
+    /// Instead, due to historical reasons, the representation of null values in RESP2
+    /// is via predetermined forms of the bulk strings and arrays types.
+    ///
+    /// It is encoded as a bulk string with the length of negative one (-1), like so:
+    /// ```txt
+    /// $-1\r\n
+    /// ```
     Bulk(Vec<u8>),
-    // Empty bulk string.
+    /// Empty bulk string.
     EmptyBulk,
-    // Nil bulk string.
+    /// Nil bulk string.
     // TODO(Shaohua): Support Null data type in RESP3
     Null,
 
-    // Decimal
+    /// Integers
+    ///
+    /// This type is a CRLF-terminated string that represents a signed, base-10, 64-bit integer.
+    ///
+    /// RESP encodes integers in the following way:
+    /// ```txt
+    /// :[<+|->]<value>\r\n
+    /// ```
+    ///
+    /// Rules are:
+    /// - The colon `:` as the first byte.
+    /// - An optional plus `+` or minus `-` as the sign.
+    /// - One or more decimal digits (0..9) as the integer's unsigned, base-10 value.
+    /// - The CRLF terminator.
     I64(i64),
     I32(i32),
     Usize(usize),
+    // TODO(Shaohua): Define double
     Double(f64),
+    // TODO(Shaohua): Define boolean
+    // TODO(Shaohua): Define Null type
 }
 
 impl ReplyFrame {
     pub fn to_bytes(&self, bytes: &mut BytesMut) {
         match self {
-            Self::Status(s) => {
+            Self::Simple(s) => {
                 bytes.put_u8(b'+');
                 bytes.put(s.as_bytes());
                 bytes.put_slice(b"\r\n");
             }
-            Self::ConstStatus(s) => {
+            Self::ConstSimple(s) => {
                 bytes.put_u8(b'+');
                 bytes.put(s.as_bytes());
                 bytes.put_slice(b"\r\n");
@@ -147,7 +290,7 @@ impl ReplyFrame {
         match self {
             Self::Array(array) => array.sort_unstable_by(|a, b| match (a, b) {
                 (Self::Bulk(a), Self::Bulk(b)) => a.cmp(b),
-                (Self::Status(a), Self::Status(b)) => a.cmp(b),
+                (Self::Simple(a), Self::Simple(b)) => a.cmp(b),
                 _ => Ordering::Equal,
             }),
             _ => (),
@@ -195,19 +338,19 @@ impl ReplyFrame {
     #[must_use]
     #[inline]
     pub const fn ok() -> Self {
-        Self::ConstStatus(OK)
+        Self::ConstSimple(OK)
     }
 
     #[must_use]
     #[inline]
     pub const fn pong() -> Self {
-        Self::ConstStatus(PONG)
+        Self::ConstSimple(PONG)
     }
 
     #[must_use]
     #[inline]
     pub const fn queued() -> Self {
-        Self::ConstStatus(QUEUED)
+        Self::ConstSimple(QUEUED)
     }
 
     #[must_use]
