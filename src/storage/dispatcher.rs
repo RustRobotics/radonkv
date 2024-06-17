@@ -5,7 +5,7 @@
 use crate::cmd::storage_mgmt::StorageManagementCommand;
 use crate::commands::{DispatcherToStorageCmd, StorageToDispatcherCmd};
 use crate::error::Error;
-use crate::storage::commands::save;
+use crate::storage::commands::{background_save, save};
 use crate::storage::Storage;
 
 impl Storage {
@@ -17,6 +17,7 @@ impl Storage {
         let session_group = cmd.session_group;
 
         let reply_frame = match cmd.command {
+            StorageManagementCommand::BackgroundSave => background_save::background_save(),
             StorageManagementCommand::Save => save::save(),
         };
 

@@ -7,6 +7,7 @@ use crate::cmd::parse::{ParseCommandError, Parser};
 
 #[derive(Debug, Clone)]
 pub enum StorageManagementCommand {
+    BackgroundSave,
     Save,
 }
 
@@ -16,6 +17,7 @@ impl StorageManagementCommand {
         _parser: &mut Parser,
     ) -> Result<Option<Command>, ParseCommandError> {
         let storage_cmd = match cmd_name {
+            "bgsave" => Self::BackgroundSave,
             "save" => Self::Save,
             _ => return Ok(None),
         };
