@@ -2,19 +2,31 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
+use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
+
+use crate::commands::{DispatcherToServerCmd, ServerToDispatcherCmd};
 use crate::config::Config;
 
 mod commands;
+mod dispatcher;
 mod init;
 pub mod run;
 
 pub struct Server {
     pub config: Config,
+
+    dispatcher_sender: Option<UnboundedSender<ServerToDispatcherCmd>>,
+    dispatcher_receiver: Option<UnboundedReceiver<DispatcherToServerCmd>>,
 }
 
 impl Server {
     #[must_use]
     pub const fn new(config: Config) -> Self {
-        Self { config }
+        Self {
+            config,
+
+            dispatcher_sender: None,
+            dispatcher_receiver: None,
+        }
     }
 }

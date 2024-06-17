@@ -4,6 +4,7 @@
 
 use crate::cmd::Command;
 use crate::cmd::reply_frame::ReplyFrame;
+use crate::cmd::server_mgmt::ServerManagementCommand;
 use crate::listener::types::{SessionGroup, SessionId};
 
 #[derive(Debug, Clone)]
@@ -43,6 +44,18 @@ pub struct DispatcherToMemCmd {
 
 #[derive(Debug, Clone)]
 pub struct MemToDispatcherCmd {
+    pub session_group: SessionGroup,
+    pub reply_frame: ReplyFrame,
+}
+
+#[derive(Debug, Clone)]
+pub struct DispatcherToServerCmd {
+    pub session_group: SessionGroup,
+    pub command: ServerManagementCommand,
+}
+
+#[derive(Debug, Clone)]
+pub struct ServerToDispatcherCmd {
     pub session_group: SessionGroup,
     pub reply_frame: ReplyFrame,
 }

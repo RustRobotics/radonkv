@@ -5,7 +5,7 @@
 use stdext::function_name;
 
 use crate::cmd::CommandCategory;
-use crate::commands::{DispatcherToMemCmd, ListenerToDispatcherCmd};
+use crate::commands::{DispatcherToMemCmd, DispatcherToServerCmd, ListenerToDispatcherCmd};
 use crate::dispatcher::Dispatcher;
 use crate::error::Error;
 
@@ -29,7 +29,19 @@ impl Dispatcher {
                     );
                     Ok(self.mem_sender.send(cmd)?)
                 }
-                _ => todo!(),
+                CommandCategory::Server => {
+                    // Dispatch to server module.
+                    let cmd = DispatcherToServerCmd {
+                        session_group,
+                        command,
+                    };
+                    log::debug!(
+                        "{} proxy cmd from listener to server, cmd: {cmd:?}",
+                        function_name!()
+                    );
+                    Ok(self.server_sender.send(cmd)?)
+                }
+                _ => unimplemented!(),
             },
         }
     }

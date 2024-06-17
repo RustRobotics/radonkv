@@ -71,6 +71,15 @@ impl Server {
             storage.run_loop().await;
         });
 
+        // self module
+        let (server_to_dispatcher_sender, server_to_dispatcher_receiver) =
+            mpsc::unbounded_channel();
+        let (dispatcher_to_server_sender, dispatcher_to_server_receiver) =
+            mpsc::unbounded_channel();
+
+        self.dispatcher_sender = Some(server_to_dispatcher_sender);
+        self.dispatcher_receiver = Some(dispatcher_to_server_receiver);
+
         // Dispatcher module
         let mut dispatcher = Dispatcher::new(
             // listeners module
@@ -82,6 +91,9 @@ impl Server {
             // storage module
             dispatcher_to_storage_sender,
             storage_to_dispatcher_receiver,
+            // server module,
+            dispatcher_to_server_sender,
+            server_to_dispatcher_receiver,
         );
         let _dispatcher_handle = runtime.spawn(async move {
             dispatcher.run_loop().await;

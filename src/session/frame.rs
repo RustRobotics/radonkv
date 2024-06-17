@@ -7,7 +7,7 @@ use std::io::Cursor;
 use bytes::{Buf, BytesMut};
 use stdext::function_name;
 
-use crate::cmd::{Command, CommandCategory};
+use crate::cmd::Command;
 use crate::cmd::frame::{Frame, ParseFrameError};
 use crate::cmd::reply_frame::ReplyFrame;
 use crate::commands::SessionToListenerCmd;
@@ -78,15 +78,14 @@ impl Session {
         // 3.1. if command is parsed ok, send that new cmd to listener
         // 3.2. else send error to client.
         match Command::try_from(frame) {
-            Ok(command) => {
-                if command.category() == CommandCategory::Session {
-                    self.handle_client_command(command).await
-                } else {
+            Ok(command) => match command {
+                Command::ConnManagement(command) => self.handle_client_command(command).await,
+                _ => {
                     let cmd = SessionToListenerCmd::Cmd(self.id, command);
                     log::debug!("{} send cmd to listener, cmd: {cmd:?}", function_name!());
                     Ok(self.listener_sender.send(cmd).await?)
                 }
-            }
+            },
             Err(err) => {
                 log::warn!("Invalid command, err: {err:?}");
                 self.send_frame_to_client(ReplyFrame::invalid_command())

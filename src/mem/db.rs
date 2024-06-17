@@ -40,7 +40,7 @@ impl Mem {
             Command::HyperLogLog(command) => self.handle_hyper_command(command),
             Command::Generic(command) => self.handle_generic_command(command),
             Command::BloomFilter(command) => self.handle_bloom_filter_command(command),
-            Command::ConnManagement(_) => unreachable!(),
+            _ => unreachable!(),
         }
     }
 }

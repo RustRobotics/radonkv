@@ -52,6 +52,11 @@ impl Server {
         let mut sig_quit = signal(SignalKind::quit())?;
         let mut sig_interrupt = signal(SignalKind::interrupt())?;
 
+        let mut dispatcher_receiver = self
+            .dispatcher_receiver
+            .take()
+            .expect("dispatcher receiver is not set");
+
         loop {
             tokio::select! {
                 Some(_signum) = sig_user1.recv() => {
@@ -69,6 +74,12 @@ impl Server {
                 Some(_signum) = sig_interrupt.recv() => {
                     log::info!("Quit with SIGINT");
                     break;
+                }
+
+                Some(cmd) = dispatcher_receiver.recv() => {
+                     if let Err(err) = self.handle_dispatcher_cmd(cmd).await {
+                        log::warn!("[dispatcher] Failed to handle dispatcher cmd, got err: {err:?}");
+                    }
                 }
             }
         }

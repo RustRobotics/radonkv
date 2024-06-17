@@ -18,6 +18,11 @@ impl Dispatcher {
                         log::warn!("[dispatcher] Failed to handle mem cmd, got err: {err:?}");
                     }
                 }
+                Some(cmd) = self.server_receiver.recv() => {
+                     if let Err(err) = self.handle_server_cmd(cmd) {
+                        log::warn!("[dispatcher] Failed to handle server cmd, got err: {err:?}");
+                    }
+                }
                 Some(cmd) = self.storage_receiver.recv() => {
                     self.handle_storage_cmd(cmd).await;
                 }

@@ -7,14 +7,15 @@ use std::collections::HashMap;
 use tokio::sync::mpsc::{Receiver, Sender, UnboundedReceiver, UnboundedSender};
 
 use crate::commands::{
-    DispatcherToListenerCmd, DispatcherToMemCmd, DispatcherToStorageCmd, ListenerToDispatcherCmd,
-    MemToDispatcherCmd, StorageToDispatcherCmd,
+    DispatcherToListenerCmd, DispatcherToMemCmd, DispatcherToServerCmd, DispatcherToStorageCmd,
+    ListenerToDispatcherCmd, MemToDispatcherCmd, ServerToDispatcherCmd, StorageToDispatcherCmd,
 };
 use crate::listener::types::ListenerId;
 
 mod listener;
 mod mem;
 mod run;
+mod server;
 mod storage;
 
 #[derive(Debug)]
@@ -27,6 +28,9 @@ pub struct Dispatcher {
 
     storage_sender: Sender<DispatcherToStorageCmd>,
     storage_receiver: Receiver<StorageToDispatcherCmd>,
+
+    server_sender: UnboundedSender<DispatcherToServerCmd>,
+    server_receiver: UnboundedReceiver<ServerToDispatcherCmd>,
 }
 
 impl Dispatcher {
@@ -38,6 +42,8 @@ impl Dispatcher {
         mem_receiver: UnboundedReceiver<MemToDispatcherCmd>,
         storage_sender: Sender<DispatcherToStorageCmd>,
         storage_receiver: Receiver<StorageToDispatcherCmd>,
+        server_sender: UnboundedSender<DispatcherToServerCmd>,
+        server_receiver: UnboundedReceiver<ServerToDispatcherCmd>,
     ) -> Self {
         Self {
             listener_senders: listener_senders.into_iter().collect(),
@@ -48,6 +54,9 @@ impl Dispatcher {
 
             storage_sender,
             storage_receiver,
+
+            server_sender,
+            server_receiver,
         }
     }
 }
