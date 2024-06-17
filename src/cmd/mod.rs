@@ -4,19 +4,20 @@
 
 use crate::cmd::bitmap::BitmapCommand;
 use crate::cmd::bloom_filter::BloomFilterCommand;
-use crate::cmd::conn::ConnectManagementCommand;
+use crate::cmd::conn_mgmt::ConnectManagementCommand;
 use crate::cmd::frame::Frame;
 use crate::cmd::generic::GenericCommand;
 use crate::cmd::hash::HashCommand;
 use crate::cmd::hyper::HyperLogLogCommand;
 use crate::cmd::list::ListCommand;
 use crate::cmd::parse::{ParseCommandError, Parser};
+use crate::cmd::server_mgmt::ServerManagementCommand;
 use crate::cmd::set::SetCommand;
 use crate::cmd::string::StringCommand;
 
 pub mod bitmap;
 pub mod bloom_filter;
-pub mod conn;
+pub mod conn_mgmt;
 pub mod frame;
 pub mod generic;
 pub mod hash;
@@ -24,6 +25,7 @@ pub mod hyper;
 pub mod list;
 mod parse;
 pub mod reply_frame;
+pub mod server_mgmt;
 pub mod set;
 pub mod string;
 
@@ -38,18 +40,21 @@ pub enum Command {
     HyperLogLog(HyperLogLogCommand),
     Generic(GenericCommand),
     ConnManagement(ConnectManagementCommand),
+    ServerManagement(ServerManagementCommand),
     // Stack commands
     BloomFilter(BloomFilterCommand),
 }
 
 #[derive(Debug, Default, Clone, Copy, Eq, PartialEq)]
 pub enum CommandCategory {
+    /// Handle commands in mem module.
     #[default]
     Mem,
-    System,
+    /// Handle commands in server module.
+    Server,
     Cluster,
     Storage,
-    // Handle commands in session module.
+    /// Handle commands in session module.
     Session,
 }
 
@@ -65,6 +70,7 @@ impl Command {
             | Self::Bitmap(_)
             | Self::HyperLogLog(_)
             | Self::BloomFilter(_) => CommandCategory::Mem,
+            Self::ServerManagement(_) => CommandCategory::Server,
             Self::ConnManagement(_) => CommandCategory::Session,
         }
     }
@@ -112,6 +118,9 @@ impl TryFrom<Frame> for Command {
         }
         if command.is_none() {
             command = ConnectManagementCommand::parse(&cmd_name, &mut parser)?;
+        }
+        if command.is_none() {
+            command = ServerManagementCommand::parse(&cmd_name, &mut parser)?;
         }
 
         // Parse stack commands.
