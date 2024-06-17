@@ -7,8 +7,9 @@ use std::collections::HashMap;
 use tokio::sync::mpsc::{Receiver, Sender, UnboundedReceiver, UnboundedSender};
 
 use crate::commands::{
-    DispatcherToListenerCmd, DispatcherToMemCmd, DispatcherToServerCmd, DispatcherToStorageCmd,
-    ListenerToDispatcherCmd, MemToDispatcherCmd, ServerToDispatcherCmd, StorageToDispatcherCmd,
+    ClusterToDispatcherCmd, DispatcherToClusterCmd, DispatcherToListenerCmd, DispatcherToMemCmd,
+    DispatcherToServerCmd, DispatcherToStorageCmd, ListenerToDispatcherCmd, MemToDispatcherCmd,
+    ServerToDispatcherCmd, StorageToDispatcherCmd,
 };
 use crate::listener::types::ListenerId;
 
@@ -26,11 +27,14 @@ pub struct Dispatcher {
     mem_sender: UnboundedSender<DispatcherToMemCmd>,
     mem_receiver: UnboundedReceiver<MemToDispatcherCmd>,
 
+    cluster_sender: Sender<DispatcherToClusterCmd>,
+    cluster_receiver: Receiver<ClusterToDispatcherCmd>,
+
     storage_sender: Sender<DispatcherToStorageCmd>,
     storage_receiver: Receiver<StorageToDispatcherCmd>,
 
-    server_sender: UnboundedSender<DispatcherToServerCmd>,
-    server_receiver: UnboundedReceiver<ServerToDispatcherCmd>,
+    server_sender: Sender<DispatcherToServerCmd>,
+    server_receiver: Receiver<ServerToDispatcherCmd>,
 }
 
 impl Dispatcher {
@@ -40,10 +44,12 @@ impl Dispatcher {
         listener_receiver: UnboundedReceiver<ListenerToDispatcherCmd>,
         mem_sender: UnboundedSender<DispatcherToMemCmd>,
         mem_receiver: UnboundedReceiver<MemToDispatcherCmd>,
+        cluster_sender: Sender<DispatcherToClusterCmd>,
+        cluster_receiver: Receiver<ClusterToDispatcherCmd>,
         storage_sender: Sender<DispatcherToStorageCmd>,
         storage_receiver: Receiver<StorageToDispatcherCmd>,
-        server_sender: UnboundedSender<DispatcherToServerCmd>,
-        server_receiver: UnboundedReceiver<ServerToDispatcherCmd>,
+        server_sender: Sender<DispatcherToServerCmd>,
+        server_receiver: Receiver<ServerToDispatcherCmd>,
     ) -> Self {
         Self {
             listener_senders: listener_senders.into_iter().collect(),
@@ -51,6 +57,9 @@ impl Dispatcher {
 
             mem_sender,
             mem_receiver,
+
+            cluster_sender,
+            cluster_receiver,
 
             storage_sender,
             storage_receiver,

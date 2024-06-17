@@ -2,9 +2,11 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
+use crate::cmd::cluster_mgmt::ClusterManagementCommand;
 use crate::cmd::Command;
 use crate::cmd::reply_frame::ReplyFrame;
 use crate::cmd::server_mgmt::ServerManagementCommand;
+use crate::cmd::storage_mgmt::StorageManagementCommand;
 use crate::listener::types::{SessionGroup, SessionId};
 
 #[derive(Debug, Clone)]
@@ -29,12 +31,28 @@ pub enum DispatcherToListenerCmd {
 }
 
 #[derive(Debug, Clone)]
-pub enum DispatcherToStorageCmd {
-    Flush,
+pub struct DispatcherToClusterCmd {
+    pub session_group: SessionGroup,
+    pub command: ClusterManagementCommand,
 }
 
 #[derive(Debug, Clone)]
-pub enum StorageToDispatcherCmd {}
+pub struct ClusterToDispatcherCmd {
+    pub session_group: SessionGroup,
+    pub reply_frame: ReplyFrame,
+}
+
+#[derive(Debug, Clone)]
+pub struct DispatcherToStorageCmd {
+    pub session_group: SessionGroup,
+    pub command: StorageManagementCommand,
+}
+
+#[derive(Debug, Clone)]
+pub struct StorageToDispatcherCmd {
+    pub session_group: SessionGroup,
+    pub reply_frame: ReplyFrame,
+}
 
 #[derive(Debug, Clone)]
 pub struct DispatcherToMemCmd {

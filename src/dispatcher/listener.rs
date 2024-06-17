@@ -4,20 +4,60 @@
 
 use stdext::function_name;
 
-use crate::cmd::CommandCategory;
-use crate::commands::{DispatcherToMemCmd, DispatcherToServerCmd, ListenerToDispatcherCmd};
+use crate::cmd::Command;
+use crate::commands::{
+    DispatcherToClusterCmd, DispatcherToMemCmd, DispatcherToServerCmd, DispatcherToStorageCmd,
+    ListenerToDispatcherCmd,
+};
 use crate::dispatcher::Dispatcher;
 use crate::error::Error;
 
 impl Dispatcher {
-    pub(super) fn handle_listener_cmd(
+    pub(super) async fn handle_listener_cmd(
         &mut self,
         cmd: ListenerToDispatcherCmd,
     ) -> Result<(), Error> {
         log::debug!("{}", function_name!());
         match cmd {
-            ListenerToDispatcherCmd::Cmd(session_group, command) => match command.category() {
-                CommandCategory::Mem => {
+            ListenerToDispatcherCmd::Cmd(session_group, command) => match command {
+                Command::ConnManagement(_) => unreachable!(),
+                Command::ClusterManagement(command) => {
+                    // Dispatch to server module.
+                    let cmd = DispatcherToClusterCmd {
+                        session_group,
+                        command,
+                    };
+                    log::debug!(
+                        "{} proxy cmd from listener to cluster, cmd: {cmd:?}",
+                        function_name!()
+                    );
+                    Ok(self.cluster_sender.send(cmd).await?)
+                }
+                Command::StorageManagement(command) => {
+                    // Dispatch to storage module.
+                    let cmd = DispatcherToStorageCmd {
+                        session_group,
+                        command,
+                    };
+                    log::debug!(
+                        "{} proxy cmd from listener to storage, cmd: {cmd:?}",
+                        function_name!()
+                    );
+                    Ok(self.storage_sender.send(cmd).await?)
+                }
+                Command::ServerManagement(command) => {
+                    // Dispatch to server module.
+                    let cmd = DispatcherToServerCmd {
+                        session_group,
+                        command,
+                    };
+                    log::debug!(
+                        "{} proxy cmd from listener to server, cmd: {cmd:?}",
+                        function_name!()
+                    );
+                    Ok(self.server_sender.send(cmd).await?)
+                }
+                _ => {
                     // Dispatch to mem module
                     let cmd = DispatcherToMemCmd {
                         session_group,
@@ -29,19 +69,6 @@ impl Dispatcher {
                     );
                     Ok(self.mem_sender.send(cmd)?)
                 }
-                CommandCategory::Server => {
-                    // Dispatch to server module.
-                    let cmd = DispatcherToServerCmd {
-                        session_group,
-                        command,
-                    };
-                    log::debug!(
-                        "{} proxy cmd from listener to server, cmd: {cmd:?}",
-                        function_name!()
-                    );
-                    Ok(self.server_sender.send(cmd)?)
-                }
-                _ => unimplemented!(),
             },
         }
     }

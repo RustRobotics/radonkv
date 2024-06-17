@@ -6,6 +6,7 @@ use stdext::function_name;
 use tokio::runtime::Runtime;
 use tokio::sync::mpsc;
 
+use crate::cluster::Cluster;
 use crate::dispatcher::Dispatcher;
 use crate::error::Error;
 use crate::listener::Listener;
@@ -60,6 +61,17 @@ impl Server {
             mem.run_loop().await;
         });
 
+        // Cluster module
+        let (cluster_to_dispatcher_sender, cluster_to_dispatcher_receiver) =
+            mpsc::channel(CHANNEL_CAPACITY);
+        let (dispatcher_to_cluster_sender, dispatcher_to_cluster_receiver) =
+            mpsc::channel(CHANNEL_CAPACITY);
+        let mut cluster =
+            Cluster::new(cluster_to_dispatcher_sender, dispatcher_to_cluster_receiver);
+        let _cluster_handle = runtime.spawn(async move {
+            cluster.run_loop().await;
+        });
+
         // Storage module
         let (storage_to_dispatcher_sender, storage_to_dispatcher_receiver) =
             mpsc::channel(CHANNEL_CAPACITY);
@@ -73,9 +85,9 @@ impl Server {
 
         // self module
         let (server_to_dispatcher_sender, server_to_dispatcher_receiver) =
-            mpsc::unbounded_channel();
+            mpsc::channel(CHANNEL_CAPACITY);
         let (dispatcher_to_server_sender, dispatcher_to_server_receiver) =
-            mpsc::unbounded_channel();
+            mpsc::channel(CHANNEL_CAPACITY);
 
         self.dispatcher_sender = Some(server_to_dispatcher_sender);
         self.dispatcher_receiver = Some(dispatcher_to_server_receiver);
@@ -85,9 +97,12 @@ impl Server {
             // listeners module
             dispatcher_to_listener_senders,
             listeners_to_dispatcher_receiver,
-            // mem module,
+            // mem module
             dispatcher_to_mem_sender,
             mem_to_dispatcher_receiver,
+            // cluster module
+            dispatcher_to_cluster_sender,
+            cluster_to_dispatcher_receiver,
             // storage module
             dispatcher_to_storage_sender,
             storage_to_dispatcher_receiver,

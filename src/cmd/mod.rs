@@ -4,6 +4,7 @@
 
 use crate::cmd::bitmap::BitmapCommand;
 use crate::cmd::bloom_filter::BloomFilterCommand;
+use crate::cmd::cluster_mgmt::ClusterManagementCommand;
 use crate::cmd::conn_mgmt::ConnectManagementCommand;
 use crate::cmd::frame::Frame;
 use crate::cmd::generic::GenericCommand;
@@ -13,10 +14,12 @@ use crate::cmd::list::ListCommand;
 use crate::cmd::parse::{ParseCommandError, Parser};
 use crate::cmd::server_mgmt::ServerManagementCommand;
 use crate::cmd::set::SetCommand;
+use crate::cmd::storage_mgmt::StorageManagementCommand;
 use crate::cmd::string::StringCommand;
 
 pub mod bitmap;
 pub mod bloom_filter;
+pub mod cluster_mgmt;
 pub mod conn_mgmt;
 pub mod frame;
 pub mod generic;
@@ -27,6 +30,7 @@ mod parse;
 pub mod reply_frame;
 pub mod server_mgmt;
 pub mod set;
+pub mod storage_mgmt;
 pub mod string;
 
 #[derive(Debug, Clone)]
@@ -39,8 +43,11 @@ pub enum Command {
     Bitmap(BitmapCommand),
     HyperLogLog(HyperLogLogCommand),
     Generic(GenericCommand),
+    // Management commands.
+    ClusterManagement(ClusterManagementCommand),
     ConnManagement(ConnectManagementCommand),
     ServerManagement(ServerManagementCommand),
+    StorageManagement(StorageManagementCommand),
     // Stack commands
     BloomFilter(BloomFilterCommand),
 }
@@ -50,12 +57,8 @@ pub enum CommandCategory {
     /// Handle commands in mem module.
     #[default]
     Mem,
-    /// Handle commands in server module.
-    Server,
-    Cluster,
-    Storage,
-    /// Handle commands in session module.
-    Session,
+    /// Handle commands in server management modules.
+    Management,
 }
 
 impl Command {
@@ -70,8 +73,10 @@ impl Command {
             | Self::Bitmap(_)
             | Self::HyperLogLog(_)
             | Self::BloomFilter(_) => CommandCategory::Mem,
-            Self::ServerManagement(_) => CommandCategory::Server,
-            Self::ConnManagement(_) => CommandCategory::Session,
+            Self::ClusterManagement(_)
+            | Self::ConnManagement(_)
+            | Self::StorageManagement(_)
+            | Self::ServerManagement(_) => CommandCategory::Management,
         }
     }
 
@@ -79,6 +84,12 @@ impl Command {
     #[inline]
     pub fn is_mem(&self) -> bool {
         self.category() == CommandCategory::Mem
+    }
+
+    #[must_use]
+    #[inline]
+    pub fn is_management(&self) -> bool {
+        self.category() == CommandCategory::Management
     }
 }
 
