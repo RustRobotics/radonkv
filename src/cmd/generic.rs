@@ -9,12 +9,13 @@ use crate::cmd::parse::{ParseCommandError, Parser};
 
 #[derive(Debug, Clone)]
 pub enum GenericCommand {
+    DbSize,
     Delete(Vec<String>),
     Exists(Vec<String>),
+    FlushDb(bool),
     RandomKey(usize),
     Rename(String, String),
     Type(String),
-    FlushDb(bool),
 }
 
 impl GenericCommand {
@@ -23,6 +24,7 @@ impl GenericCommand {
         parser: &mut Parser,
     ) -> Result<Option<Command>, ParseCommandError> {
         let generic_cmd = match cmd_name {
+            "dbsize" => Self::DbSize,
             "del" => {
                 let keys = parser.remaining_strings()?;
                 Self::Delete(keys)

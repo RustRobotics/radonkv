@@ -7,6 +7,7 @@ use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::generic::flush_db::flush_db;
 use crate::mem::Mem;
 
+mod db_size;
 pub mod delete;
 pub mod exists;
 mod flush_db;
@@ -17,6 +18,7 @@ pub mod rename;
 impl Mem {
     pub fn handle_generic_command(&mut self, command: GenericCommand) -> ReplyFrame {
         match command {
+            GenericCommand::DbSize => db_size::db_size(&self.db),
             GenericCommand::Delete(keys) => delete::delete(&mut self.db, &keys),
             GenericCommand::Exists(keys) => exists::exists(&self.db, &keys),
             GenericCommand::RandomKey(random_index) => {
