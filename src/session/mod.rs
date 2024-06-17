@@ -14,6 +14,7 @@ use crate::listener::types::SessionId;
 use crate::session::config::SessionConfig;
 use crate::session::status::Status;
 
+mod commands;
 pub mod config;
 mod conn;
 mod frame;

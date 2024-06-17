@@ -4,6 +4,7 @@
 
 use crate::config::Config;
 
+mod commands;
 mod init;
 pub mod run;
 
