@@ -6,6 +6,7 @@ use tokio::sync::mpsc::{Receiver, Sender};
 
 use crate::commands::{ClusterToDispatcherCmd, DispatcherToClusterCmd};
 
+mod commands;
 mod dispatcher;
 pub mod run;
 

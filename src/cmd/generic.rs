@@ -47,7 +47,7 @@ impl GenericCommand {
                 let key = parser.next_string()?;
                 Self::Type(key)
             }
-            "FLUSHDB" | "FLUSHALL" => {
+            "flushdb" | "flushall" => {
                 let is_sync: bool = if let Some(sync_option) = parser.try_next_string()? {
                     sync_option.eq_ignore_ascii_case("sync")
                 } else {

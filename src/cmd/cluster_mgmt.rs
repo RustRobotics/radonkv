@@ -8,6 +8,7 @@ use crate::cmd::parse::{ParseCommandError, Parser};
 #[derive(Debug, Clone)]
 pub enum ClusterManagementCommand {
     ReadOnly,
+    ReadWrite,
 }
 
 impl ClusterManagementCommand {
@@ -17,6 +18,7 @@ impl ClusterManagementCommand {
     ) -> Result<Option<Command>, ParseCommandError> {
         let cluster_cmd = match cmd_name {
             "readonly" => Self::ReadOnly,
+            "readwrite" => Self::ReadWrite,
             _ => return Ok(None),
         };
         Ok(Some(Command::ClusterManagement(cluster_cmd)))
