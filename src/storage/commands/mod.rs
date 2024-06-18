@@ -3,4 +3,5 @@
 // that can be found in the LICENSE file.
 
 pub mod background_save;
+pub mod background_write_aof;
 pub mod save;
