@@ -17,7 +17,6 @@ fn main() -> Result<(), ParseCommandSchemeError> {
             if let Ok(mut filename) = filename.into_string() {
                 if filename.ends_with(".json") {
                     filename.insert_str(0, dirname);
-                    println!("path: {filename:?}");
                     let scheme_map = CommandScheme::parse(&filename)?;
                     println!("scheme map: {scheme_map:?}");
                     for (key, value) in scheme_map {
@@ -27,6 +26,6 @@ fn main() -> Result<(), ParseCommandSchemeError> {
             }
         }
     }
-    println!("scheme maps: {scheme_maps:?}");
+    println!("scheme maps: {scheme_maps:#?}");
     Ok(())
 }

@@ -9,7 +9,10 @@ use crate::dispatcher::Dispatcher;
 use crate::error::{Error, ErrorKind};
 
 impl Dispatcher {
-    pub(super) fn handle_cluster_cmd(&mut self, cmd: ClusterToDispatcherCmd) -> Result<(), Error> {
+    pub(super) async fn handle_cluster_cmd(
+        &mut self,
+        cmd: ClusterToDispatcherCmd,
+    ) -> Result<(), Error> {
         // Send command to listener.
         log::debug!(
             "{}, proxy cmd from cluster to listener, cmd: {cmd:?}",
@@ -18,7 +21,7 @@ impl Dispatcher {
         let listener_id = cmd.session_group.listener_id();
         if let Some(listener_sender) = self.listener_senders.get(&listener_id) {
             let cmd = DispatcherToListenerCmd::Reply(cmd.session_group, cmd.reply_frame);
-            Ok(listener_sender.send(cmd)?)
+            Ok(listener_sender.send(cmd).await?)
         } else {
             Err(Error::from_string(
                 ErrorKind::ChannelError,

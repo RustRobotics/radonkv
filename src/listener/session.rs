@@ -10,7 +10,10 @@ use crate::listener::Listener;
 use crate::listener::types::SessionGroup;
 
 impl Listener {
-    pub(super) fn handle_session_cmd(&mut self, cmd: SessionToListenerCmd) -> Result<(), Error> {
+    pub(super) async fn handle_session_cmd(
+        &mut self,
+        cmd: SessionToListenerCmd,
+    ) -> Result<(), Error> {
         log::debug!("{}", function_name!());
         match cmd {
             SessionToListenerCmd::Cmd(session_id, command) => {
@@ -21,7 +24,7 @@ impl Listener {
                     "{} proxy cmd from session to dispatcher, cmd: {cmd:?}",
                     function_name!()
                 );
-                self.dispatcher_sender.send(cmd)?;
+                self.dispatcher_sender.send(cmd).await?;
                 Ok(())
             }
             SessionToListenerCmd::Disconnect(session_id) => {

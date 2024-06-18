@@ -23,7 +23,7 @@ impl Listener {
                     self.new_connection(stream);
                 }
                 Some(cmd) = session_receiver.recv() => {
-                    if let Err(err) = self.handle_session_cmd(cmd) {
+                    if let Err(err) = self.handle_session_cmd(cmd).await {
                         log::warn!("Failed to handle session cmd, err: {err:?}");
                     }
                 }

@@ -9,7 +9,10 @@ use crate::dispatcher::Dispatcher;
 use crate::error::Error;
 
 impl Dispatcher {
-    pub(super) fn handle_storage_cmd(&mut self, cmd: StorageToDispatcherCmd) -> Result<(), Error> {
+    pub(super) async fn handle_storage_cmd(
+        &mut self,
+        cmd: StorageToDispatcherCmd,
+    ) -> Result<(), Error> {
         // Send command to listener.
         log::debug!(
             "{}, proxy cmd from storage to listener, cmd: {cmd:?}",
@@ -17,6 +20,6 @@ impl Dispatcher {
         );
         let listener_id = cmd.session_group.listener_id();
         let cmd = DispatcherToListenerCmd::Reply(cmd.session_group, cmd.reply_frame);
-        self.send_cmd_to_listener(listener_id, cmd)
+        self.send_cmd_to_listener(listener_id, cmd).await
     }
 }

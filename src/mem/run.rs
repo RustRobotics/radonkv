@@ -8,7 +8,7 @@ impl Mem {
     pub async fn run_loop(&mut self) -> ! {
         loop {
             if let Some(cmd) = self.dispatcher_receiver.recv().await {
-                if let Err(err) = self.handle_dispatcher_cmd(cmd) {
+                if let Err(err) = self.handle_dispatcher_cmd(cmd).await {
                     log::warn!("Failed to handle dispatcher cmd, err: {err:?}");
                 }
             }

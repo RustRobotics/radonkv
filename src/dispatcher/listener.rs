@@ -68,19 +68,20 @@ impl Dispatcher {
                         "{} proxy cmd from listener to mem, cmd: {cmd:?}",
                         function_name!()
                     );
-                    Ok(self.mem_sender.send(cmd)?)
+                    Ok(self.mem_sender.send(cmd).await?)
                 }
             },
         }
     }
 
-    pub(super) fn send_cmd_to_listener(
+    pub(super) async fn send_cmd_to_listener(
         &mut self,
         listener_id: ListenerId,
         cmd: DispatcherToListenerCmd,
     ) -> Result<(), Error> {
         if let Some(listener_sender) = self.listener_senders.get(&listener_id) {
-            Ok(listener_sender.send(cmd)?)
+            listener_sender.send(cmd).await?;
+            Ok(())
         } else {
             Err(Error::from_string(
                 ErrorKind::ChannelError,

@@ -15,14 +15,15 @@ use crate::mem::Mem;
 use crate::server::Server;
 use crate::storage::Storage;
 
-const CHANNEL_CAPACITY: usize = 1024 * 16;
+// 64k
+const CHANNEL_CAPACITY: usize = 1024 * 64;
 
 impl Server {
     pub(crate) async fn init_modules(&mut self, runtime: &Runtime) -> Result<(), Error> {
         log::info!("{}", function_name!());
 
         let (listeners_to_dispatcher_sender, listeners_to_dispatcher_receiver) =
-            mpsc::unbounded_channel();
+            mpsc::channel(CHANNEL_CAPACITY);
         let mut dispatcher_to_listener_senders = Vec::new();
         let mut listeners_info = Vec::new();
 
@@ -32,7 +33,7 @@ impl Server {
             let listener_id = ListenerId::try_from(listener_id).unwrap();
             listeners_info.push((listener_id, listener_config.address().to_owned()));
             let (dispatcher_to_listener_sender, dispatcher_to_listener_receiver) =
-                mpsc::unbounded_channel();
+                mpsc::channel(CHANNEL_CAPACITY);
             dispatcher_to_listener_senders.push((listener_id, dispatcher_to_listener_sender));
 
             let listener = Listener::bind(
@@ -54,8 +55,10 @@ impl Server {
         }
 
         // Mem module
-        let (mem_to_dispatcher_sender, mem_to_dispatcher_receiver) = mpsc::unbounded_channel();
-        let (dispatcher_to_mem_sender, dispatcher_to_mem_receiver) = mpsc::unbounded_channel();
+        let (mem_to_dispatcher_sender, mem_to_dispatcher_receiver) =
+            mpsc::channel(CHANNEL_CAPACITY);
+        let (dispatcher_to_mem_sender, dispatcher_to_mem_receiver) =
+            mpsc::channel(CHANNEL_CAPACITY);
         let mut mem = Mem::new(mem_to_dispatcher_sender, dispatcher_to_mem_receiver);
         let _mem_handle = runtime.spawn(async move {
             mem.run_loop().await;

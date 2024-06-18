@@ -4,7 +4,7 @@
 
 use std::collections::HashMap;
 
-use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
+use tokio::sync::mpsc::{Receiver, Sender};
 
 use crate::commands::{DispatcherToMemCmd, MemToDispatcherCmd};
 use crate::mem::db::Db;
@@ -36,16 +36,16 @@ mod zset;
 pub struct Mem {
     db: Db,
 
-    dispatcher_sender: UnboundedSender<MemToDispatcherCmd>,
-    dispatcher_receiver: UnboundedReceiver<DispatcherToMemCmd>,
+    dispatcher_sender: Sender<MemToDispatcherCmd>,
+    dispatcher_receiver: Receiver<DispatcherToMemCmd>,
 }
 
 impl Mem {
     #[must_use]
     #[inline]
     pub fn new(
-        dispatcher_sender: UnboundedSender<MemToDispatcherCmd>,
-        dispatcher_receiver: UnboundedReceiver<DispatcherToMemCmd>,
+        dispatcher_sender: Sender<MemToDispatcherCmd>,
+        dispatcher_receiver: Receiver<DispatcherToMemCmd>,
     ) -> Self {
         Self {
             db: HashMap::new(),
