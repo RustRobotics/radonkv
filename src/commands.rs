@@ -10,24 +10,30 @@ use crate::cmd::storage_mgmt::StorageManagementCommand;
 use crate::listener::types::{SessionGroup, SessionId};
 
 #[derive(Debug, Clone)]
-pub enum ListenerToSessionCmd {
-    Reply(SessionId, ReplyFrame),
+pub struct ListenerToSessionCmd {
+    pub session_id: SessionId,
+    pub reply_frames: Vec<ReplyFrame>,
 }
 
 #[derive(Debug, Clone)]
 pub enum SessionToListenerCmd {
-    Cmd(SessionId, Command),
+    Request {
+        session_id: SessionId,
+        commands: Vec<Command>,
+    },
     Disconnect(SessionId),
 }
 
 #[derive(Debug, Clone)]
-pub enum ListenerToDispatcherCmd {
-    Cmd(SessionGroup, Command),
+pub struct ListenerToDispatcherCmd {
+    pub session_group: SessionGroup,
+    pub commands: Vec<Command>,
 }
 
 #[derive(Debug, Clone)]
-pub enum DispatcherToListenerCmd {
-    Reply(SessionGroup, ReplyFrame),
+pub struct DispatcherToListenerCmd {
+    pub session_group: SessionGroup,
+    pub reply_frames: Vec<ReplyFrame>,
 }
 
 #[derive(Debug, Clone)]
@@ -57,13 +63,13 @@ pub struct StorageToDispatcherCmd {
 #[derive(Debug, Clone)]
 pub struct DispatcherToMemCmd {
     pub session_group: SessionGroup,
-    pub command: Command,
+    pub commands: Vec<Command>,
 }
 
 #[derive(Debug, Clone)]
 pub struct MemToDispatcherCmd {
     pub session_group: SessionGroup,
-    pub reply_frame: ReplyFrame,
+    pub reply_frames: Vec<ReplyFrame>,
 }
 
 #[derive(Debug, Clone)]

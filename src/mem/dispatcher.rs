@@ -16,12 +16,12 @@ impl Mem {
         log::debug!("{}, cmd: {cmd:?}", function_name!());
         let DispatcherToMemCmd {
             session_group,
-            command,
+            commands,
         } = cmd;
-        let reply_frame = self.handle_db_command(command);
+        let reply_frames = self.handle_db_commands(commands);
         let reply_cmd = MemToDispatcherCmd {
             session_group,
-            reply_frame,
+            reply_frames,
         };
         log::debug!(
             "{} send cmd to dispatcher, cmd: {reply_cmd:?}",

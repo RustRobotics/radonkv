@@ -16,10 +16,16 @@ impl Listener {
     ) -> Result<(), Error> {
         log::debug!("{}", function_name!());
         match cmd {
-            SessionToListenerCmd::Cmd(session_id, command) => {
+            SessionToListenerCmd::Request {
+                session_id,
+                commands,
+            } => {
                 // Pass cmd to dispatcher
                 let session_group = SessionGroup::new(self.id, session_id);
-                let cmd = ListenerToDispatcherCmd::Cmd(session_group, command);
+                let cmd = ListenerToDispatcherCmd {
+                    session_group,
+                    commands,
+                };
                 log::debug!(
                     "{} proxy cmd from session to dispatcher, cmd: {cmd:?}",
                     function_name!()

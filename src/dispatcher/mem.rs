@@ -16,7 +16,10 @@ impl Dispatcher {
             function_name!()
         );
         let listener_id = cmd.session_group.listener_id();
-        let cmd = DispatcherToListenerCmd::Reply(cmd.session_group, cmd.reply_frame);
+        let cmd = DispatcherToListenerCmd {
+            session_group: cmd.session_group,
+            reply_frames: cmd.reply_frames,
+        };
         self.send_cmd_to_listener(listener_id, cmd).await
     }
 }

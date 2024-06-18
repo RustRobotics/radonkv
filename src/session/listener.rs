@@ -13,19 +13,19 @@ impl Session {
         &mut self,
         cmd: ListenerToSessionCmd,
     ) -> Result<(), Error> {
-        log::debug!("{} got reply cmd from listener, cmd: {cmd:?}", function_name!());
-        match cmd {
-            ListenerToSessionCmd::Reply(session_id, frame) => {
-                assert_eq!(session_id, self.id);
-                Ok(self.send_frame_to_client(frame).await?)
-            }
-        }
+        log::debug!(
+            "{} got reply cmd from listener, cmd: {cmd:?}",
+            function_name!()
+        );
+        assert_eq!(cmd.session_id, self.id);
+        Ok(self.send_frames_to_client(cmd.reply_frames).await?)
     }
-
 
     #[allow(clippy::unused_async)]
     pub(super) async fn send_disconnect_to_listener(&mut self) -> Result<(), Error> {
-        self.listener_sender.send(SessionToListenerCmd::Disconnect(self.id)).await?;
+        self.listener_sender
+            .send(SessionToListenerCmd::Disconnect(self.id))
+            .await?;
         Ok(())
     }
 }

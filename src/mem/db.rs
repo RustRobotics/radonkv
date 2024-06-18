@@ -30,6 +30,13 @@ pub enum MemObject {
 }
 
 impl Mem {
+    pub fn handle_db_commands(&mut self, commands: Vec<Command>) -> Vec<ReplyFrame> {
+        commands
+            .into_iter()
+            .map(|command| self.handle_db_command(command))
+            .collect()
+    }
+
     pub fn handle_db_command(&mut self, command: Command) -> ReplyFrame {
         match command {
             Command::Str(command) => self.handle_string_command(command),

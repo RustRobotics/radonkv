@@ -22,7 +22,7 @@ impl Session {
             let mut frames = Vec::new();
             while !self.buffer.is_empty() {
                 log::debug!("Will call parse_frame()");
-                match self.parse_frame() {
+                match self.try_parse_frame() {
                     Ok(Some(frame)) => {
                         log::debug!("Got new frame: {frame:?}");
                         frames.push(frame);
@@ -31,7 +31,7 @@ impl Session {
                     Err(err) => {
                         log::warn!("Invalid frame, err: {err:?}");
                         let reply_frame = ReplyFrame::ConstError("Invalid frame");
-                        if let Err(err) = self.send_frame_to_client(reply_frame).await {
+                        if let Err(err) = self.send_frames_to_client(vec![reply_frame]).await {
                             log::warn!("Failed to send error frame to client, err: {err:?}");
                         }
                         // TODO(Shaohua): Close socket.
@@ -69,37 +69,41 @@ impl Session {
         }
     }
 
-    pub(super) async fn handle_client_frame(&mut self, frame: Frame) -> Result<(), Error> {
-        log::debug!("{}", function_name!());
-        // 1. parse frame
-        // 2.1. if frame is None, waiting for more data
-        // 2.2. if frame is ok, parse command
-        // 2.3. if frame is invalid, send failed to client
-        // 3.1. if command is parsed ok, send that new cmd to listener
-        // 3.2. else send error to client.
-        match Command::try_from(frame) {
-            Ok(command) => match command {
-                Command::ConnManagement(command) => self.handle_client_command(command).await,
-                _ => {
-                    let cmd = SessionToListenerCmd::Cmd(self.id, command);
-                    log::debug!("{} send cmd to listener, cmd: {cmd:?}", function_name!());
-                    Ok(self.listener_sender.send(cmd).await?)
+    pub(super) async fn handle_client_frames(&mut self, frames: Vec<Frame>) -> Result<(), Error> {
+        let mut commands = Vec::new();
+        for frame in frames {
+            let command = match Command::try_from(frame) {
+                Ok(command) => command,
+                Err(err) => {
+                    log::warn!(
+                        "{}, Failed to parse command from frame, err: {err:?}",
+                        function_name!()
+                    );
+                    return self
+                        .send_frame_to_client(ReplyFrame::invalid_command())
+                        .await;
                 }
-            },
-            Err(err) => {
-                log::warn!("Invalid command, err: {err:?}");
-                self.send_frame_to_client(ReplyFrame::invalid_command())
-                    .await
-            }
+            };
+            commands.push(command);
         }
+        let cmd = SessionToListenerCmd::Request {
+            session_id: self.id,
+            commands,
+        };
+        log::debug!("{} send cmd to listener, cmd: {cmd:?}", function_name!());
+        Ok(self.listener_sender.send(cmd).await?)
     }
 
-    pub(super) async fn send_frame_to_client(
+    pub(super) async fn send_frames_to_client(
         &mut self,
-        reply_frame: ReplyFrame,
+        mut reply_frames: Vec<ReplyFrame>,
     ) -> Result<(), Error> {
-        log::debug!("{} reply_frame: {reply_frame:?}", function_name!());
-        self.pending_frames.push(reply_frame);
+        log::debug!(
+            "{} length of reply_frames: {}",
+            function_name!(),
+            reply_frames.len()
+        );
+        self.pending_frames.append(&mut reply_frames);
         if Some(self.pending_frames.len()) == self.frames_read.front().copied() {
             // TODO(Shaohua): Call io::Write trait, do not convert to Bytes object.
             let mut bytes = BytesMut::new();
@@ -115,7 +119,26 @@ impl Session {
         Ok(())
     }
 
-    fn parse_frame(&mut self) -> Result<Option<Frame>, Error> {
+    pub(super) async fn send_frame_to_client(
+        &mut self,
+        reply_frame: ReplyFrame,
+    ) -> Result<(), Error> {
+        log::debug!("{} reply_frame: {reply_frame:?}", function_name!());
+        // TODO(Shaohua): Call io::Write trait, do not convert to Bytes object.
+        let mut bytes = BytesMut::new();
+        self.pending_frames.push(reply_frame);
+        for frame in &self.pending_frames {
+            frame.to_bytes(&mut bytes);
+        }
+        self.stream.write(&bytes.freeze()).await?;
+        self.pending_frames.clear();
+        self.frames_read.pop_front();
+        self.stream.flush().await?;
+
+        Ok(())
+    }
+
+    fn try_parse_frame(&mut self) -> Result<Option<Frame>, Error> {
         let mut cursor = Cursor::new(&self.buffer[..]);
         match Frame::check_msg(&mut cursor) {
             Ok(()) => {

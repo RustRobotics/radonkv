@@ -6,8 +6,8 @@ use std::time::Instant;
 
 use stdext::function_name;
 
-use crate::session::status::Status;
 use crate::session::Session;
+use crate::session::status::Status;
 
 impl Session {
     pub async fn run_loop(mut self) {
@@ -20,10 +20,8 @@ impl Session {
                 Some(frames) = self.read_frames() => {
                     self.frames_read.push_back(frames.len());
                     log::debug!("{} frames read: {}", function_name!(), frames.len());
-                    for frame in frames {
-                        if let Err(err) = self.handle_client_frame(frame).await {
-                            log::warn!("fuck err: {err:?}");
-                        }
+                    if let Err(err) = self.handle_client_frames(frames).await {
+                        log::warn!("fuck err: {err:?}");
                     }
                 }
                 Some(cmd) = listener_receiver.recv() => {

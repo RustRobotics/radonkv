@@ -20,7 +20,10 @@ impl Dispatcher {
         );
         let listener_id = cmd.session_group.listener_id();
         if let Some(listener_sender) = self.listener_senders.get(&listener_id) {
-            let cmd = DispatcherToListenerCmd::Reply(cmd.session_group, cmd.reply_frame);
+            let cmd = DispatcherToListenerCmd {
+                session_group: cmd.session_group,
+                reply_frames: vec![cmd.reply_frame],
+            };
             Ok(listener_sender.send(cmd).await?)
         } else {
             Err(Error::from_string(
