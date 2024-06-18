@@ -50,7 +50,7 @@ impl StringCommand {
                 let value = parser.next_bytes()?;
                 Self::GetSet(key, value)
             }
-            "MGET" => {
+            "mget" => {
                 let keys = parser.remaining_strings()?;
                 Self::MultiGet(keys)
             }
