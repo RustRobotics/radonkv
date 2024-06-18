@@ -20,6 +20,7 @@ use crate::cmd::string::StringCommand;
 pub mod bitmap;
 pub mod bloom_filter;
 pub mod cluster_mgmt;
+pub mod command_scheme;
 pub mod conn_mgmt;
 pub mod frame;
 pub mod generic;

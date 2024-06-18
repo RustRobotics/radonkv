@@ -779,6 +779,7 @@ dependencies = [
  "nc",
  "rand",
  "serde",
+ "serde_json",
  "stdext",
  "thiserror",
  "tikv-jemallocator",
