@@ -12,14 +12,14 @@ use thiserror::Error;
 #[derive(Debug, Clone, Deserialize)]
 pub struct CommandScheme {
     pub summary: String,
-    pub complexity: String,
+    pub complexity: Option<String>,
     pub group: String,
     pub since: String,
     pub arity: i32,
     pub function: String,
     pub history: Option<Vec<CommandSchemeHistory>>,
     pub command_flags: Vec<String>,
-    pub arguments: Vec<CommandSchemeArgument>,
+    pub arguments: Option<Vec<CommandSchemeArgument>>,
 }
 
 pub type CommandSchemeMap = HashMap<String, CommandScheme>;
@@ -29,7 +29,7 @@ pub type CommandSchemeHistory = Vec<String>;
 #[derive(Debug, Clone, Deserialize)]
 pub struct CommandSchemeArgument {
     pub name: String,
-    #[serde(rename(deserialize = "type"))]
+    #[serde(rename(deserialize = "type", serialize = "type"))]
     pub type_: String,
     pub token: Option<String>,
     pub optional: Option<bool>,

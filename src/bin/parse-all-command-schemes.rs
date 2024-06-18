@@ -4,18 +4,29 @@
 
 use std::fs;
 
-use tasha::cmd::command_scheme::CommandSchemeMap;
+use tasha::cmd::command_scheme::{CommandScheme, CommandSchemeMap, ParseCommandSchemeError};
 
-fn main() {
-    let json_content = fs::read_to_string("assets/commands/strlen.json");
-    assert!(json_content.is_ok());
-    let json_content = json_content.unwrap();
-    let scheme_map: Result<CommandSchemeMap, _> = serde_json::from_str(&json_content);
-    println!("scheme map: {scheme_map:?}");
-    assert!(scheme_map.is_ok());
-    let scheme_map = scheme_map.unwrap();
-    let scheme = scheme_map.get("STRLEN");
-    assert!(scheme.is_some());
-    let scheme = scheme.unwrap();
-    assert_eq!(scheme.function, "strlenCommand");
+fn main() -> Result<(), ParseCommandSchemeError> {
+    let dirname = "assets/commands/";
+    let dir = fs::read_dir(dirname)?;
+    let mut scheme_maps = CommandSchemeMap::new();
+
+    for entry in dir {
+        if let Ok(entry) = entry {
+            let filename = entry.file_name();
+            if let Ok(mut filename) = filename.into_string() {
+                if filename.ends_with(".json") {
+                    filename.insert_str(0, dirname);
+                    println!("path: {filename:?}");
+                    let scheme_map = CommandScheme::parse(&filename)?;
+                    println!("scheme map: {scheme_map:?}");
+                    for (key, value) in scheme_map {
+                        scheme_maps.insert(key, value);
+                    }
+                }
+            }
+        }
+    }
+    println!("scheme maps: {scheme_maps:?}");
+    Ok(())
 }
