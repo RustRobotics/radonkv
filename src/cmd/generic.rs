@@ -4,8 +4,8 @@
 
 use rand::Rng;
 
-use crate::cmd::parse::{ParseCommandError, Parser};
 use crate::cmd::Command;
+use crate::cmd::parse::{ParseCommandError, Parser};
 
 #[derive(Debug, Clone)]
 pub enum GenericCommand {
@@ -48,11 +48,9 @@ impl GenericCommand {
                 Self::Type(key)
             }
             "flushdb" | "flushall" => {
-                let is_sync: bool = if let Some(sync_option) = parser.try_next_string()? {
-                    sync_option.eq_ignore_ascii_case("sync")
-                } else {
-                    true
-                };
+                let is_sync: bool = parser
+                    .try_next_string()?
+                    .map_or(true, |sync_option| sync_option.eq_ignore_ascii_case("sync"));
                 Self::FlushDb(is_sync)
             }
             _ => return Ok(None),

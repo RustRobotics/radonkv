@@ -4,9 +4,9 @@
 
 use crate::cmd::bitmap::BitmapCommand;
 use crate::cmd::reply_frame::ReplyFrame;
+use crate::mem::Mem;
 use crate::mem::string::StrObject;
 use crate::mem::util::prune_range;
-use crate::mem::Mem;
 
 pub mod count;
 pub mod get;
@@ -87,15 +87,11 @@ impl StrObject {
     #[must_use]
     pub fn count_bits(&self, range: Option<(isize, isize)>, _based_on_byte: bool) -> usize {
         // TODO(Shaohua): Support index by bits
-        let slice = if let Some(range) = range {
-            if let Some((start, end)) = prune_range(self.len(), range.0, range.1) {
-                &self.vec[start..=end]
-            } else {
-                &self.vec[0..0]
-            }
-        } else {
-            &self.vec[..]
-        };
+        let (start, end) = range.map_or_else(
+            || (0, self.vec.len()),
+            |range| prune_range(self.len(), range.0, range.1).unwrap_or((0, 0)),
+        );
+        let slice = &self.vec[start..end];
         slice.iter().map(|byte| byte.count_ones() as usize).sum()
     }
 }

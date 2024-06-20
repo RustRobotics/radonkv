@@ -40,8 +40,10 @@ pub struct Dispatcher {
 
 impl Dispatcher {
     #[must_use]
-    pub fn new(
-        listener_senders: Vec<(ListenerId, Sender<DispatcherToListenerCmd>)>,
+    #[inline]
+    #[allow(clippy::too_many_arguments)]
+    pub const fn new(
+        listener_senders: HashMap<ListenerId, Sender<DispatcherToListenerCmd>>,
         listener_receiver: Receiver<ListenerToDispatcherCmd>,
         mem_sender: Sender<DispatcherToMemCmd>,
         mem_receiver: Receiver<MemToDispatcherCmd>,
@@ -53,7 +55,7 @@ impl Dispatcher {
         server_receiver: Receiver<ServerToDispatcherCmd>,
     ) -> Self {
         Self {
-            listener_senders: listener_senders.into_iter().collect(),
+            listener_senders,
             listener_receiver,
 
             mem_sender,

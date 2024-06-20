@@ -21,6 +21,7 @@ pub fn time() -> ReplyFrame {
             let secs = duration.as_secs();
             let micros = duration.subsec_micros();
             let vec = vec![
+                #[allow(clippy::cast_possible_wrap)]
                 ReplyFrame::I64(secs as i64),
                 ReplyFrame::I64(i64::from(micros)),
             ];

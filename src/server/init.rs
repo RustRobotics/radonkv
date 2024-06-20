@@ -2,6 +2,8 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
+use std::collections::HashMap;
+
 use stdext::function_name;
 use tokio::runtime::Runtime;
 use tokio::sync::mpsc;
@@ -9,8 +11,8 @@ use tokio::sync::mpsc;
 use crate::cluster::Cluster;
 use crate::dispatcher::Dispatcher;
 use crate::error::Error;
-use crate::listener::types::ListenerId;
 use crate::listener::Listener;
+use crate::listener::types::ListenerId;
 use crate::mem::Mem;
 use crate::server::Server;
 use crate::storage::Storage;
@@ -24,7 +26,7 @@ impl Server {
 
         let (listeners_to_dispatcher_sender, listeners_to_dispatcher_receiver) =
             mpsc::channel(CHANNEL_CAPACITY);
-        let mut dispatcher_to_listener_senders = Vec::new();
+        let mut dispatcher_to_listener_senders = HashMap::new();
         let mut listeners_info = Vec::new();
 
         // Listeners module.
@@ -34,7 +36,7 @@ impl Server {
             listeners_info.push((listener_id, listener_config.address().to_owned()));
             let (dispatcher_to_listener_sender, dispatcher_to_listener_receiver) =
                 mpsc::channel(CHANNEL_CAPACITY);
-            dispatcher_to_listener_senders.push((listener_id, dispatcher_to_listener_sender));
+            dispatcher_to_listener_senders.insert(listener_id, dispatcher_to_listener_sender);
 
             let listener = Listener::bind(
                 listener_id,
