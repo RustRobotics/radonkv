@@ -45,7 +45,7 @@ mod tests {
         let reply = push_front_exist(&mut db, "myotherlist", vec![b"Hello".to_vec()]);
         assert_eq!(reply, ReplyFrame::Usize(0));
 
-        let reply = range(&mut db, &key, 0, -1);
+        let reply = range(&db, &key, 0, -1);
         assert_eq!(
             reply,
             ReplyFrame::Array(vec![
@@ -54,7 +54,7 @@ mod tests {
             ])
         );
 
-        let reply = range(&mut db, "myotherlist", 0, -1);
+        let reply = range(&db, "myotherlist", 0, -1);
         assert_eq!(reply, ReplyFrame::EmptyArray);
     }
 }

@@ -60,7 +60,7 @@ mod tests {
         assert_eq!(reply, ReplyFrame::ok());
         let reply = set(&mut db, &key, -2, b"five".to_vec());
         assert_eq!(reply, ReplyFrame::ok());
-        let reply = range(&mut db, &key, 0, -1);
+        let reply = range(&db, &key, 0, -1);
         assert_eq!(
             reply,
             ReplyFrame::Array(vec![

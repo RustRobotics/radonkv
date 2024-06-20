@@ -201,6 +201,7 @@ mod tests {
         let mut cursor = Cursor::new(&bytes[..]);
         let ret = Frame::check_msg(&mut cursor);
         assert!(ret.is_ok());
+        #[allow(clippy::cast_possible_truncation)]
         let _len = cursor.position() as usize;
         cursor.set_position(0);
         let ret = Frame::parse(&mut cursor);

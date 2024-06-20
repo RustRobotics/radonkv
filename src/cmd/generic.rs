@@ -4,8 +4,8 @@
 
 use rand::Rng;
 
-use crate::cmd::Command;
 use crate::cmd::parse::{ParseCommandError, Parser};
+use crate::cmd::Command;
 
 #[derive(Debug, Clone)]
 pub enum GenericCommand {

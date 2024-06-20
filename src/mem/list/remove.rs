@@ -95,7 +95,7 @@ mod tests {
 
         let reply = remove(&mut db, &key, -2, b"hello");
         assert_eq!(reply, ReplyFrame::Usize(2));
-        let reply = range(&mut db, &key, 0, -1);
+        let reply = range(&db, &key, 0, -1);
         assert_eq!(
             reply,
             ReplyFrame::Array(vec![

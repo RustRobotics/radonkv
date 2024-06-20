@@ -40,11 +40,11 @@ mod tests {
         let key = "mykey".to_owned();
         let reply = set(&mut db, key.clone(), 7, true);
         assert_eq!(reply, ReplyFrame::zero());
-        let reply = get(&mut db, &key, 0);
+        let reply = get(&db, &key, 0);
         assert_eq!(reply, ReplyFrame::zero());
-        let reply = get(&mut db, &key, 7);
+        let reply = get(&db, &key, 7);
         assert_eq!(reply, ReplyFrame::one());
-        let reply = get(&mut db, &key, 100);
+        let reply = get(&db, &key, 100);
         assert_eq!(reply, ReplyFrame::zero());
     }
 }

@@ -53,7 +53,7 @@ mod tests {
         assert_eq!(reply, ReplyFrame::ok());
         let reply = get_set(&mut db, key.clone(), b"World".to_vec());
         assert_eq!(reply, ReplyFrame::Bulk(b"Hello".to_vec()));
-        let reply = get(&mut db, &key);
+        let reply = get(&db, &key);
         assert_eq!(reply, ReplyFrame::Bulk(b"World".to_vec()));
     }
 }

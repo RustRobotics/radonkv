@@ -41,9 +41,9 @@ mod tests {
             vec![("field1".to_owned(), b"foo".to_vec())],
         );
         assert_eq!(reply, ReplyFrame::one());
-        let reply = exists(&mut db, &key, "field1");
+        let reply = exists(&db, &key, "field1");
         assert_eq!(reply, ReplyFrame::one());
-        let reply = exists(&mut db, &key, "field2");
+        let reply = exists(&db, &key, "field2");
         assert_eq!(reply, ReplyFrame::zero());
     }
 }

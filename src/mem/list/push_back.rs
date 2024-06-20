@@ -63,7 +63,7 @@ mod tests {
 
         let reply = push_back(&mut db, key.clone(), vec![b"world".to_vec()]);
         assert_eq!(reply, ReplyFrame::Usize(2));
-        let reply = range(&mut db, &key, 0, -1);
+        let reply = range(&db, &key, 0, -1);
         assert_eq!(
             reply,
             ReplyFrame::Array(vec![
