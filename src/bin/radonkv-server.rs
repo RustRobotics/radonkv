@@ -4,8 +4,8 @@
 
 use tikv_jemallocator::Jemalloc;
 
-use tasha::error::Error;
-use tasha::server;
+use radonkv::error::Error;
+use radonkv::server;
 
 #[global_allocator]
 static GLOBAL: Jemalloc = Jemalloc;

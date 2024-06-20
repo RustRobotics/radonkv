@@ -1,6 +1,6 @@
 [package]
-name = "tasha"
-version = "0.1.0"
+name = "radonkv"
+version = "0.1.1"
 authors = ["Xu Shaohua <shaohua@biofan.org>"]
 description = "Distributed in-memory cache service"
 edition = "2021"
@@ -14,12 +14,11 @@ keywords = [
     "memory",
     "redis",
 ]
-repository = "https://github.com/xushaohua/tasha"
-homepage = "https://github.com/xushaohua/tasha"
+repository = "https://github.com/xushaohua/radonkv"
+homepage = "https://github.com/xushaohua/radonkv"
 license = "AGPL-3.0-or-later"
 readme = "./README.md"
 rust-version = "1.78.0"
-publish = false
 
 [dependencies]
 atoi = "2.0.0"

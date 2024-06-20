@@ -4,7 +4,7 @@
 
 use std::fs;
 
-use tasha::cmd::command_scheme::{CommandScheme, CommandSchemeMap, ParseCommandSchemeError};
+use radonkv::cmd::command_scheme::{CommandScheme, CommandSchemeMap, ParseCommandSchemeError};
 
 fn main() -> Result<(), ParseCommandSchemeError> {
     let dirname = "assets/commands/";
