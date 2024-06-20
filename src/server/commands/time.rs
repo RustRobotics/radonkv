@@ -20,7 +20,10 @@ pub fn time() -> ReplyFrame {
         Ok(duration) => {
             let secs = duration.as_secs();
             let micros = duration.subsec_micros();
-            let vec = vec![ReplyFrame::I64(secs as i64), ReplyFrame::I64(micros as i64)];
+            let vec = vec![
+                ReplyFrame::I64(secs as i64),
+                ReplyFrame::I64(i64::from(micros)),
+            ];
             ReplyFrame::Array(vec)
         }
         Err(err) => {

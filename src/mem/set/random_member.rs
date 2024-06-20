@@ -54,11 +54,11 @@ mod tests {
         );
         assert_eq!(reply, ReplyFrame::Usize(3));
         let reply = random_member(&db, &key, None);
-        assert!(vec![
+        assert!([
             ReplyFrame::Bulk(b"one".to_vec()),
             ReplyFrame::Bulk(b"two".to_vec()),
-            ReplyFrame::Bulk(b"three".to_vec()),
+            ReplyFrame::Bulk(b"three".to_vec())
         ]
-        .contains(&reply))
+        .contains(&reply));
     }
 }

@@ -6,8 +6,8 @@ use stdext::function_name;
 
 use crate::commands::{ListenerToDispatcherCmd, SessionToListenerCmd};
 use crate::error::Error;
-use crate::listener::Listener;
 use crate::listener::types::SessionGroup;
+use crate::listener::Listener;
 
 impl Listener {
     pub(super) async fn handle_session_cmd(

@@ -6,8 +6,8 @@ use std::time::Instant;
 
 use stdext::function_name;
 
-use crate::session::Session;
 use crate::session::status::Status;
+use crate::session::Session;
 
 impl Session {
     pub async fn run_loop(mut self) {

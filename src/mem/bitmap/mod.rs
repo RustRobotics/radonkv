@@ -4,9 +4,9 @@
 
 use crate::cmd::bitmap::BitmapCommand;
 use crate::cmd::reply_frame::ReplyFrame;
-use crate::mem::Mem;
 use crate::mem::string::StrObject;
 use crate::mem::util::prune_range;
+use crate::mem::Mem;
 
 pub mod count;
 pub mod get;

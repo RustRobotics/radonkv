@@ -6,8 +6,8 @@ use std::collections::LinkedList;
 
 use crate::cmd::list::ListCommand;
 use crate::cmd::reply_frame::ReplyFrame;
-use crate::mem::Mem;
 use crate::mem::util::prune_range;
+use crate::mem::Mem;
 
 pub mod index;
 pub mod insert;

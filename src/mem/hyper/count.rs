@@ -68,7 +68,7 @@ mod tests {
         let key = "hll".to_owned();
         let reply = add(
             &mut db,
-            key.to_owned(),
+            key.clone(),
             &["foo".to_owned(), "bar".to_owned(), "zap".to_owned()],
         );
         assert_eq!(reply, ReplyFrame::I64(1));

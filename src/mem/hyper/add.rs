@@ -76,7 +76,7 @@ mod tests {
         let key = "hll".to_owned();
         let reply = add(
             &mut db,
-            key.to_owned(),
+            key.clone(),
             &[
                 "a".to_owned(),
                 "b".to_owned(),

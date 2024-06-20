@@ -18,7 +18,7 @@ impl Session {
             function_name!()
         );
         assert_eq!(cmd.session_id, self.id);
-        Ok(self.send_frames_to_client(cmd.reply_frames).await?)
+        self.send_frames_to_client(cmd.reply_frames).await
     }
 
     #[allow(clippy::unused_async)]

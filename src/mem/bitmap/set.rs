@@ -52,7 +52,7 @@ mod tests {
         let key = "mykey".to_owned();
         let reply = set(&mut db, key.clone(), 7, true);
         assert_eq!(reply, ReplyFrame::zero());
-        let reply = set(&mut db, key.clone(), 7, false);
+        let reply = set(&mut db, key, 7, false);
         assert_eq!(reply, ReplyFrame::one());
     }
 }

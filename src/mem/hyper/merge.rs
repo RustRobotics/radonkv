@@ -6,7 +6,7 @@ use stdext::function_name;
 
 use crate::cmd::reply_frame::ReplyFrame;
 use crate::mem::db::{Db, MemObject};
-use crate::mem::hyper::{HyperObject, new_hyper_object};
+use crate::mem::hyper::{new_hyper_object, HyperObject};
 
 pub(super) fn merge_hyper_objects(
     db: &Db,

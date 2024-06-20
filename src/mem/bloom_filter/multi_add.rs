@@ -63,6 +63,6 @@ mod tests {
                 ReplyFrame::one(),
                 ReplyFrame::zero(),
             ])
-        )
+        );
     }
 }

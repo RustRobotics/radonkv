@@ -74,7 +74,7 @@ impl Server {
                 }
                 Some(_signum) = sig_interrupt.recv() => {
                     log::info!("Quit with SIGINT");
-                    self.quit_server()
+                    self.quit_server();
                 }
 
                 Some(cmd) = dispatcher_receiver.recv() => {

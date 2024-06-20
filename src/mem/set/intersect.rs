@@ -56,6 +56,6 @@ mod tests {
         assert_eq!(
             reply,
             ReplyFrame::Array(vec![ReplyFrame::Bulk(b"c".to_vec()),])
-        )
+        );
     }
 }

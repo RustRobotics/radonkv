@@ -61,6 +61,6 @@ mod tests {
                 ReplyFrame::Bulk(b"a".to_vec()),
                 ReplyFrame::Bulk(b"b".to_vec()),
             ])
-        )
+        );
     }
 }

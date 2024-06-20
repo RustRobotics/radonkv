@@ -2,8 +2,8 @@
 // Use of this source is governed by GNU Affero General Public License
 // that can be found in the LICENSE file.
 
-use crate::cmd::Command;
 use crate::cmd::parse::{ParseCommandError, Parser};
+use crate::cmd::Command;
 
 #[derive(Debug, Clone)]
 pub enum HyperLogLogCommand {

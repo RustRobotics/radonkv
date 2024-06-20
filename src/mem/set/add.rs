@@ -63,6 +63,6 @@ mod tests {
                 ReplyFrame::Bulk(b"Hello".to_vec()),
                 ReplyFrame::Bulk(b"World".to_vec()),
             ])
-        )
+        );
     }
 }

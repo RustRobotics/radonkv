@@ -54,6 +54,6 @@ mod tests {
                 ReplyFrame::Bulk(b"World".to_vec()),
                 ReplyFrame::Null,
             ])
-        )
+        );
     }
 }
