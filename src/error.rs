@@ -23,7 +23,6 @@ pub enum ErrorKind {
 
     // System errors.
     IoError,
-    KernelError,
     ChannelError,
     SocketError,
     InternalError,
