@@ -20,6 +20,10 @@ license = "AGPL-3.0-or-later"
 readme = "./README.md"
 rust-version = "1.78.0"
 
+[features]
+default = []
+jemalloc = ["tikv-jemallocator"]
+
 [dependencies]
 atoi = "2.0.0"
 bit-vec = "0.6.3"
@@ -34,7 +38,7 @@ serde = { version = "1.0.203", features = ["derive"] }
 serde_json = "1.0.117"
 stdext = "0.3.3"
 thiserror = "1.0.61"
-tikv-jemallocator = { version = "0.5.4", features = ["background_threads"] }
+tikv-jemallocator = { version = "0.5.4", features = ["background_threads"], optional = true }
 tokio = { version = "1.38.0", features = ["full"] }
 toml = "0.8.14"
 
