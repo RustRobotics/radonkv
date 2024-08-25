@@ -29,13 +29,13 @@ atoi = "2.0.0"
 bit-vec = "0.8.0"
 bloomfilter = "1.0.14"
 bytes = "1.7.1"
-clap = { version = "4.5.14", features = ["derive"] }
+clap = { version = "4.5.15", features = ["derive"] }
 hyperloglogplus = "0.4.1"
 log = "0.4.22"
 log4rs = { version = "1.3.0", features = ["all_components", "background_rotation", "gzip"] }
 rand = "0.8.5"
-serde = { version = "1.0.205", features = ["derive"] }
-serde_json = "1.0.122"
+serde = { version = "1.0.207", features = ["derive"] }
+serde_json = "1.0.124"
 stdext = "0.3.3"
 thiserror = "1.0.63"
 tikv-jemallocator = { version = "0.6.0", features = ["background_threads"], optional = true }
