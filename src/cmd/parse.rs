@@ -37,7 +37,7 @@ pub struct Parser {
 impl Parser {
     #[must_use]
     #[inline]
-    pub fn new(iter: IntoIter<Frame>) -> Self {
+    pub const fn new(iter: IntoIter<Frame>) -> Self {
         Self { iter }
     }
 

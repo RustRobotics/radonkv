@@ -34,7 +34,7 @@ impl StrObject {
 
     #[must_use]
     #[inline]
-    pub fn from_bytes(vec: Vec<u8>) -> MemObject {
+    pub const fn from_bytes(vec: Vec<u8>) -> MemObject {
         MemObject::Str(Self { vec })
     }
 
